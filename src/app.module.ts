@@ -1,16 +1,43 @@
+import { AuthGuard, RolesGuard } from '@interfaces/http';
+import {
+  AuthModule,
+  CategoryModule,
+  UserModule,
+} from '@interfaces/http/modules';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import {
+  ConfigModule,
+  CryptographyModule,
+  PrismaModule,
+  StorageModule,
+} from './infra';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
-    }),
+    ConfigModule,
+    JwtModule,
+    PrismaModule,
+    CryptographyModule,
+    StorageModule,
+    AuthModule,
+    UserModule,
+    CategoryModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}

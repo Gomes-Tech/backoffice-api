@@ -1,0 +1,86 @@
+Table Banner {
+  id String [pk, unique, not null]
+  mobile_image String
+  desktop_image String
+  alt_image String
+  link String
+  start_counter DateTime
+  end_counter DateTime
+  is_active Boolean [default: `true`]
+  created_at DateTime [default: `now()`]
+  created_by String [ref: > User.id]
+  updated_at DateTime [default: `now()`]
+}
+
+Table Role {
+  id String [pk, unique, not null]
+  name String
+  description String
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+}
+
+Table User {
+  id String [pk, unique, not null]
+  name String
+  email String [unique]
+  password String
+  role String [ref: > Role.id]
+  is_active Boolean [default: `true`]
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+}
+
+Table Category {
+  id String [pk, unique, not null]
+  name String [unique]
+  slug String
+  is_active Boolean [default: `true`]
+  created_at DateTime [default: `now()`]
+  created_by String [ref: > User.id]
+  updated_at DateTime [default: `now()`]
+}
+
+Table Subcategory {
+  id String [pk, unique, not null]
+  name String
+  slug String
+  category_id String [ref: > Category.id]
+  is_active Boolean [default: `true`]
+  created_at DateTime [default: `now()`]
+  created_by String [ref: > User.id]
+  updated_at DateTime [default: `now()`]
+}
+
+Table Product {
+  id String [pk, unique, not null]
+  name String
+  slug String
+  description String
+  price Int
+  discount_price Int
+  images String[]
+  stock Int
+  description      String
+  shortDescription String
+  category_id String [ref: > Category.id]
+  subcategory_id String [ref: > Subcategory.id]
+  is_active Boolean [default: `true`]
+  created_at DateTime [default: `now()`]
+  created_by String [ref: > User.id]
+  updated_at DateTime [default: `now()`]
+}
+
+Table ProductVariant {
+  id String [pk, unique, not null]
+  product_id String [ref: > Product.id]
+  name String
+  price Int
+  discount_price Int
+  stock Int
+  images String[]
+  is_active Boolean [default: `true`]
+  created_at DateTime [default: `now()`]
+  created_by String [ref: > User.id]
+  updated_at DateTime [default: `now()`]
+}
