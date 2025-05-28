@@ -21,7 +21,15 @@ async function bootstrap() {
 
     app.useGlobalPipes(new ValidationPipe());
     app.useGlobalFilters(new HttpExceptionFilter());
-    app.enableCors();
+    app.enableCors({
+      origin: [
+        'https://backoffice-eta-seven.vercel.app/',
+        'http://localhost:3333',
+      ],
+      methods: 'GET,PATCH,POST,DELETE',
+      allowedHeaders: 'Content-Type, Authorization',
+      credentials: true,
+    });
     app.use(helmet());
 
     // Configuração do Swagger apenas para ambiente de desenvolvimento
