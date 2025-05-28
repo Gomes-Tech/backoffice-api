@@ -74,7 +74,7 @@ if (process.env.NODE_ENV !== 'production') {
   bootstrap()
     .then((app) => {
       const configService = app.get<ConfigService>(ConfigService);
-      const port = configService.get<number>('PORT') || 3000;
+      const port = configService.get<number>('PORT') || 3333;
 
       app.listen(port, () =>
         Logger.log(`http://localhost:${port} - SERVER RUNNING`),
