@@ -1,0 +1,31 @@
+name: API Vercel Production Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '23'
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Instalar Vercel CLI
+        run: npm install -g vercel
+
+      - name: Deploy para Vercel
+        run: vercel deploy --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
