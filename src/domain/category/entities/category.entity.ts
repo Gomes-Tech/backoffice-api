@@ -36,18 +36,21 @@ export class CategoryDetails extends BaseCategory {
   }
 }
 
-export class CreateCategory {
+export class CreateCategory extends BaseCategory {
   constructor(
-    public name: string,
-    public slug: string,
-    public isActive: boolean,
+    id: string,
+    name: string,
+    slug: string,
+    isActive: boolean,
     public seoTitle: string,
     public seoDescription: string,
     public seoKeywords: string,
     public seoCanonicalUrl: string,
     public seoMetaRobots: string,
     public createdBy: string,
-  ) {}
+  ) {
+    super(id, name, slug, isActive);
+  }
 }
 
 export class UpdateCategory {
