@@ -1,0 +1,48 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: backoffice
+    depends_on:
+      - postgresdb
+    networks:
+      - backoffice-network
+    ports:
+      - '${PORT:-3000}:3333' # fallback para 3000
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES: ${JWT_EXPIRES}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_REFRESH_EXPIRES: ${JWT_REFRESH_EXPIRES}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_API_KEY: ${SUPABASE_API_KEY}
+      SUPABASE_PASSWORD: ${SUPABASE_PASSWORD}
+    volumes:
+      - .:/app
+      - /app/node_modules # Evita conflito de node_modules do host
+    working_dir: /app
+    command: npm run dev
+    restart: always
+
+  postgresdb:
+    image: postgres:15-alpine
+    container_name: postgresdb
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    networks:
+      - backoffice-network
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+networks:
+  backoffice-network:
+
+volumes:
+  postgres_data:
