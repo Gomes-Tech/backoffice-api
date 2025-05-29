@@ -22,7 +22,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
     filters?: FindCategoriesFilters,
   ): Promise<PaginatedResponse<Category>> {
     const skip = filters?.skip || 0;
-    const take = filters?.take || 10;
+    const take = Number(filters?.take) || 10;
 
     const [categories, total] = await this.prismaService.$transaction([
       this.prismaService.category.findMany({
