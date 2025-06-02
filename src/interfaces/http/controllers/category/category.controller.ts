@@ -1,5 +1,6 @@
 import {
   CreateCategoryUseCase,
+  DeleteCategoryUseCase,
   FindAllCategoriesUseCase,
   FindCategoryBuIdUseCase,
   UpdateCategoryUseCase,
@@ -14,6 +15,7 @@ import {
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -33,6 +35,7 @@ export class CategoryController {
     private readonly findCategoryByIdUseCase: FindCategoryBuIdUseCase,
     private readonly createCategoryUseCase: CreateCategoryUseCase,
     private readonly updateCategoryUseCase: UpdateCategoryUseCase,
+    private readonly deleteCategoryUseCase: DeleteCategoryUseCase,
   ) {}
 
   @HttpCode(HttpStatus.OK)
@@ -74,5 +77,11 @@ export class CategoryController {
     @Param('id') id: string,
   ) {
     await this.updateCategoryUseCase.execute(id, dto, userId);
+  }
+
+  @Delete('/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async delete(@Param('id') id: string, @UserId() userId: string) {
+    await this.deleteCategoryUseCase.execute(id, userId);
   }
 }

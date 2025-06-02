@@ -1,5 +1,6 @@
 import {
   CreateCategoryUseCase,
+  DeleteCategoryUseCase,
   FindAllCategoriesUseCase,
   FindCategoryBuIdUseCase,
   UpdateCategoryUseCase,
@@ -16,6 +17,7 @@ import { CategoryController } from '../controllers';
     FindCategoryBuIdUseCase,
     CreateCategoryUseCase,
     UpdateCategoryUseCase,
+    DeleteCategoryUseCase,
     PrismaCategoryRepository,
     {
       provide: 'CategoryRepository',
