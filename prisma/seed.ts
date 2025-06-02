@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { v4 as uuidv4 } from 'uuid';
 
 const prisma = new PrismaClient();
 
@@ -18,6 +19,7 @@ async function main() {
   // Primeiro, cria um usuário temporário apenas para preencher o createdBy (evita ciclo)
   const tempUser = await prisma.user.create({
     data: {
+      id: uuidv4(), // Gera um ID único para o usuário temporário
       name: 'Temp Creator',
       email: 'temp@example.com',
       password: passwordHash,
@@ -28,6 +30,7 @@ async function main() {
   // Cria a role "admin" com o createdBy apontando para o usuário temporário
   const adminRole = await prisma.role.create({
     data: {
+      id: uuidv4(),
       name: 'admin',
       description: 'Administrator role with full access',
       createdById: tempUser.id,
@@ -38,6 +41,7 @@ async function main() {
   // Agora cria o usuário real e associa a role correta
   const adminUser = await prisma.user.create({
     data: {
+      id: uuidv4(), // Gera um ID único para o usuário admin
       name: 'Admin',
       email: 'admin@example.com',
       password: passwordHash,
@@ -62,6 +66,7 @@ async function main() {
 
   const categories = [
     {
+      id: uuidv4(),
       name: 'Adesivos Decorativos',
       slug: 'adesivos-decorativos',
       isActive: true,
@@ -72,6 +77,7 @@ async function main() {
       seoTitle: 'teste',
     },
     {
+      id: uuidv4(),
       name: 'Réguas de Crescimento',
       slug: 'reguas-de-crescimento',
       isActive: true,
@@ -82,6 +88,7 @@ async function main() {
       seoTitle: 'teste',
     },
     {
+      id: uuidv4(),
       name: 'Espelho Decorativo',
       slug: 'espelho-decorativo',
       isActive: true,
@@ -92,6 +99,7 @@ async function main() {
       seoTitle: 'teste',
     },
     {
+      id: uuidv4(),
       name: 'Prateleira',
       slug: 'prateleiras',
       isActive: true,
@@ -102,6 +110,7 @@ async function main() {
       seoTitle: 'teste',
     },
     {
+      id: uuidv4(),
       name: 'Gancho Cabideiro',
       slug: 'gancho-cabideiro-infantil',
       isActive: true,
@@ -112,6 +121,7 @@ async function main() {
       seoTitle: 'teste',
     },
     {
+      id: uuidv4(),
       name: 'Papel de Parede',
       slug: 'papel-de-parede',
       isActive: true,
@@ -122,6 +132,7 @@ async function main() {
       seoTitle: 'teste',
     },
     {
+      id: uuidv4(),
       name: 'Galhos em Recorte',
       slug: 'galhos-em-recorte',
       isActive: true,
@@ -132,6 +143,7 @@ async function main() {
       seoTitle: 'teste',
     },
     {
+      id: uuidv4(),
       name: 'Letras 3D',
       slug: 'letras-3d',
       isActive: true,
