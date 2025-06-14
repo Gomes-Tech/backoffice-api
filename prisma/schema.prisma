@@ -9,30 +9,33 @@ datasource db {
 }
 
 model User {
-  id          String        @id @default(cuid())
-  name        String
-  email       String        @unique
-  password    String
-  photo       String?
-  role        Role?         @relation(fields: [roleId], references: [id])
-  roleId      String?
-  isActive    Boolean       @default(true) @map("is_active")
-  isDeleted   Boolean       @default(false) @map("is_deleted")
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at")
-  banner      Banner[]
-  category    Category[]
-  subcategory Subcategory[]
+  id        String     @id @default(cuid())
+  name      String
+  email     String     @unique
+  password  String
+  photo     String?
+  role      Role?      @relation(fields: [roleId], references: [id])
+  roleId    String?
+  isActive  Boolean    @default(true) @map("is_active")
+  isDeleted Boolean    @default(false) @map("is_deleted")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at")
+  banner    Banner[]
+  category  Category[]
+  // Product   Product[]
 
-  createdRoles         Role[]        @relation("UserCreatedRoles")
-  updatedRoles         Role[]        @relation("UserUpdatedRoles")
-  deletedRoles         Role[]        @relation("UserDeletedRoles")
-  deletedBanners       Banner[]      @relation("UserDeletedBanners")
-  updatedBanners       Banner[]      @relation("UserUpdatedBanners")
-  updatedCategories    Category[]    @relation("UserUpdatedCategories")
-  deletedCategories    Category[]    @relation("UserDeletedCategories")
-  deletedSubCategories Subcategory[] @relation("UserDeletedSubCategories")
-  updatedSubcategories Subcategory[] @relation("UserUpdatedSubCategories")
+  createdRoles      Role[]       @relation("UserCreatedRoles")
+  updatedRoles      Role[]       @relation("UserUpdatedRoles")
+  deletedRoles      Role[]       @relation("UserDeletedRoles")
+  deletedBanners    Banner[]     @relation("UserDeletedBanners")
+  updatedBanners    Banner[]     @relation("UserUpdatedBanners")
+  updatedCategories Category[]   @relation("UserUpdatedCategories")
+  deletedCategories Category[]   @relation("UserDeletedCategories")
+  // updatedProducts   Product[]  @relation("UserUpdatedProducts")
+  // deletedProducts   Product[]  @relation("UserDeletedProducts")
+  HeaderMenu        HeaderMenu[]
+  updatedHeaderMenu HeaderMenu[] @relation("UserUpdatedHeaderMenu")
+  deletedHeaderMenu HeaderMenu[] @relation("UserDeletedHeaderMenu")
 
   @@map("users")
 }
@@ -79,17 +82,39 @@ model Banner {
   @@map("banners")
 }
 
+model HeaderMenu {
+  id       String  @id @default(cuid())
+  name     String
+  link     String
+  isActive Boolean @default(true) @map("is_active")
+
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdById String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  updatedBy   User?    @relation("UserUpdatedHeaderMenu", fields: [updatedById], references: [id])
+  updatedById String?  @map("updated_by")
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  deletedBy   User?    @relation("UserDeletedHeaderMenu", fields: [deletedById], references: [id])
+  deletedById String?  @map("deleted_by")
+
+  @@map("header_menu")
+}
+
 model Category {
-  id              String        @id @default(cuid())
-  name            String        @unique
-  slug            String        @unique
-  isActive        Boolean       @default(true) @map("is_active")
-  seoTitle        String?       @map("seo_title")
-  seoDescription  String?       @map("seo_description")
-  seoKeywords     String?       @map("seo_keywords")
-  seoCanonicalUrl String?       @map("seo_canonical_url")
-  seoMetaRobots   String?       @map("seo_meta_robots")
-  subcategory     Subcategory[]
+  id       String  @id @default(cuid())
+  name     String  @unique
+  slug     String  @unique
+  isActive Boolean @default(true) @map("is_active")
+
+  seoTitle        String?    @map("seo_title")
+  seoDescription  String?    @map("seo_description")
+  seoKeywords     String?    @map("seo_keywords")
+  seoCanonicalUrl String?    @map("seo_canonical_url")
+  seoMetaRobots   String?    @map("seo_meta_robots")
+  parentId        String?
+  parent          Category?  @relation("CategoryToParent", fields: [parentId], references: [id])
+  children        Category[] @relation("CategoryToParent")
 
   createdBy   User     @relation(fields: [createdById], references: [id])
   createdById String   @map("created_by")
@@ -104,31 +129,32 @@ model Category {
   @@map("categories")
 }
 
-model Subcategory {
-  id              String   @id @default(cuid())
-  name            String   @unique
-  slug            String   @unique
-  isActive        Boolean  @default(true) @map("is_active")
-  seoTitle        String?  @map("seo_title")
-  seoDescription  String?  @map("seo_description")
-  seoKeywords     String?  @map("seo_keywords")
-  seoCanonicalUrl String?  @map("seo_canonical_url")
-  seoMetaRobots   String?  @map("seo_meta_robots")
-  category        Category @relation(fields: [categoryId], references: [id])
-  categoryId      String   @map("category_id")
+// model Product {
+//   id          String  @id @default(cuid())
+//   name        String  @unique
+//   slug        String  @unique
+//   description String?
+//   price       Int
+//   isActive    Boolean @default(true) @map("is_active")
 
-  createdBy   User     @relation(fields: [createdById], references: [id])
-  createdById String   @map("created_by")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
-  updatedBy   User?    @relation("UserUpdatedSubCategories", fields: [updatedById], references: [id])
-  updatedById String?  @map("updated_by")
-  isDeleted   Boolean  @default(false) @map("is_deleted")
-  deletedBy   User?    @relation("UserDeletedSubCategories", fields: [deletedById], references: [id])
-  deletedById String?  @map("deleted_by")
+//   seoTitle        String? @map("seo_title")
+//   seoDescription  String? @map("seo_description")
+//   seoKeywords     String? @map("seo_keywords")
+//   seoCanonicalUrl String? @map("seo_canonical_url")
+//   seoMetaRobots   String? @map("seo_meta_robots")
 
-  @@map("subcategories")
-}
+//   createdBy   User     @relation(fields: [createdById], references: [id])
+//   createdById String   @map("created_by")
+//   createdAt   DateTime @default(now()) @map("created_at")
+//   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+//   updatedBy   User?    @relation("UserUpdatedProducts", fields: [updatedById], references: [id])
+//   updatedById String?  @map("updated_by")
+//   isDeleted   Boolean  @default(false) @map("is_deleted")
+//   deletedBy   User?    @relation("UserDeletedProducts", fields: [deletedById], references: [id])
+//   deletedById String?  @map("deleted_by")
+
+//   @@map("products")
+// }
 
 model seedStatus {
   id         String   @id @default(cuid())

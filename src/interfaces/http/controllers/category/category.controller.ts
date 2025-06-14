@@ -3,15 +3,11 @@ import {
   DeleteCategoryUseCase,
   FindAllCategoriesUseCase,
   FindCategoryBuIdUseCase,
+  FindCategoryTreeUseCase,
   UpdateCategoryUseCase,
 } from '@app/category';
-import { FindCategoriesFilters } from '@domain/category';
 import { Roles, UserId } from '@interfaces/http/decorators';
-import {
-  CreateCategoryDTO,
-  FindAllCategoriesQueryDTO,
-  UpdateCategoryDTO,
-} from '@interfaces/http/dtos';
+import { CreateCategoryDTO, UpdateCategoryDTO } from '@interfaces/http/dtos';
 import {
   Body,
   Controller,
@@ -22,7 +18,6 @@ import {
   Param,
   Patch,
   Post,
-  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -32,6 +27,7 @@ import {
 export class CategoryController {
   constructor(
     private readonly findAllCategoriesUseCase: FindAllCategoriesUseCase,
+    private readonly findCategoryTreeUseCase: FindCategoryTreeUseCase,
     private readonly findCategoryByIdUseCase: FindCategoryBuIdUseCase,
     private readonly createCategoryUseCase: CreateCategoryUseCase,
     private readonly updateCategoryUseCase: UpdateCategoryUseCase,
@@ -40,20 +36,14 @@ export class CategoryController {
 
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAll(@Query() query: FindAllCategoriesQueryDTO) {
-    const filters: FindCategoriesFilters = {
-      where: {
-        name: query?.name,
-      },
-      orderBy: {
-        field: query.orderByField,
-        direction: query.orderByDirection,
-      },
-      skip: (query.page - 1) * query.limit,
-      take: query.limit,
-    };
+  async findAll() {
+    return await this.findAllCategoriesUseCase.execute();
+  }
 
-    return await this.findAllCategoriesUseCase.execute(filters);
+  @Get('/tree')
+  @HttpCode(HttpStatus.OK)
+  async findTree() {
+    return await this.findCategoryTreeUseCase.execute();
   }
 
   @Get('/:id')

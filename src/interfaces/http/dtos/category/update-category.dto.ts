@@ -15,6 +15,10 @@ export class UpdateCategoryDTO {
 
   @IsOptional()
   @IsString()
+  parentId?: string;
+
+  @IsOptional()
+  @IsString()
   seoTitle: string;
 
   @IsOptional()

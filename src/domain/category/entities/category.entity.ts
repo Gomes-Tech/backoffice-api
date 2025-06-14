@@ -4,8 +4,17 @@ export class BaseCategory {
     public name: string,
     public slug: string,
     public isActive: boolean,
+    public parentId?: string,
   ) {}
 }
+
+export type CategoryList = Pick<BaseCategory, 'id' | 'name' | 'parentId'> & {
+  children: CategoryList[];
+};
+
+export type CategoryTree = BaseCategory & {
+  children: CategoryList[];
+};
 
 export class Category extends BaseCategory {
   constructor(
@@ -42,6 +51,7 @@ export class CreateCategory extends BaseCategory {
     name: string,
     slug: string,
     isActive: boolean,
+    parentId: string | undefined,
     public seoTitle: string,
     public seoDescription: string,
     public seoKeywords: string,
@@ -49,7 +59,7 @@ export class CreateCategory extends BaseCategory {
     public seoMetaRobots: string,
     public createdBy: string,
   ) {
-    super(id, name, slug, isActive);
+    super(id, name, slug, isActive, parentId);
   }
 }
 
@@ -64,5 +74,6 @@ export class UpdateCategory {
     public seoKeywords?: string,
     public seoCanonicalUrl?: string,
     public seoMetaRobots?: string,
+    public parentId?: string,
   ) {}
 }

@@ -1,9 +1,4 @@
-import {
-  Category,
-  CategoryRepository,
-  FindCategoriesFilters,
-} from '@domain/category';
-import { PaginatedResponse } from '@interfaces/http';
+import { CategoryList, CategoryRepository } from '@domain/category';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -13,9 +8,7 @@ export class FindAllCategoriesUseCase {
     private readonly categoryRepository: CategoryRepository,
   ) {}
 
-  async execute(
-    filters?: FindCategoriesFilters,
-  ): Promise<PaginatedResponse<Category>> {
-    return await this.categoryRepository.findAll(filters);
+  async execute(): Promise<CategoryList[]> {
+    return await this.categoryRepository.findAll();
   }
 }

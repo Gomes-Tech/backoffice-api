@@ -1,13 +1,12 @@
 import {
-  Category,
   CategoryDetails,
+  CategoryList,
   CategoryRepository,
+  CategoryTree,
   CreateCategory,
-  FindCategoriesFilters,
   UpdateCategory,
 } from '@domain/category';
 import { BadRequestException, NotFoundException } from '@infra/filters';
-import { PaginatedResponse } from '@interfaces/http';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
@@ -18,65 +17,83 @@ export class PrismaCategoryRepository extends CategoryRepository {
     super();
   }
 
-  async findAll(
-    filters?: FindCategoriesFilters,
-  ): Promise<PaginatedResponse<Category>> {
-    const skip = filters?.skip || 0;
-    const take = Number(filters?.take) || 10;
+  async findAll(): Promise<CategoryList[]> {
+    const categories = await this.prismaService.category.findMany({
+      where: {
+        isDeleted: false,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+      select: {
+        id: true,
+        name: true,
+        parentId: true,
+      },
+    });
 
-    const [categories, total] = await this.prismaService.$transaction([
-      this.prismaService.category.findMany({
-        where: {
-          name: {
-            contains: filters?.where?.name || '',
-            mode: 'insensitive',
-          },
-          isDeleted: false,
-        },
-        orderBy: {
-          [filters?.orderBy?.field || 'createdAt']:
-            filters?.orderBy?.direction || 'desc',
-        },
-        skip,
-        take,
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          isActive: true,
-          createdAt: true,
-          createdBy: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      }),
-      this.prismaService.category.count({
-        where: {
-          name: {
-            contains: filters?.where?.name || '',
-            mode: 'insensitive',
-          },
-          isDeleted: false,
-        },
-      }),
-    ]);
-
-    const data = categories.map((category) => ({
+    // Mapeia os dados com children
+    const mapped = categories.map((category) => ({
       ...category,
-      createdBy: category.createdBy.name,
+      children: [],
     }));
 
-    const totalPages = Math.ceil(total / take);
+    // Construir árvore
+    const map = new Map<string, any>();
+    const tree: any[] = [];
 
-    return {
-      data,
-      total,
-      totalPages,
-      pageSize: take,
-      currentPage: Math.floor(skip / take) + 1,
-    };
+    for (const category of mapped) {
+      map.set(category.id, category);
+    }
+
+    for (const category of mapped) {
+      const node = map.get(category.id);
+      if (category.parentId && map.has(category.parentId)) {
+        map.get(category.parentId).children.push(node);
+      } else {
+        tree.push(node);
+      }
+    }
+
+    return tree;
+  }
+
+  async findCategoryTree(): Promise<CategoryTree[]> {
+    const categories = await this.prismaService.category.findMany({
+      where: {
+        isDeleted: false,
+        isActive: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+      select: {
+        id: true,
+        name: true,
+        parentId: true,
+        isActive: true,
+        slug: true,
+      },
+    });
+
+    // Montar árvore
+    const map = new Map<string, any>();
+    const tree: any[] = [];
+
+    for (const category of categories) {
+      map.set(category.id, { ...category, children: [] });
+    }
+
+    for (const category of categories) {
+      const node = map.get(category.id);
+      if (category.parentId) {
+        map.get(category.parentId)?.children.push(node);
+      } else {
+        tree.push(node);
+      }
+    }
+
+    return tree;
   }
 
   async findById(id: string): Promise<CategoryDetails | null> {
@@ -115,12 +132,39 @@ export class PrismaCategoryRepository extends CategoryRepository {
 
   async create(category: CreateCategory): Promise<void> {
     try {
+      const {
+        id,
+        name,
+        slug,
+        isActive,
+        seoTitle,
+        seoDescription,
+        seoKeywords,
+        seoCanonicalUrl,
+        seoMetaRobots,
+        createdBy,
+        parentId,
+      } = category;
+
       await this.prismaService.category.create({
         data: {
-          ...category,
+          id,
+          name,
+          slug,
+          isActive,
+          seoTitle,
+          seoDescription,
+          seoKeywords,
+          seoCanonicalUrl,
+          seoMetaRobots,
           createdBy: {
-            connect: { id: category.createdBy },
+            connect: { id: createdBy },
           },
+          ...(parentId && {
+            parent: {
+              connect: { id: parentId },
+            },
+          }),
         },
       });
     } catch (error) {
@@ -139,14 +183,45 @@ export class PrismaCategoryRepository extends CategoryRepository {
 
   async update(id: string, category: UpdateCategory): Promise<void> {
     try {
+      const {
+        name,
+        slug,
+        isActive,
+        seoTitle,
+        seoDescription,
+        seoKeywords,
+        seoCanonicalUrl,
+        seoMetaRobots,
+        updatedBy,
+        parentId,
+      } = category;
+
+      const data: any = {
+        updatedBy: {
+          connect: { id: updatedBy },
+        },
+      };
+
+      if (name !== undefined) data.name = name;
+      if (slug !== undefined) data.slug = slug;
+      if (isActive !== undefined) data.isActive = isActive;
+      if (seoTitle !== undefined) data.seoTitle = seoTitle;
+      if (seoDescription !== undefined) data.seoDescription = seoDescription;
+      if (seoKeywords !== undefined) data.seoKeywords = seoKeywords;
+      if (seoCanonicalUrl !== undefined) data.seoCanonicalUrl = seoCanonicalUrl;
+      if (seoMetaRobots !== undefined) data.seoMetaRobots = seoMetaRobots;
+
+      if (parentId !== undefined) {
+        if (parentId) {
+          data.parent = { connect: { id: parentId } };
+        } else {
+          data.parent = { disconnect: true };
+        }
+      }
+
       await this.prismaService.category.update({
         where: { id },
-        data: {
-          ...category,
-          updatedBy: {
-            connect: { id: category.updatedBy },
-          },
-        },
+        data,
       });
     } catch (error) {
       if (

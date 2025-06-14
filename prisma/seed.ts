@@ -8,6 +8,8 @@ async function main() {
     where: { id: 'main-seed' },
   });
 
+  console.log('>>> alreadySeeded:', alreadySeeded);
+
   if (alreadySeeded) {
     console.log('Banco de dados já foi seedado. Abortando seed.');
     return;
@@ -64,110 +66,110 @@ async function main() {
     where: { id: tempUser.id },
   });
 
-  const categories = [
-    {
-      id: uuidv4(),
-      name: 'Adesivos Decorativos',
-      slug: 'adesivos-decorativos',
-      isActive: true,
-      seoCanonicalUrl: 'teste',
-      seoDescription: 'teste',
-      seoKeywords: 'teste, teste2',
-      seoMetaRobots: 'noindex, follow',
-      seoTitle: 'teste',
-    },
-    {
-      id: uuidv4(),
-      name: 'Réguas de Crescimento',
-      slug: 'reguas-de-crescimento',
-      isActive: true,
-      seoCanonicalUrl: 'teste',
-      seoDescription: 'teste',
-      seoKeywords: 'teste, teste2',
-      seoMetaRobots: 'noindex, follow',
-      seoTitle: 'teste',
-    },
-    {
-      id: uuidv4(),
-      name: 'Espelho Decorativo',
-      slug: 'espelho-decorativo',
-      isActive: true,
-      seoCanonicalUrl: 'teste',
-      seoDescription: 'teste',
-      seoKeywords: 'teste, teste2',
-      seoMetaRobots: 'noindex, follow',
-      seoTitle: 'teste',
-    },
-    {
-      id: uuidv4(),
-      name: 'Prateleira',
-      slug: 'prateleiras',
-      isActive: true,
-      seoCanonicalUrl: 'teste',
-      seoDescription: 'teste',
-      seoKeywords: 'teste, teste2',
-      seoMetaRobots: 'noindex, follow',
-      seoTitle: 'teste',
-    },
-    {
-      id: uuidv4(),
-      name: 'Gancho Cabideiro',
-      slug: 'gancho-cabideiro-infantil',
-      isActive: true,
-      seoCanonicalUrl: 'teste',
-      seoDescription: 'teste',
-      seoKeywords: 'teste, teste2',
-      seoMetaRobots: 'noindex, follow',
-      seoTitle: 'teste',
-    },
-    {
-      id: uuidv4(),
-      name: 'Papel de Parede',
-      slug: 'papel-de-parede',
-      isActive: true,
-      seoCanonicalUrl: 'teste',
-      seoDescription: 'teste',
-      seoKeywords: 'teste, teste2',
-      seoMetaRobots: 'noindex, follow',
-      seoTitle: 'teste',
-    },
-    {
-      id: uuidv4(),
-      name: 'Galhos em Recorte',
-      slug: 'galhos-em-recorte',
-      isActive: true,
-      seoCanonicalUrl: 'teste',
-      seoDescription: 'teste',
-      seoKeywords: 'teste, teste2',
-      seoMetaRobots: 'noindex, follow',
-      seoTitle: 'teste',
-    },
-    {
-      id: uuidv4(),
-      name: 'Letras 3D',
-      slug: 'letras-3d',
-      isActive: true,
-      seoCanonicalUrl: 'teste',
-      seoDescription: 'teste',
-      seoKeywords: 'teste, teste2',
-      seoMetaRobots: 'noindex, follow',
-      seoTitle: 'teste',
-    },
-  ];
+  // const categories = [
+  //   {
+  //     id: uuidv4(),
+  //     name: 'Adesivos Decorativos',
+  //     slug: 'adesivos-decorativos',
+  //     isActive: true,
+  //     seoCanonicalUrl: 'teste',
+  //     seoDescription: 'teste',
+  //     seoKeywords: 'teste, teste2',
+  //     seoMetaRobots: 'noindex, follow',
+  //     seoTitle: 'teste',
+  //   },
+  //   {
+  //     id: uuidv4(),
+  //     name: 'Réguas de Crescimento',
+  //     slug: 'reguas-de-crescimento',
+  //     isActive: true,
+  //     seoCanonicalUrl: 'teste',
+  //     seoDescription: 'teste',
+  //     seoKeywords: 'teste, teste2',
+  //     seoMetaRobots: 'noindex, follow',
+  //     seoTitle: 'teste',
+  //   },
+  //   {
+  //     id: uuidv4(),
+  //     name: 'Espelho Decorativo',
+  //     slug: 'espelho-decorativo',
+  //     isActive: true,
+  //     seoCanonicalUrl: 'teste',
+  //     seoDescription: 'teste',
+  //     seoKeywords: 'teste, teste2',
+  //     seoMetaRobots: 'noindex, follow',
+  //     seoTitle: 'teste',
+  //   },
+  //   {
+  //     id: uuidv4(),
+  //     name: 'Prateleira',
+  //     slug: 'prateleiras',
+  //     isActive: true,
+  //     seoCanonicalUrl: 'teste',
+  //     seoDescription: 'teste',
+  //     seoKeywords: 'teste, teste2',
+  //     seoMetaRobots: 'noindex, follow',
+  //     seoTitle: 'teste',
+  //   },
+  //   {
+  //     id: uuidv4(),
+  //     name: 'Gancho Cabideiro',
+  //     slug: 'gancho-cabideiro-infantil',
+  //     isActive: true,
+  //     seoCanonicalUrl: 'teste',
+  //     seoDescription: 'teste',
+  //     seoKeywords: 'teste, teste2',
+  //     seoMetaRobots: 'noindex, follow',
+  //     seoTitle: 'teste',
+  //   },
+  //   {
+  //     id: uuidv4(),
+  //     name: 'Papel de Parede',
+  //     slug: 'papel-de-parede',
+  //     isActive: true,
+  //     seoCanonicalUrl: 'teste',
+  //     seoDescription: 'teste',
+  //     seoKeywords: 'teste, teste2',
+  //     seoMetaRobots: 'noindex, follow',
+  //     seoTitle: 'teste',
+  //   },
+  //   {
+  //     id: uuidv4(),
+  //     name: 'Galhos em Recorte',
+  //     slug: 'galhos-em-recorte',
+  //     isActive: true,
+  //     seoCanonicalUrl: 'teste',
+  //     seoDescription: 'teste',
+  //     seoKeywords: 'teste, teste2',
+  //     seoMetaRobots: 'noindex, follow',
+  //     seoTitle: 'teste',
+  //   },
+  //   {
+  //     id: uuidv4(),
+  //     name: 'Letras 3D',
+  //     slug: 'letras-3d',
+  //     isActive: true,
+  //     seoCanonicalUrl: 'teste',
+  //     seoDescription: 'teste',
+  //     seoKeywords: 'teste, teste2',
+  //     seoMetaRobots: 'noindex, follow',
+  //     seoTitle: 'teste',
+  //   },
+  // ];
 
-  // Cria todas as categorias
-  await Promise.all(
-    categories.map((category) =>
-      prisma.category.create({
-        data: {
-          ...category,
-          createdBy: {
-            connect: { id: adminUser.id },
-          },
-        },
-      }),
-    ),
-  );
+  // // Cria todas as categorias
+  // await Promise.all(
+  //   categories.map((category) =>
+  //     prisma.category.create({
+  //       data: {
+  //         ...category,
+  //         createdBy: {
+  //           connect: { id: adminUser.id },
+  //         },
+  //       },
+  //     }),
+  //   ),
+  // );
 
   await prisma.seedStatus.create({
     data: { id: 'main-seed', executedAt: new Date() },
