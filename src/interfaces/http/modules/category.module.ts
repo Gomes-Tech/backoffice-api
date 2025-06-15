@@ -2,7 +2,7 @@ import {
   CreateCategoryUseCase,
   DeleteCategoryUseCase,
   FindAllCategoriesUseCase,
-  FindCategoryBuIdUseCase,
+  FindCategoryByIdUseCase,
   FindCategoryTreeUseCase,
   UpdateCategoryUseCase,
 } from '@app/category';
@@ -16,7 +16,7 @@ import { CategoryController } from '../controllers';
   providers: [
     FindAllCategoriesUseCase,
     FindCategoryTreeUseCase,
-    FindCategoryBuIdUseCase,
+    FindCategoryByIdUseCase,
     CreateCategoryUseCase,
     UpdateCategoryUseCase,
     DeleteCategoryUseCase,
@@ -28,7 +28,7 @@ import { CategoryController } from '../controllers';
   ],
   exports: [
     FindAllCategoriesUseCase,
-    FindCategoryBuIdUseCase,
+    FindCategoryByIdUseCase,
     PrismaCategoryRepository,
     {
       provide: 'CategoryRepository',

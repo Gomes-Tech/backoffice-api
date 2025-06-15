@@ -2,7 +2,7 @@ import {
   CreateCategoryUseCase,
   DeleteCategoryUseCase,
   FindAllCategoriesUseCase,
-  FindCategoryBuIdUseCase,
+  FindCategoryByIdUseCase,
   FindCategoryTreeUseCase,
   UpdateCategoryUseCase,
 } from '@app/category';
@@ -28,7 +28,7 @@ export class CategoryController {
   constructor(
     private readonly findAllCategoriesUseCase: FindAllCategoriesUseCase,
     private readonly findCategoryTreeUseCase: FindCategoryTreeUseCase,
-    private readonly findCategoryByIdUseCase: FindCategoryBuIdUseCase,
+    private readonly findCategoryByIdUseCase: FindCategoryByIdUseCase,
     private readonly createCategoryUseCase: CreateCategoryUseCase,
     private readonly updateCategoryUseCase: UpdateCategoryUseCase,
     private readonly deleteCategoryUseCase: DeleteCategoryUseCase,

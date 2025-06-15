@@ -202,21 +202,18 @@ export class PrismaCategoryRepository extends CategoryRepository {
         parentId,
       } = category;
 
-      const data: any = {
-        updatedBy: {
-          connect: { id: updatedBy },
-        },
+      const data: Record<string, any> = {
+        ...(name !== undefined && { name }),
+        ...(slug !== undefined && { slug }),
+        ...(isActive !== undefined && { isActive }),
+        ...(showMenu !== undefined && { showMenu }),
+        ...(seoTitle !== undefined && { seoTitle }),
+        ...(seoDescription !== undefined && { seoDescription }),
+        ...(seoKeywords !== undefined && { seoKeywords }),
+        ...(seoCanonicalUrl !== undefined && { seoCanonicalUrl }),
+        ...(seoMetaRobots !== undefined && { seoMetaRobots }),
+        updatedBy: { connect: { id: updatedBy } },
       };
-
-      if (name !== undefined) data.name = name;
-      if (slug !== undefined) data.slug = slug;
-      if (isActive !== undefined) data.isActive = isActive;
-      if (showMenu !== undefined) data.showMenu = showMenu;
-      if (seoTitle !== undefined) data.seoTitle = seoTitle;
-      if (seoDescription !== undefined) data.seoDescription = seoDescription;
-      if (seoKeywords !== undefined) data.seoKeywords = seoKeywords;
-      if (seoCanonicalUrl !== undefined) data.seoCanonicalUrl = seoCanonicalUrl;
-      if (seoMetaRobots !== undefined) data.seoMetaRobots = seoMetaRobots;
 
       if (parentId !== undefined) {
         if (parentId) {
