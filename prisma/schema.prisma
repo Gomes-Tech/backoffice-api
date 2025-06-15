@@ -24,18 +24,21 @@ model User {
   category  Category[]
   // Product   Product[]
 
-  createdRoles      Role[]       @relation("UserCreatedRoles")
-  updatedRoles      Role[]       @relation("UserUpdatedRoles")
-  deletedRoles      Role[]       @relation("UserDeletedRoles")
-  deletedBanners    Banner[]     @relation("UserDeletedBanners")
-  updatedBanners    Banner[]     @relation("UserUpdatedBanners")
-  updatedCategories Category[]   @relation("UserUpdatedCategories")
-  deletedCategories Category[]   @relation("UserDeletedCategories")
+  createdRoles       Role[]        @relation("UserCreatedRoles")
+  updatedRoles       Role[]        @relation("UserUpdatedRoles")
+  deletedRoles       Role[]        @relation("UserDeletedRoles")
+  deletedBanners     Banner[]      @relation("UserDeletedBanners")
+  updatedBanners     Banner[]      @relation("UserUpdatedBanners")
+  updatedCategories  Category[]    @relation("UserUpdatedCategories")
+  deletedCategories  Category[]    @relation("UserDeletedCategories")
   // updatedProducts   Product[]  @relation("UserUpdatedProducts")
   // deletedProducts   Product[]  @relation("UserDeletedProducts")
-  HeaderMenu        HeaderMenu[]
-  updatedHeaderMenu HeaderMenu[] @relation("UserUpdatedHeaderMenu")
-  deletedHeaderMenu HeaderMenu[] @relation("UserDeletedHeaderMenu")
+  HeaderMenu         HeaderMenu[]
+  updatedHeaderMenu  HeaderMenu[]  @relation("UserUpdatedHeaderMenu")
+  deletedHeaderMenu  HeaderMenu[]  @relation("UserDeletedHeaderMenu")
+  createdSocialMedia SocialMedia[] @relation("UserCreatedSocialMedia")
+  updatedSocialMedia SocialMedia[] @relation("UserUpdatedSocialMedia")
+  deletedSocialMedia SocialMedia[] @relation("UserDeletedSocialMedia")
 
   @@map("users")
 }
@@ -129,6 +132,26 @@ model Category {
   deletedById String?  @map("deleted_by")
 
   @@map("categories")
+}
+
+model SocialMedia {
+  id       String  @id @default(cuid())
+  name     String  @unique
+  link     String
+  order    Int     @unique
+  isActive Boolean @default(true) @map("is_active")
+
+  createdBy   User     @relation("UserCreatedSocialMedia", fields: [createdById], references: [id])
+  createdById String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  updatedBy   User?    @relation("UserUpdatedSocialMedia", fields: [updatedById], references: [id])
+  updatedById String?  @map("updated_by")
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  deletedBy   User?    @relation("UserDeletedSocialMedia", fields: [deletedById], references: [id])
+  deletedById String?  @map("deleted_by")
+
+  @@map("social_media")
 }
 
 // model Product {

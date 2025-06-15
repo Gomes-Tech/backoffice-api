@@ -3,6 +3,7 @@ import {
   AuthModule,
   CategoryModule,
   HeaderMenuModule,
+  SocialMediaModule,
   UserModule,
 } from '@interfaces/http/modules';
 import { Module } from '@nestjs/common';
@@ -28,6 +29,7 @@ import {
     UserModule,
     CategoryModule,
     HeaderMenuModule,
+    SocialMediaModule,
   ],
   controllers: [AppController],
   providers: [
