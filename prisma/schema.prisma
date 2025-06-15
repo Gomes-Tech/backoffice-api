@@ -84,9 +84,10 @@ model Banner {
 
 model HeaderMenu {
   id       String  @id @default(cuid())
-  name     String
+  name     String  @unique
   link     String
   isActive Boolean @default(true) @map("is_active")
+  order    Int     @unique
 
   createdBy   User     @relation(fields: [createdById], references: [id])
   createdById String   @map("created_by")

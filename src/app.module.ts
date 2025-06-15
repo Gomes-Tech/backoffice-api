@@ -2,6 +2,7 @@ import { AuthGuard, RolesGuard } from '@interfaces/http';
 import {
   AuthModule,
   CategoryModule,
+  HeaderMenuModule,
   UserModule,
 } from '@interfaces/http/modules';
 import { Module } from '@nestjs/common';
@@ -26,6 +27,7 @@ import {
     AuthModule,
     UserModule,
     CategoryModule,
+    HeaderMenuModule,
   ],
   controllers: [AppController],
   providers: [

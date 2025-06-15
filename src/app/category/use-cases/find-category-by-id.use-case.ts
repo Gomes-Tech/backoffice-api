@@ -3,7 +3,7 @@ import { NotFoundException } from '@infra/filters';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
-export class FindCategoryBuIdUseCase {
+export class FindCategoryByIdUseCase {
   constructor(
     @Inject('CategoryRepository')
     private readonly categoryRepository: CategoryRepository,
