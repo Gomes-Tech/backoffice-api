@@ -14,7 +14,6 @@ export class UpdateHeaderMenuUseCase {
     dto: UpdateHeaderMenuDTO,
     userId: string,
   ): Promise<void> {
-    console.log(dto);
     await this.headerMenuRepository.update(id, {
       ...dto,
       updatedBy: userId,
