@@ -4,6 +4,7 @@ export class BaseCategory {
     public name: string,
     public slug: string,
     public isActive: boolean,
+    public showMenu: boolean,
     public parentId?: string,
   ) {}
 }
@@ -22,10 +23,11 @@ export class Category extends BaseCategory {
     name: string,
     slug: string,
     isActive: boolean,
+    showMenu: boolean,
     public createdAt: Date,
     public createdBy: string,
   ) {
-    super(id, name, slug, isActive);
+    super(id, name, slug, isActive, showMenu);
   }
 }
 
@@ -35,13 +37,14 @@ export class CategoryDetails extends BaseCategory {
     name: string,
     slug: string,
     isActive: boolean,
+    showMenu: boolean,
     public seoTitle: string,
     public seoDescription: string,
     public seoKeywords: string,
     public seoCanonicalUrl: string,
     public seoMetaRobots: string,
   ) {
-    super(id, name, slug, isActive);
+    super(id, name, slug, isActive, showMenu);
   }
 }
 
@@ -51,6 +54,7 @@ export class CreateCategory extends BaseCategory {
     name: string,
     slug: string,
     isActive: boolean,
+    showMenu: boolean,
     parentId: string | undefined,
     public seoTitle: string,
     public seoDescription: string,
@@ -59,7 +63,7 @@ export class CreateCategory extends BaseCategory {
     public seoMetaRobots: string,
     public createdBy: string,
   ) {
-    super(id, name, slug, isActive, parentId);
+    super(id, name, slug, isActive, showMenu, parentId);
   }
 }
 
@@ -69,6 +73,7 @@ export class UpdateCategory {
     public name?: string,
     public slug?: string,
     public isActive?: boolean,
+    public showMenu?: boolean,
     public seoTitle?: string,
     public seoDescription?: string,
     public seoKeywords?: string,

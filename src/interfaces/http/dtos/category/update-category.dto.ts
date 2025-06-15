@@ -14,6 +14,10 @@ export class UpdateCategoryDTO {
   isActive: boolean;
 
   @IsOptional()
+  @IsBoolean()
+  showMenu: boolean;
+
+  @IsOptional()
   @IsString()
   parentId?: string;
 

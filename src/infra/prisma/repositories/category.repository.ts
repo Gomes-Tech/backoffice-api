@@ -72,6 +72,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
         name: true,
         parentId: true,
         isActive: true,
+        showMenu: true,
         slug: true,
       },
     });
@@ -104,6 +105,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
         name: true,
         slug: true,
         isActive: true,
+        showMenu: true,
         seoCanonicalUrl: true,
         seoDescription: true,
         seoKeywords: true,
@@ -121,6 +123,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
         name: true,
         slug: true,
         isActive: true,
+        showMenu: true,
         seoCanonicalUrl: true,
         seoDescription: true,
         seoKeywords: true,
@@ -137,6 +140,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
         name,
         slug,
         isActive,
+        showMenu,
         seoTitle,
         seoDescription,
         seoKeywords,
@@ -152,6 +156,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
           name,
           slug,
           isActive,
+          showMenu,
           seoTitle,
           seoDescription,
           seoKeywords,
@@ -187,6 +192,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
         name,
         slug,
         isActive,
+        showMenu,
         seoTitle,
         seoDescription,
         seoKeywords,
@@ -205,6 +211,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
       if (name !== undefined) data.name = name;
       if (slug !== undefined) data.slug = slug;
       if (isActive !== undefined) data.isActive = isActive;
+      if (showMenu !== undefined) data.showMenu = showMenu;
       if (seoTitle !== undefined) data.seoTitle = seoTitle;
       if (seoDescription !== undefined) data.seoDescription = seoDescription;
       if (seoKeywords !== undefined) data.seoKeywords = seoKeywords;

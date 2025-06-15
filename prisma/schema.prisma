@@ -106,6 +106,7 @@ model Category {
   name     String  @unique
   slug     String  @unique
   isActive Boolean @default(true) @map("is_active")
+  showMenu Boolean @default(false) @map("show_menu")
 
   seoTitle        String?    @map("seo_title")
   seoDescription  String?    @map("seo_description")

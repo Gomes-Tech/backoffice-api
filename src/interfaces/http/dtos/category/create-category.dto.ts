@@ -13,6 +13,10 @@ export class CreateCategoryDTO {
   @IsBoolean()
   isActive: boolean;
 
+  @IsNotEmpty()
+  @IsBoolean()
+  showMenu: boolean;
+
   @IsOptional()
   @IsString()
   parentId?: string;
