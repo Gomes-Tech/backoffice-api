@@ -1,20 +1,9 @@
-import { UploadFileException } from '@infra/filters';
 import { Injectable } from '@nestjs/common';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseService } from './supabase';
 
 @Injectable()
 export class StorageService {
-  private readonly supabase: SupabaseClient;
-  constructor() {
-    this.supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_API_KEY,
-    );
-  }
-
-  getClient(): SupabaseClient {
-    return this.supabase;
-  }
+  constructor(private readonly supabaseService: SupabaseService) {}
 
   async uploadFile(
     filename: string,
@@ -25,25 +14,10 @@ export class StorageService {
     fullPath: string;
     publicUrl: string;
   }> {
-    const { data, error } = await this.supabase.storage
-      .from('sobramais')
-      .upload(`comprovantes/${Date.now()}-${filename}`, fileContent);
-
-    if (error) {
-      throw new UploadFileException();
-    }
-
-    const { publicUrl } = this.getPublicUrl(data.path);
-
-    return {
-      ...data,
-      publicUrl,
-    };
+    return await this.supabaseService.uploadFile(filename, fileContent);
   }
 
   getPublicUrl(path: string) {
-    const { data } = this.supabase.storage.from('sobramais').getPublicUrl(path);
-
-    return data;
+    return this.supabaseService.getPublicUrl(path);
   }
 }
