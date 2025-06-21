@@ -43,6 +43,7 @@ export class UpdateUserUseCase {
       let fileName = file.originalname;
 
       const { publicUrl } = await this.storageService.uploadFile(
+        'users',
         fileName,
         fileBuffer,
       );

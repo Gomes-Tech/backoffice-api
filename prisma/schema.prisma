@@ -65,11 +65,14 @@ model Role {
 
 model Banner {
   id              String  @id @default(cuid())
-  mobileImage     String
-  desktopImage    String
-  mobileImageAlt  String
-  desktopImageAlt String
+  mobileImageUrl  String  @map("mobile_image_url")
+  mobileImageAlt  String  @map("mobile_image_alt")
+  mobileImageKey  String  @map("mobile_image_key")
+  desktopImageUrl String  @map("desktop_image_url")
+  desktopImageAlt String  @map("desktop_image_alt")
+  desktopImageKey String  @map("desktop_image_key")
   link            String?
+  order           Int
   isActive        Boolean @default(true) @map("is_active")
 
   createdBy   User     @relation(fields: [createdById], references: [id])

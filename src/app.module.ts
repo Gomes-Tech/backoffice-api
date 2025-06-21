@@ -1,6 +1,7 @@
 import { AuthGuard, RolesGuard } from '@interfaces/http';
 import {
   AuthModule,
+  BannerModule,
   CategoryModule,
   HeaderMenuModule,
   SocialMediaModule,
@@ -26,6 +27,7 @@ import {
     CryptographyModule,
     StorageModule,
     AuthModule,
+    BannerModule,
     UserModule,
     CategoryModule,
     HeaderMenuModule,

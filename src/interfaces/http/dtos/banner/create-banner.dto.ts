@@ -1,0 +1,29 @@
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+
+export class CreateBannerDTO {
+  @IsOptional()
+  @IsString()
+  link?: string;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  isActive: boolean;
+
+  @IsNotEmpty()
+  @IsString()
+  desktopImageAlt: string;
+
+  @IsNotEmpty()
+  @IsString()
+  mobileImageAlt: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  order: number;
+}
