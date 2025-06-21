@@ -1,4 +1,5 @@
 import { CategoryRepository } from '@domain/category';
+import { CacheService } from '@infra/cache';
 import { UpdateCategoryDTO } from '@interfaces/http';
 import { Inject, Injectable } from '@nestjs/common';
 
@@ -7,6 +8,7 @@ export class UpdateCategoryUseCase {
   constructor(
     @Inject('CategoryRepository')
     private readonly categoryRepository: CategoryRepository,
+    private readonly cacheService: CacheService,
   ) {}
 
   async execute(
@@ -18,5 +20,8 @@ export class UpdateCategoryUseCase {
       ...dto,
       updatedBy: userId,
     });
+
+    await this.cacheService.del('categories:tree');
+    await this.cacheService.del('categories');
   }
 }

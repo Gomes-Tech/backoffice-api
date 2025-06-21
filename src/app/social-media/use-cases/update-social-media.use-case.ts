@@ -1,4 +1,5 @@
 import { SocialMediaRepository } from '@domain/social-media';
+import { CacheService } from '@infra/cache';
 import { UpdateSocialMediaDTO } from '@interfaces/http';
 import { Inject, Injectable } from '@nestjs/common';
 
@@ -7,6 +8,7 @@ export class UpdateSocialMediaUseCase {
   constructor(
     @Inject('SocialMediaRepository')
     private readonly socialMediaRepository: SocialMediaRepository,
+    private readonly cacheService: CacheService,
   ) {}
 
   async execute(
@@ -18,5 +20,7 @@ export class UpdateSocialMediaUseCase {
       ...dto,
       updatedBy: userId,
     });
+
+    await this.cacheService.del('social_media');
   }
 }

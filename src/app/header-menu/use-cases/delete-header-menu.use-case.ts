@@ -1,4 +1,5 @@
 import { HeaderMenuRepository } from '@domain/header-menu';
+import { CacheService } from '@infra/cache';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -6,6 +7,7 @@ export class DeleteHeaderMenuUseCase {
   constructor(
     @Inject('HeaderMenuRepository')
     private readonly headerMenuRepository: HeaderMenuRepository,
+    private readonly cacheService: CacheService,
   ) {}
 
   async execute(headerMenuId: string, userId: string): Promise<void> {
@@ -15,5 +17,7 @@ export class DeleteHeaderMenuUseCase {
     }
 
     await this.headerMenuRepository.delete(headerMenuId, userId);
+
+    await this.cacheService.del('header_menu');
   }
 }
