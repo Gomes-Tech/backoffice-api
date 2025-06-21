@@ -6,7 +6,7 @@ import {
   FindCategoryTreeUseCase,
   UpdateCategoryUseCase,
 } from '@app/category';
-import { Roles, UserId } from '@interfaces/http/decorators';
+import { Public, Roles, UserId } from '@interfaces/http/decorators';
 import { CreateCategoryDTO, UpdateCategoryDTO } from '@interfaces/http/dtos';
 import {
   Body,
@@ -22,7 +22,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-@Roles('admin')
 @Controller('categories')
 export class CategoryController {
   constructor(
@@ -34,24 +33,28 @@ export class CategoryController {
     private readonly deleteCategoryUseCase: DeleteCategoryUseCase,
   ) {}
 
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll() {
     return await this.findAllCategoriesUseCase.execute();
   }
 
+  @Public()
   @Get('/tree')
   @HttpCode(HttpStatus.OK)
   async findTree() {
     return await this.findCategoryTreeUseCase.execute();
   }
 
+  @Public()
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
   async findById(@Param('id') id: string) {
     return await this.findCategoryByIdUseCase.execute(id);
   }
 
+  @Roles('admin')
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.CREATED)
   @Post()
@@ -59,6 +62,7 @@ export class CategoryController {
     await this.createCategoryUseCase.execute(dto, userId);
   }
 
+  @Roles('admin')
   @Patch('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async update(
@@ -69,6 +73,7 @@ export class CategoryController {
     await this.updateCategoryUseCase.execute(id, dto, userId);
   }
 
+  @Roles('admin')
   @Delete('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') id: string, @UserId() userId: string) {

@@ -5,7 +5,7 @@ import {
   FindSocialMediaByIdUseCase,
   UpdateSocialMediaUseCase,
 } from '@app/social-media';
-import { UserId } from '@interfaces/http/decorators';
+import { Public, Roles, UserId } from '@interfaces/http/decorators';
 import {
   CreateSocialMediaDTO,
   UpdateSocialMediaDTO,
@@ -34,18 +34,21 @@ export class SocialMediaController {
     private readonly deleteSocialMediaUseCase: DeleteSocialMediaUseCase,
   ) {}
 
+  @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll() {
     return await this.findAllSocialMediaUseCase.execute();
   }
 
+  @Public()
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
   async findById(@Param('id') id: string) {
     return await this.findSocialMediaByIdUseCase.execute(id);
   }
 
+  @Roles('admin')
   @Post()
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.CREATED)
@@ -53,6 +56,7 @@ export class SocialMediaController {
     await this.createSocialMediaUseCase.execute(dto, userId);
   }
 
+  @Roles('admin')
   @Patch('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async update(
@@ -63,6 +67,7 @@ export class SocialMediaController {
     await this.updateSocialMediaUseCase.execute(id, dto, userId);
   }
 
+  @Roles('admin')
   @Delete('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') id: string, @UserId() userId: string) {
