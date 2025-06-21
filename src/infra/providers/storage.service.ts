@@ -6,6 +6,7 @@ export class StorageService {
   constructor(private readonly supabaseService: SupabaseService) {}
 
   async uploadFile(
+    folder: string,
     filename: string,
     fileContent: Buffer,
   ): Promise<{
@@ -14,7 +15,7 @@ export class StorageService {
     fullPath: string;
     publicUrl: string;
   }> {
-    return await this.supabaseService.uploadFile(filename, fileContent);
+    return await this.supabaseService.uploadFile(folder, filename, fileContent);
   }
 
   getPublicUrl(path: string) {

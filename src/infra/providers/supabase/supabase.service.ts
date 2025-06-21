@@ -17,6 +17,7 @@ export class SupabaseService {
   }
 
   async uploadFile(
+    folder: string,
     filename: string,
     fileContent: Buffer,
   ): Promise<{
@@ -26,8 +27,8 @@ export class SupabaseService {
     publicUrl: string;
   }> {
     const { data, error } = await this.supabase.storage
-      .from('sobramais')
-      .upload(`comprovantes/${Date.now()}-${filename}`, fileContent);
+      .from('backoffice')
+      .upload(`${folder}/${Date.now()}-${filename}`, fileContent);
 
     if (error) {
       throw new UploadFileException();
@@ -42,7 +43,9 @@ export class SupabaseService {
   }
 
   getPublicUrl(path: string) {
-    const { data } = this.supabase.storage.from('sobramais').getPublicUrl(path);
+    const { data } = this.supabase.storage
+      .from('backoffice')
+      .getPublicUrl(path);
 
     return data;
   }
