@@ -9,10 +9,30 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.setGlobalPrefix('api');
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.enableCors();
-  app.use(helmet());
+
+  app.enableCors({
+    origin: ['http://localhost:3000', 'https://decoreasy.vercel.app/'],
+    methods: ['GET,POST,PATCH,DELETE'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
+
+  app.getHttpAdapter().getInstance().disable('x-powered-by');
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT');

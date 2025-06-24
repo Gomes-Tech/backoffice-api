@@ -71,6 +71,7 @@ model Banner {
   desktopImageUrl String  @map("desktop_image_url")
   desktopImageAlt String  @map("desktop_image_alt")
   desktopImageKey String  @map("desktop_image_key")
+  name            String
   link            String?
   order           Int
   isActive        Boolean @default(true) @map("is_active")

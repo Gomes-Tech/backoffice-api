@@ -16,9 +16,7 @@ export class PrismaBannerRepository extends BannerRepository {
     super();
   }
 
-  async findAll(): Promise<
-    Omit<Banner, 'mobileImageKey' | 'desktopImageKey'>[]
-  > {
+  async findAll(): Promise<ListBanner[]> {
     const data = await this.prismaService.banner.findMany({
       where: {
         isDeleted: false,
@@ -28,6 +26,7 @@ export class PrismaBannerRepository extends BannerRepository {
       },
       select: {
         id: true,
+        name: true,
         link: true,
         order: true,
         mobileImageUrl: true,
@@ -51,7 +50,7 @@ export class PrismaBannerRepository extends BannerRepository {
   }
 
   async findList(): Promise<ListBanner[]> {
-    return await this.prismaService.banner.findMany({
+    const data = await this.prismaService.banner.findMany({
       where: {
         isDeleted: false,
       },
@@ -60,6 +59,7 @@ export class PrismaBannerRepository extends BannerRepository {
       },
       select: {
         id: true,
+        name: true,
         link: true,
         order: true,
         mobileImageUrl: true,
@@ -67,11 +67,22 @@ export class PrismaBannerRepository extends BannerRepository {
         desktopImageUrl: true,
         desktopImageAlt: true,
         isActive: true,
+        createdAt: true,
+        createdBy: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
+
+    return data.map((item) => ({
+      ...item,
+      createdBy: item.createdBy.name,
+    }));
   }
 
-  async findById(id: string): Promise<Omit<Banner, 'createdAt' | 'createdBy'>> {
+  async findById(id: string): Promise<Banner> {
     return await this.prismaService.banner.findUnique({
       where: {
         id,
@@ -79,6 +90,7 @@ export class PrismaBannerRepository extends BannerRepository {
       },
       select: {
         id: true,
+        name: true,
         link: true,
         mobileImageUrl: true,
         mobileImageAlt: true,
@@ -107,10 +119,12 @@ export class PrismaBannerRepository extends BannerRepository {
         link,
         mobileImageAlt,
         order,
+        name,
       } = dto;
 
       const data: Record<string, any> = {
         ...(order !== undefined && { order }),
+        ...(name !== undefined && { name }),
         ...(link !== undefined && { link }),
         ...(isActive !== undefined && { isActive }),
         ...(desktopImageAlt !== undefined && { desktopImageAlt }),

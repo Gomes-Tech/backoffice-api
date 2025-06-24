@@ -11,7 +11,6 @@ export class CacheService {
 
     const test = data ? JSON.parse(data) : null;
 
-    console.log('ACHOU O CACHE', test);
     return data ? JSON.parse(data) : null;
   }
 

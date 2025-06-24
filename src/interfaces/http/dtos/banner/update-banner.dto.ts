@@ -20,4 +20,8 @@ export class UpdateBannerDTO {
   @IsOptional()
   @IsNumber()
   order?: number;
+
+  @IsOptional()
+  @IsString()
+  name?: string;
 }

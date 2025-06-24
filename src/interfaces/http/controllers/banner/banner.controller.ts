@@ -7,7 +7,7 @@ import {
   UpdateBannerUseCase,
 } from '@app/banner';
 import { BadRequestException } from '@infra/filters';
-import { Roles, UserId } from '@interfaces/http/decorators';
+import { Public, Roles, UserId } from '@interfaces/http/decorators';
 import { CreateBannerDTO, UpdateBannerDTO } from '@interfaces/http/dtos';
 import {
   Body,
@@ -43,6 +43,7 @@ export class BannerController {
     return await this.findAllBannersUseCase.execute();
   }
 
+  @Public()
   @Get('/list')
   async getList() {
     return await this.findListBannersUseCase.execute();

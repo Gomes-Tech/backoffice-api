@@ -1,6 +1,7 @@
 class BaseBanner {
   constructor(
     public readonly id: string,
+    public name: string,
     public mobileImageUrl: string,
     public mobileImageAlt: string,
     public mobileImageKey: string,
@@ -16,6 +17,7 @@ class BaseBanner {
 export class Banner extends BaseBanner {
   constructor(
     id: string,
+    name: string,
     mobileImageUrl: string,
     mobileImageAlt: string,
     mobileImageKey: string,
@@ -24,12 +26,11 @@ export class Banner extends BaseBanner {
     desktopImageKey: string,
     order: number,
     isActive: boolean,
-    public createdAt: Date,
-    public createdBy: string,
     link?: string,
   ) {
     super(
       id,
+      name,
       mobileImageUrl,
       mobileImageAlt,
       mobileImageKey,
@@ -45,12 +46,16 @@ export class Banner extends BaseBanner {
 
 export type ListBanner = Omit<
   BaseBanner,
-  'mobileImageKey' | 'desktopImageKey' | 'createdBy'
-> & {};
+  'mobileImageKey' | 'desktopImageKey'
+> & {
+  createdAt: Date;
+  createdBy: string;
+};
 
 export class CreateBanner extends BaseBanner {
   constructor(
     id: string,
+    name: string,
     mobileImageUrl: string,
     mobileImageAlt: string,
     mobileImageKey: string,
@@ -64,6 +69,7 @@ export class CreateBanner extends BaseBanner {
   ) {
     super(
       id,
+      name,
       mobileImageUrl,
       mobileImageAlt,
       mobileImageKey,
@@ -85,5 +91,6 @@ export class UpdateBanner {
     public order?: number,
     public desktopImageAlt?: string,
     public mobileImageAlt?: string,
+    public name?: string,
   ) {}
 }
