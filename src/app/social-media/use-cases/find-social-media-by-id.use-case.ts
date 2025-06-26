@@ -9,7 +9,9 @@ export class FindSocialMediaByIdUseCase {
     private readonly socialMediaRepository: SocialMediaRepository,
   ) {}
 
-  async execute(id: string): Promise<SocialMedia> {
+  async execute(
+    id: string,
+  ): Promise<Omit<SocialMedia, 'createdBy' | 'createdAt'>> {
     const socialMedia = await this.socialMediaRepository.findById(id);
 
     if (!socialMedia) {

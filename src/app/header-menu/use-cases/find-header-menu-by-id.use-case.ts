@@ -9,7 +9,9 @@ export class FindHeaderMenuByIdUseCase {
     private readonly headerMenuRepository: HeaderMenuRepository,
   ) {}
 
-  async execute(id: string): Promise<HeaderMenu> {
+  async execute(
+    id: string,
+  ): Promise<Omit<HeaderMenu, 'createdBy' | 'createdAt'>> {
     const headerMenu = await this.headerMenuRepository.findById(id);
 
     if (!headerMenu) {

@@ -44,8 +44,10 @@ export class PrismaHeaderMenuRepository extends HeaderMenuRepository {
     }));
   }
 
-  async findById(id: string): Promise<HeaderMenu | null> {
-    const data = await this.prismaService.headerMenu.findUnique({
+  async findById(
+    id: string,
+  ): Promise<Omit<HeaderMenu, 'createdAt' | 'createdBy'> | null> {
+    return await this.prismaService.headerMenu.findUnique({
       where: {
         id,
         isDeleted: false,
@@ -56,19 +58,8 @@ export class PrismaHeaderMenuRepository extends HeaderMenuRepository {
         link: true,
         order: true,
         isActive: true,
-        createdAt: true,
-        createdBy: {
-          select: {
-            name: true,
-          },
-        },
       },
     });
-
-    return {
-      ...data,
-      createdBy: data.createdBy.name,
-    };
   }
 
   async create(dto: CreateHeaderMenu): Promise<void> {
