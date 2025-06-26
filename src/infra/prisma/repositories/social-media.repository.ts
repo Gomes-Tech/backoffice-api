@@ -29,6 +29,9 @@ export class PrismaSocialMediaRepository extends SocialMediaRepository {
         link: true,
         order: true,
         isActive: true,
+        imageAlt: true,
+        imageUrl: true,
+        imageKey: true,
         createdAt: true,
         createdBy: {
           select: {
@@ -44,8 +47,10 @@ export class PrismaSocialMediaRepository extends SocialMediaRepository {
     }));
   }
 
-  async findById(id: string): Promise<SocialMedia | null> {
-    const data = await this.prismaService.socialMedia.findUnique({
+  async findById(
+    id: string,
+  ): Promise<Omit<SocialMedia, 'createdBy' | 'createdAt'> | null> {
+    return await this.prismaService.socialMedia.findUnique({
       where: {
         id,
         isDeleted: false,
@@ -56,19 +61,11 @@ export class PrismaSocialMediaRepository extends SocialMediaRepository {
         link: true,
         order: true,
         isActive: true,
-        createdAt: true,
-        createdBy: {
-          select: {
-            name: true,
-          },
-        },
+        imageAlt: true,
+        imageUrl: true,
+        imageKey: true,
       },
     });
-
-    return {
-      ...data,
-      createdBy: data.createdBy.name,
-    };
   }
 
   async create(dto: CreateSocialMedia): Promise<void> {

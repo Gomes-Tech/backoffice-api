@@ -144,6 +144,9 @@ model SocialMedia {
   link     String
   order    Int     @unique
   isActive Boolean @default(true) @map("is_active")
+  imageUrl String  @map("image_url")
+  imageAlt String  @map("image_alt")
+  imageKey String  @map("image_key")
 
   createdBy   User     @relation("UserCreatedSocialMedia", fields: [createdById], references: [id])
   createdById String   @map("created_by")

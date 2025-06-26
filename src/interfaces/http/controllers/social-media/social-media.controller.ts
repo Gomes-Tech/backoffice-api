@@ -20,9 +20,12 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFile,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('social-media')
 export class SocialMediaController {
@@ -51,9 +54,14 @@ export class SocialMediaController {
   @Roles('admin')
   @Post()
   @UsePipes(ValidationPipe)
+  @UseInterceptors(FileInterceptor('image'))
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() dto: CreateSocialMediaDTO, @UserId() userId: string) {
-    await this.createSocialMediaUseCase.execute(dto, userId);
+  async create(
+    @Body() dto: CreateSocialMediaDTO,
+    @UserId() userId: string,
+    @UploadedFile() image: Express.Multer.File,
+  ) {
+    await this.createSocialMediaUseCase.execute(dto, userId, image);
   }
 
   @Roles('admin')

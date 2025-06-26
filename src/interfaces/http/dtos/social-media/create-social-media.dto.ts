@@ -1,4 +1,5 @@
-import { IsBoolean, IsInt, IsNotEmpty, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateSocialMediaDTO {
   @IsNotEmpty()
@@ -9,10 +10,12 @@ export class CreateSocialMediaDTO {
   @IsString()
   link: string;
 
+  @Transform(({ value }) => Number(value))
   @IsNotEmpty()
-  @IsInt()
+  @IsNumber()
   order: number;
 
+  @Transform(({ value }) => value === 'true')
   @IsNotEmpty()
   @IsBoolean()
   isActive: boolean;
