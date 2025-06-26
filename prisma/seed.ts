@@ -179,7 +179,9 @@ async function main() {
         link: menu.link,
         order: menu.order,
         isActive: menu?.isActive ?? true,
-        createdById: adminUser.id,
+        createdBy: {
+          connect: { id: adminUser.id },
+        },
         createdAt: new Date(),
       },
     });
