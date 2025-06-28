@@ -26,7 +26,6 @@ async function bootstrap() {
       'https:/backoffice-eta-seven.vercel.app',
     ],
     methods: ['GET,POST,PATCH,DELETE'],
-    credentials: false,
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
