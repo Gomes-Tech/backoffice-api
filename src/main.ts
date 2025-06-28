@@ -22,8 +22,8 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3000',
-      'https://decoreasy.vercel.app/',
-      'https://backoffice-eta-seven.vercel.app/',
+      'https://decoreasy.vercel.app',
+      'https:/backoffice-eta-seven.vercel.app',
     ],
     methods: ['GET,POST,PATCH,DELETE'],
     credentials: true,
