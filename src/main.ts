@@ -25,7 +25,7 @@ async function bootstrap() {
       'https://decoreasy.vercel.app',
       'https:/backoffice-eta-seven.vercel.app',
     ],
-    methods: ['GET,POST,PATCH,DELETE'],
+    methods: ['GET,POST,PATCH,OPTIONS,DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
