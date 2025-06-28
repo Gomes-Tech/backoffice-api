@@ -64,17 +64,19 @@ model Role {
 }
 
 model Banner {
-  id              String  @id @default(cuid())
-  mobileImageUrl  String  @map("mobile_image_url")
-  mobileImageAlt  String  @map("mobile_image_alt")
-  mobileImageKey  String  @map("mobile_image_key")
-  desktopImageUrl String  @map("desktop_image_url")
-  desktopImageAlt String  @map("desktop_image_alt")
-  desktopImageKey String  @map("desktop_image_key")
+  id              String    @id @default(cuid())
+  mobileImageUrl  String    @map("mobile_image_url")
+  mobileImageAlt  String    @map("mobile_image_alt")
+  mobileImageKey  String    @map("mobile_image_key")
+  desktopImageUrl String    @map("desktop_image_url")
+  desktopImageAlt String    @map("desktop_image_alt")
+  desktopImageKey String    @map("desktop_image_key")
   name            String
   link            String?
   order           Int
-  isActive        Boolean @default(true) @map("is_active")
+  isActive        Boolean   @default(true) @map("is_active")
+  initialDate     DateTime? @map("initial_date")
+  finishDate      DateTime? @map("finish_date")
 
   createdBy   User     @relation(fields: [createdById], references: [id])
   createdById String   @map("created_by")
@@ -161,32 +163,32 @@ model SocialMedia {
   @@map("social_media")
 }
 
-// model Product {
-//   id          String  @id @default(cuid())
-//   name        String  @unique
-//   slug        String  @unique
-//   description String?
-//   price       Int
-//   isActive    Boolean @default(true) @map("is_active")
+model Product {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  slug        String  @unique
+  description String?
+  price       Int
+  isActive    Boolean @default(true) @map("is_active")
 
-//   seoTitle        String? @map("seo_title")
-//   seoDescription  String? @map("seo_description")
-//   seoKeywords     String? @map("seo_keywords")
-//   seoCanonicalUrl String? @map("seo_canonical_url")
-//   seoMetaRobots   String? @map("seo_meta_robots")
+  seoTitle        String? @map("seo_title")
+  seoDescription  String? @map("seo_description")
+  seoKeywords     String? @map("seo_keywords")
+  seoCanonicalUrl String? @map("seo_canonical_url")
+  seoMetaRobots   String? @map("seo_meta_robots")
 
-//   createdBy   User     @relation(fields: [createdById], references: [id])
-//   createdById String   @map("created_by")
-//   createdAt   DateTime @default(now()) @map("created_at")
-//   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
-//   updatedBy   User?    @relation("UserUpdatedProducts", fields: [updatedById], references: [id])
-//   updatedById String?  @map("updated_by")
-//   isDeleted   Boolean  @default(false) @map("is_deleted")
-//   deletedBy   User?    @relation("UserDeletedProducts", fields: [deletedById], references: [id])
-//   deletedById String?  @map("deleted_by")
+  // createdBy   User     @relation(fields: [createdById], references: [id])
+  // createdById String   @map("created_by")
+  // createdAt   DateTime @default(now()) @map("created_at")
+  // updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  // updatedBy   User?    @relation("UserUpdatedProducts", fields: [updatedById], references: [id])
+  // updatedById String?  @map("updated_by")
+  // isDeleted   Boolean  @default(false) @map("is_deleted")
+  // deletedBy   User?    @relation("UserDeletedProducts", fields: [deletedById], references: [id])
+  // deletedById String?  @map("deleted_by")
 
-//   @@map("products")
-// }
+  @@map("products")
+}
 
 model seedStatus {
   id         String   @id @default(cuid())

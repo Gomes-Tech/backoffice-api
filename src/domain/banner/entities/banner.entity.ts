@@ -11,6 +11,8 @@ class BaseBanner {
     public order: number,
     public isActive: boolean,
     public link?: string,
+    public initialDate?: Date,
+    public finishDate?: Date,
   ) {}
 }
 
@@ -66,6 +68,8 @@ export class CreateBanner extends BaseBanner {
     isActive: boolean,
     public createdBy: string,
     link?: string,
+    initialDate?: Date,
+    finishDate?: Date,
   ) {
     super(
       id,
@@ -79,6 +83,8 @@ export class CreateBanner extends BaseBanner {
       order,
       isActive,
       link,
+      initialDate,
+      finishDate,
     );
   }
 }
@@ -92,5 +98,7 @@ export class UpdateBanner {
     public desktopImageAlt?: string,
     public mobileImageAlt?: string,
     public name?: string,
+    public initialDate?: Date,
+    public finishDate?: Date,
   ) {}
 }

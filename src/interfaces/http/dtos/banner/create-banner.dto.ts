@@ -1,5 +1,6 @@
 import {
   IsBoolean,
+  IsDateString,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -30,4 +31,12 @@ export class CreateBannerDTO {
   @IsNotEmpty()
   @IsNumber()
   order: number;
+
+  @IsOptional()
+  @IsDateString()
+  initialDate?: Date;
+
+  @IsOptional()
+  @IsDateString()
+  finishDate?: Date;
 }

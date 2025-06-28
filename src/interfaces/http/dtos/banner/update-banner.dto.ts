@@ -1,4 +1,10 @@
-import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class UpdateBannerDTO {
   @IsOptional()
@@ -24,4 +30,12 @@ export class UpdateBannerDTO {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @IsOptional()
+  @IsDateString()
+  initialDate?: Date;
+
+  @IsOptional()
+  @IsDateString()
+  finishDate?: Date;
 }

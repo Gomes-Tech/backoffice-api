@@ -66,6 +66,8 @@ export class PrismaBannerRepository extends BannerRepository {
         mobileImageAlt: true,
         desktopImageUrl: true,
         desktopImageAlt: true,
+        initialDate: true,
+        finishDate: true,
         isActive: true,
         createdAt: true,
         createdBy: {
@@ -120,6 +122,8 @@ export class PrismaBannerRepository extends BannerRepository {
         mobileImageAlt,
         order,
         name,
+        initialDate,
+        finishDate,
       } = dto;
 
       const data: Record<string, any> = {
@@ -129,6 +133,8 @@ export class PrismaBannerRepository extends BannerRepository {
         ...(isActive !== undefined && { isActive }),
         ...(desktopImageAlt !== undefined && { desktopImageAlt }),
         ...(mobileImageAlt !== undefined && { mobileImageAlt }),
+        ...(initialDate !== undefined && { initialDate }),
+        ...(finishDate !== undefined && { finishDate }),
         updatedBy: { connect: { id: updatedBy } },
       };
       await this.prismaService.banner.update({
