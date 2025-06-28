@@ -29,11 +29,7 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  app.use(
-    helmet({
-      crossOriginResourcePolicy: { policy: 'cross-origin' },
-    }),
-  );
+  app.use(helmet());
 
   app.getHttpAdapter().getInstance().disable('x-powered-by');
 
