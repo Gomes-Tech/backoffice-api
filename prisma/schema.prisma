@@ -43,6 +43,15 @@ model User {
   @@map("users")
 }
 
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  email     String
+  used      Boolean  @default(false)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now())
+}
+
 model Role {
   id          String  @id @default(cuid())
   name        String  @unique
@@ -140,6 +149,30 @@ model Category {
   @@map("categories")
 }
 
+model Country {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  State     State[]
+}
+
+model State {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  countryId String   @map("country_id")
+  country   Country  @relation(fields: [countryId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  City      City[]
+}
+
+model City {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  stateId   String   @map("state_id")
+  state     State    @relation(fields: [stateId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+}
+
 model SocialMedia {
   id       String  @id @default(cuid())
   name     String  @unique
@@ -163,32 +196,47 @@ model SocialMedia {
   @@map("social_media")
 }
 
-model Product {
-  id          String  @id @default(cuid())
-  name        String  @unique
-  slug        String  @unique
-  description String?
-  price       Int
-  isActive    Boolean @default(true) @map("is_active")
+// model Product {
+//   id          String  @id @default(cuid())
+//   name        String  @unique
+//   slug        String  @unique
+//   description String?
+//   price       Int
+//   isActive    Boolean @default(true) @map("is_active")
 
-  seoTitle        String? @map("seo_title")
-  seoDescription  String? @map("seo_description")
-  seoKeywords     String? @map("seo_keywords")
-  seoCanonicalUrl String? @map("seo_canonical_url")
-  seoMetaRobots   String? @map("seo_meta_robots")
+//   isGreenSeal    Boolean @map("is_green_seal")
+//   free_shipping  Boolean @map("free_shipping")
+//   isPersonalized Boolean @map("is_personalized")
+//   isExclusive    Boolean @map("is_exclusive")
+//   inCutout       Boolean @map("in_cutout")
 
-  // createdBy   User     @relation(fields: [createdById], references: [id])
-  // createdById String   @map("created_by")
-  // createdAt   DateTime @default(now()) @map("created_at")
-  // updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
-  // updatedBy   User?    @relation("UserUpdatedProducts", fields: [updatedById], references: [id])
-  // updatedById String?  @map("updated_by")
-  // isDeleted   Boolean  @default(false) @map("is_deleted")
-  // deletedBy   User?    @relation("UserDeletedProducts", fields: [deletedById], references: [id])
-  // deletedById String?  @map("deleted_by")
+//   seoTitle        String? @map("seo_title")
+//   seoDescription  String? @map("seo_description")
+//   seoKeywords     String? @map("seo_keywords")
+//   seoCanonicalUrl String? @map("seo_canonical_url")
+//   seoMetaRobots   String? @map("seo_meta_robots")
 
-  @@map("products")
-}
+//   variants ProductVariant[]
+
+//   // createdBy   User     @relation(fields: [createdById], references: [id])
+//   // createdById String   @map("created_by")
+//   // createdAt   DateTime @default(now()) @map("created_at")
+//   // updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+//   // updatedBy   User?    @relation("UserUpdatedProducts", fields: [updatedById], references: [id])
+//   // updatedById String?  @map("updated_by")
+//   // isDeleted   Boolean  @default(false) @map("is_deleted")
+//   // deletedBy   User?    @relation("UserDeletedProducts", fields: [deletedById], references: [id])
+//   // deletedById String?  @map("deleted_by")
+
+//   @@map("products")
+// }
+
+// model ProductVariant {
+//   id String @id @default(cuid())
+
+//   Product   Product @relation(fields: [productId], references: [id])
+//   productId String
+// }
 
 model seedStatus {
   id         String   @id @default(cuid())

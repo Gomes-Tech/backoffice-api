@@ -6,12 +6,13 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "prisma generate && prisma migrate deploy && npm run seed && nest build",
+    "build": "npm run copy:templates && prisma generate && prisma migrate deploy && npm run seed && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "seed": "ts-node prisma/seed.ts",
     "start:migrate:prod": "prisma migrate deploy && npm run start:prod",
     "dev": "prisma migrate deploy && npm run seed && nest start --watch --poll",
+    "copy:templates": "cp -r src/infra/providers/mail/templates dist/src/infra/providers/mail",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -22,6 +23,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^11.1.1",
     "@nestjs/config": "^4.0.2",
@@ -38,6 +40,9 @@
     "helmet": "^8.1.0",
     "joi": "^17.13.3",
     "module-alias": "^2.2.3",
+    "nodemailer": "^7.0.4",
+    "pug": "^3.0.3",
+    "pug-loader": "^2.4.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "uuid": "^11.1.0"

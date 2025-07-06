@@ -31,7 +31,7 @@ export class UpdateUserUseCase {
 
       if (samePassword) {
         throw new BadRequestException(
-          'A nova senha não pode ser igual a senha atual',
+          'Utilize uma senha não usada anteriormente!',
         );
       }
 

@@ -7,6 +7,7 @@ import {
   SocialMediaModule,
   UserModule,
 } from '@interfaces/http/modules';
+import { TokenPasswordModule } from '@interfaces/http/modules/token-password.module';
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
@@ -15,6 +16,7 @@ import {
   CacheModule,
   ConfigModule,
   CryptographyModule,
+  MailModule,
   PrismaModule,
   StorageModule,
 } from './infra';
@@ -22,8 +24,10 @@ import {
 @Module({
   imports: [
     CacheModule,
+    MailModule,
     ConfigModule,
     PrismaModule,
+    TokenPasswordModule,
     CryptographyModule,
     StorageModule,
     AuthModule,

@@ -1,10 +1,34 @@
-import { User, UserRepository } from '@domain/user';
+import { ListUser, User, UserRepository } from '@domain/user';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
+
+  async findAll(): Promise<ListUser[]> {
+    const data = await this.prismaService.user.findMany({
+      where: {
+        isDeleted: false,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        isActive: true,
+        role: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    return data.map((user) => ({
+      ...user,
+      role: user.role.name,
+    }));
+  }
 
   async findById(id: string): Promise<User> {
     const user = await this.prismaService.user.findUnique({
@@ -127,6 +151,15 @@ export class PrismaUserRepository implements UserRepository {
       updatedUser.isActive,
       updatedUser.photo,
     );
+  }
+
+  async resetPassword(id: string, password: string): Promise<void> {
+    await this.prismaService.user.update({
+      where: { id },
+      data: {
+        password,
+      },
+    });
   }
 
   async delete(id: string): Promise<void> {

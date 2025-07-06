@@ -12,7 +12,9 @@ export class SignUpUseCase {
     private readonly signInUserUseCase: SignInUserUseCase,
   ) {}
   async execute(data: CreateUserDto): Promise<Output> {
-    const userExisting = await this.findUserByEmail.execute(data.email);
+    const userExisting = await this.findUserByEmail
+      .execute(data.email)
+      .catch(() => null);
 
     if (userExisting) {
       throw new BadRequestException('Usuário já existe!');
