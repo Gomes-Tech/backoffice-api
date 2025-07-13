@@ -4,6 +4,7 @@ import {
   BannerModule,
   CategoryModule,
   HeaderMenuModule,
+  RoleModule,
   SocialMediaModule,
   UserModule,
 } from '@interfaces/http/modules';
@@ -36,6 +37,7 @@ import {
     CategoryModule,
     HeaderMenuModule,
     SocialMediaModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [
