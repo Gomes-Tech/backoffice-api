@@ -7,7 +7,13 @@ import {
 } from '@app/auth';
 import { VerifyTokenPasswordUseCase } from '@app/token-password';
 import { Public, Roles } from '@interfaces/http/decorators';
-import { CreateUserDto, LoginDTO } from '@interfaces/http/dtos';
+import {
+  CreateUserDto,
+  ForgotPasswordDTO,
+  LoginDTO,
+  ResetPasswordDTO,
+  VerifyTokenDTO,
+} from '@interfaces/http/dtos';
 import {
   Body,
   Controller,
@@ -54,19 +60,25 @@ export class AuthController {
 
   @Public()
   @Post('/forgot-password')
-  async forgotPassword(@Body() { email }: { email: string }) {
-    return await this.forgotPasswordUseCase.execute(email);
+  @UsePipes(ValidationPipe)
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body() dto: ForgotPasswordDTO) {
+    return await this.forgotPasswordUseCase.execute(dto.email);
   }
 
   @Public()
   @Post('/verify-token')
-  async verifyToken(@Body() dto: { email: string; token: string }) {
+  @UsePipes(ValidationPipe)
+  @HttpCode(HttpStatus.OK)
+  async verifyToken(@Body() dto: VerifyTokenDTO) {
     await this.verifyTokenPasswordUseCase.execute(dto.email, dto.token);
   }
 
   @Public()
   @Post('/reset-password')
-  async resetPassword(@Body() dto: { email: string; password: string }) {
+  @UsePipes(ValidationPipe)
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() dto: ResetPasswordDTO) {
     await this.resetPasswordUseCase.execute(dto.email, dto.password);
   }
 }
