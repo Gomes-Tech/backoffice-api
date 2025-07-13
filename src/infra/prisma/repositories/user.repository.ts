@@ -16,6 +16,12 @@ export class PrismaUserRepository implements UserRepository {
         name: true,
         email: true,
         isActive: true,
+        createdAt: true,
+        createdBy: {
+          select: {
+            name: true,
+          },
+        },
         role: {
           select: {
             name: true,
@@ -27,6 +33,7 @@ export class PrismaUserRepository implements UserRepository {
     return data.map((user) => ({
       ...user,
       role: user.role.name,
+      createdBy: user.createdBy?.name,
     }));
   }
 

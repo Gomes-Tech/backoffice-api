@@ -17,5 +17,7 @@ export class ListUser {
     public email: string,
     public role: string,
     public isActive: boolean,
+    public createdAt: Date,
+    public createdBy: string,
   ) {}
 }
