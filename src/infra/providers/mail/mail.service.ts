@@ -1,3 +1,4 @@
+import { BadRequestException } from '@infra/filters';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 
@@ -16,11 +17,17 @@ export class MailService {
     template: string;
     context?: Record<string, any>;
   }): Promise<void> {
-    await this.mailerService.sendMail({
-      to,
-      subject,
-      template,
-      context,
-    });
+    await this.mailerService
+      .sendMail({
+        to,
+        subject,
+        template,
+        context,
+      })
+      .catch(() => {
+        throw new BadRequestException(
+          'Ocorreu um erro ao enviar o email. Tente novamente!',
+        );
+      });
   }
 }
