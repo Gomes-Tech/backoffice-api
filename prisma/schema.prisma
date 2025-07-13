@@ -24,6 +24,10 @@ model User {
   category  Category[]
   // Product   Product[]
 
+  createdById  String? @map("created_by_id") // Pode ser opcional
+  createdBy    User?   @relation("UserCreatedBy", fields: [createdById], references: [id])
+  createdUsers User[]  @relation("UserCreatedBy")
+
   createdRoles       Role[]        @relation("UserCreatedRoles")
   updatedRoles       Role[]        @relation("UserUpdatedRoles")
   deletedRoles       Role[]        @relation("UserDeletedRoles")
