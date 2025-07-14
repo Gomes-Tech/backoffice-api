@@ -1,3 +1,4 @@
+export * from './attribute-value.repository';
 export * from './attribute.repository';
 export * from './banner.repository';
 export * from './category.repository';

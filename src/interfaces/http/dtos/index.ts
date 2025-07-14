@@ -1,4 +1,5 @@
 export * from './attribute';
+export * from './attribute-value';
 export * from './auth';
 export * from './banner';
 export * from './category';

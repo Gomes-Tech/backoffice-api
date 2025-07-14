@@ -271,7 +271,7 @@ model AttributeValue {
   name        String    @unique
   value       String    @unique
   attributeId String    @map("attribute_id")
-  Attribute   Attribute @relation(fields: [attributeId], references: [id])
+  attribute   Attribute @relation(fields: [attributeId], references: [id])
 
   createdBy   User     @relation("UserCreatedAttributeValues", fields: [createdById], references: [id])
   createdById String   @map("created_by")
