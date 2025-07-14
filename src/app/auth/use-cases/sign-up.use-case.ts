@@ -11,7 +11,7 @@ export class SignUpUseCase {
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly signInUserUseCase: SignInUserUseCase,
   ) {}
-  async execute(data: CreateUserDto): Promise<Output> {
+  async execute(data: CreateUserDto, createdBy: string): Promise<Output> {
     const userExisting = await this.findUserByEmail
       .execute(data.email)
       .catch(() => null);
@@ -20,7 +20,7 @@ export class SignUpUseCase {
       throw new BadRequestException('Usuário já existe!');
     }
 
-    const newUser = await this.createUserUseCase.execute(data);
+    const newUser = await this.createUserUseCase.execute(data, createdBy);
 
     return await this.signInUserUseCase.execute({
       email: newUser.email,

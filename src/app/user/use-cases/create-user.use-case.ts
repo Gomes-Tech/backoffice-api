@@ -13,7 +13,7 @@ export class CreateUserUseCase {
     private readonly cryptographyService: CryptographyService,
   ) {}
 
-  async execute(dto: CreateUserDto): Promise<User> {
+  async execute(dto: CreateUserDto, createdBy: string): Promise<User> {
     const passwordHashed = await this.cryptographyService.hash(dto.password);
 
     const user = new User(
@@ -22,10 +22,11 @@ export class CreateUserUseCase {
       dto.email,
       passwordHashed,
       dto.role,
+      dto.isActive,
       null,
     );
 
-    const newUser = await this.userRepository.create(user);
+    const newUser = await this.userRepository.create(user, createdBy);
 
     if (!newUser) {
       throw new BadRequestException(

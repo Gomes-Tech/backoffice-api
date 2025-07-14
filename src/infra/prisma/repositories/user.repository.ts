@@ -44,12 +44,11 @@ export class PrismaUserRepository implements UserRepository {
         id: true,
         name: true,
         email: true,
-        password: true,
         isActive: true,
         photo: true,
         role: {
           select: {
-            name: true,
+            id: true,
           },
         },
       },
@@ -63,8 +62,8 @@ export class PrismaUserRepository implements UserRepository {
       user.id,
       user.name,
       user.email,
-      user.password,
-      user.role.name,
+      '',
+      user.role.id,
       user.isActive,
       user.photo,
     );
@@ -98,7 +97,7 @@ export class PrismaUserRepository implements UserRepository {
     };
   }
 
-  async create(user: User): Promise<User> {
+  async create(user: User, createdBy: string): Promise<User> {
     const createdUser = await this.prismaService.user.create({
       data: {
         id: user.id,
@@ -109,6 +108,11 @@ export class PrismaUserRepository implements UserRepository {
         role: {
           connect: {
             id: user.role,
+          },
+        },
+        createdBy: {
+          connect: {
+            id: createdBy,
           },
         },
       },

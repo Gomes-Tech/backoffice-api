@@ -6,7 +6,7 @@ import {
   SignUpUseCase,
 } from '@app/auth';
 import { VerifyTokenPasswordUseCase } from '@app/token-password';
-import { Public, Roles } from '@interfaces/http/decorators';
+import { Public, Roles, UserId } from '@interfaces/http/decorators';
 import {
   CreateUserDto,
   ForgotPasswordDTO,
@@ -47,8 +47,8 @@ export class AuthController {
   @Post('/sign-up')
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.CREATED)
-  async signUp(@Body() dto: CreateUserDto) {
-    return await this.signUpUser.execute(dto);
+  async signUp(@Body() dto: CreateUserDto, @UserId() userId: string) {
+    return await this.signUpUser.execute(dto, userId);
   }
 
   @Public()
