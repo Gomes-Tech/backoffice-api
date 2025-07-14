@@ -1,3 +1,4 @@
+export * from './attribute.module';
 export * from './auth.module';
 export * from './banner.module';
 export * from './category.module';

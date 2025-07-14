@@ -1,3 +1,4 @@
+export * from './attribute';
 export * from './auth';
 export * from './banner';
 export * from './category';

@@ -28,21 +28,27 @@ model User {
   createdBy    User?   @relation("UserCreatedBy", fields: [createdById], references: [id])
   createdUsers User[]  @relation("UserCreatedBy")
 
-  createdRoles       Role[]        @relation("UserCreatedRoles")
-  updatedRoles       Role[]        @relation("UserUpdatedRoles")
-  deletedRoles       Role[]        @relation("UserDeletedRoles")
-  deletedBanners     Banner[]      @relation("UserDeletedBanners")
-  updatedBanners     Banner[]      @relation("UserUpdatedBanners")
-  updatedCategories  Category[]    @relation("UserUpdatedCategories")
-  deletedCategories  Category[]    @relation("UserDeletedCategories")
+  createdRoles          Role[]           @relation("UserCreatedRoles")
+  updatedRoles          Role[]           @relation("UserUpdatedRoles")
+  deletedRoles          Role[]           @relation("UserDeletedRoles")
+  deletedBanners        Banner[]         @relation("UserDeletedBanners")
+  updatedBanners        Banner[]         @relation("UserUpdatedBanners")
+  updatedCategories     Category[]       @relation("UserUpdatedCategories")
+  deletedCategories     Category[]       @relation("UserDeletedCategories")
   // updatedProducts   Product[]  @relation("UserUpdatedProducts")
   // deletedProducts   Product[]  @relation("UserDeletedProducts")
-  HeaderMenu         HeaderMenu[]
-  updatedHeaderMenu  HeaderMenu[]  @relation("UserUpdatedHeaderMenu")
-  deletedHeaderMenu  HeaderMenu[]  @relation("UserDeletedHeaderMenu")
-  createdSocialMedia SocialMedia[] @relation("UserCreatedSocialMedia")
-  updatedSocialMedia SocialMedia[] @relation("UserUpdatedSocialMedia")
-  deletedSocialMedia SocialMedia[] @relation("UserDeletedSocialMedia")
+  HeaderMenu            HeaderMenu[]
+  updatedHeaderMenu     HeaderMenu[]     @relation("UserUpdatedHeaderMenu")
+  deletedHeaderMenu     HeaderMenu[]     @relation("UserDeletedHeaderMenu")
+  createdSocialMedia    SocialMedia[]    @relation("UserCreatedSocialMedia")
+  updatedSocialMedia    SocialMedia[]    @relation("UserUpdatedSocialMedia")
+  deletedSocialMedia    SocialMedia[]    @relation("UserDeletedSocialMedia")
+  createdAttributes     Attribute[]      @relation("UserCreatedAttributes")
+  updatedAttribute      Attribute[]      @relation("UserUpdatedAttributes")
+  deletedAttribute      Attribute[]      @relation("UserDeletedAttributes")
+  createdAttributeValue AttributeValue[] @relation("UserCreatedAttributeValues")
+  updatedAttributeValue AttributeValue[] @relation("UserUpdatedAttributeValues")
+  deletedAttributeValue AttributeValue[] @relation("UserDeletedAttributeValues")
 
   @@map("users")
 }
@@ -209,7 +215,7 @@ model SocialMedia {
 //   isActive    Boolean @default(true) @map("is_active")
 
 //   isGreenSeal    Boolean @map("is_green_seal")
-//   free_shipping  Boolean @map("free_shipping")
+//   freeShipping   Boolean @map("free_shipping")
 //   isPersonalized Boolean @map("is_personalized")
 //   isExclusive    Boolean @map("is_exclusive")
 //   inCutout       Boolean @map("in_cutout")
@@ -241,6 +247,44 @@ model SocialMedia {
 //   Product   Product @relation(fields: [productId], references: [id])
 //   productId String
 // }
+
+model Attribute {
+  id     String           @id @default(cuid())
+  name   String           @unique
+  values AttributeValue[]
+
+  createdBy   User     @relation("UserCreatedAttributes", fields: [createdById], references: [id])
+  createdById String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  updatedBy   User?    @relation("UserUpdatedAttributes", fields: [updatedById], references: [id])
+  updatedById String?  @map("updated_by")
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  deletedBy   User?    @relation("UserDeletedAttributes", fields: [deletedById], references: [id])
+  deletedById String?  @map("deleted_by")
+
+  @@map("attributes")
+}
+
+model AttributeValue {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  value       String    @unique
+  attributeId String    @map("attribute_id")
+  Attribute   Attribute @relation(fields: [attributeId], references: [id])
+
+  createdBy   User     @relation("UserCreatedAttributeValues", fields: [createdById], references: [id])
+  createdById String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  updatedBy   User?    @relation("UserUpdatedAttributeValues", fields: [updatedById], references: [id])
+  updatedById String?  @map("updated_by")
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  deletedBy   User?    @relation("UserDeletedAttributeValues", fields: [deletedById], references: [id])
+  deletedById String?  @map("deleted_by")
+
+  @@map("attribute_value")
+}
 
 model seedStatus {
   id         String   @id @default(cuid())

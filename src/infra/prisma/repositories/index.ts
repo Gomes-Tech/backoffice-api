@@ -1,3 +1,4 @@
+export * from './attribute.repository';
 export * from './banner.repository';
 export * from './category.repository';
 export * from './header-menu.repository';

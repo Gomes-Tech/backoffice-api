@@ -1,3 +1,4 @@
+export * from './attribute';
 export * from './banner';
 export * from './category';
 export * from './header-menu';
