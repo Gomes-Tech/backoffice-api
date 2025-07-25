@@ -2,6 +2,13 @@ import { UploadFileException } from '@infra/filters';
 import { Injectable } from '@nestjs/common';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
+interface StorageFile {
+  id: string;
+  path: string;
+  fullPath: string;
+  publicUrl: string;
+}
+
 @Injectable()
 export class SupabaseService {
   private readonly supabase: SupabaseClient;
@@ -20,12 +27,7 @@ export class SupabaseService {
     folder: string,
     filename: string,
     fileContent: Buffer,
-  ): Promise<{
-    id: string;
-    path: string;
-    fullPath: string;
-    publicUrl: string;
-  }> {
+  ): Promise<StorageFile> {
     const { data, error } = await this.supabase.storage
       .from('backoffice')
       .upload(`${folder}/${Date.now()}-${filename}`, fileContent);
