@@ -15,6 +15,10 @@ export class PrismaAttributeValueRepository extends AttributeValueRepository {
     super();
   }
 
+  findAll(): Promise<any[]> {
+    return;
+  }
+
   async findAllByAttribute(attributeId: string): Promise<AttributeValue[]> {
     return await this.prismaService.attributeValue.findMany({
       where: {

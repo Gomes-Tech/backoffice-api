@@ -24,9 +24,13 @@ export class UpdateAttributeUseCase {
       throw new NotFoundException('Já existe um atributo com esse nome!');
     }
 
-    await this.attributeRepository.update(id, {
-      ...dto,
-      updatedBy: userId,
-    });
+    await this.attributeRepository.update(
+      id,
+      {
+        ...dto,
+        updatedBy: userId,
+      },
+      '',
+    );
   }
 }

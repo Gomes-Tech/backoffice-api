@@ -10,9 +10,13 @@ export class UpdateRoleUseCase {
   ) {}
 
   async execute(id: string, dto: UpdateRoleDTO, userId: string): Promise<void> {
-    await this.roleRepository.update(id, {
-      ...dto,
-      updatedBy: userId,
-    });
+    await this.roleRepository.update(
+      id,
+      {
+        ...dto,
+        updatedBy: userId,
+      },
+      '',
+    );
   }
 }

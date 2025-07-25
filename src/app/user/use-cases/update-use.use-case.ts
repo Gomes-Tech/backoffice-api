@@ -51,6 +51,6 @@ export class UpdateUserUseCase {
       data.photo = publicUrl;
     }
 
-    await this.userRepository.update(id, data);
+    await this.userRepository.update(id, data, '');
   }
 }

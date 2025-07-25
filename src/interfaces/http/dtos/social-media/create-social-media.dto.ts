@@ -19,4 +19,14 @@ export class CreateSocialMediaDTO {
   @IsNotEmpty()
   @IsBoolean()
   isActive: boolean;
+
+  @Transform(({ value }) => value === 'true')
+  @IsNotEmpty()
+  @IsBoolean()
+  showHeader: boolean;
+
+  @Transform(({ value }) => value === 'true')
+  @IsNotEmpty()
+  @IsBoolean()
+  showFooter: boolean;
 }

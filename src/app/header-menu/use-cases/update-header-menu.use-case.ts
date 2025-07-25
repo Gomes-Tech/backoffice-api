@@ -16,10 +16,14 @@ export class UpdateHeaderMenuUseCase {
     dto: UpdateHeaderMenuDTO,
     userId: string,
   ): Promise<void> {
-    await this.headerMenuRepository.update(id, {
-      ...dto,
-      updatedBy: userId,
-    });
+    await this.headerMenuRepository.update(
+      id,
+      {
+        ...dto,
+        updatedBy: userId,
+      },
+      '',
+    );
 
     await this.cacheService.del('header_menu');
   }

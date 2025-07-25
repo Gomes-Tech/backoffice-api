@@ -16,10 +16,14 @@ export class UpdateSocialMediaUseCase {
     dto: UpdateSocialMediaDTO,
     userId: string,
   ): Promise<void> {
-    await this.socialMediaRepository.update(id, {
-      ...dto,
-      updatedBy: userId,
-    });
+    await this.socialMediaRepository.update(
+      id,
+      {
+        ...dto,
+        updatedBy: userId,
+      },
+      '',
+    );
 
     await this.cacheService.del('social_media');
   }

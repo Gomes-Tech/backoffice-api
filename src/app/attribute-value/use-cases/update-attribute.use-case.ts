@@ -32,9 +32,13 @@ export class UpdateAttributeValueUseCase {
       );
     }
 
-    await this.attributeValueRepository.update(id, {
-      ...dto,
-      updatedBy: userId,
-    });
+    await this.attributeValueRepository.update(
+      id,
+      {
+        ...dto,
+        updatedBy: userId,
+      },
+      '',
+    );
   }
 }

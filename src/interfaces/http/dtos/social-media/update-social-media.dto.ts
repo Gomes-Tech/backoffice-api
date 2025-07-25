@@ -16,4 +16,12 @@ export class UpdateSocialMediaDTO {
   @IsOptional()
   @IsBoolean()
   isActive: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  showHeader: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  showFooter: boolean;
 }

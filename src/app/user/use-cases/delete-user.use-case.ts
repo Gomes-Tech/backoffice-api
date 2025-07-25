@@ -15,6 +15,6 @@ export class DeleteUserUseCase {
       throw new Error(`Esse usuário não foi encontrado: ${id}`);
     }
 
-    await this.userRepository.delete(id);
+    await this.userRepository.delete(id, '');
   }
 }

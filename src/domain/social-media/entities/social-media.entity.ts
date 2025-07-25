@@ -8,6 +8,8 @@ export class BaseSocialMedia {
     public imageAlt: string,
     public order: number,
     public isActive: boolean,
+    public showHeader: boolean,
+    public showFooter: boolean,
   ) {}
 }
 
@@ -21,10 +23,23 @@ export class SocialMedia extends BaseSocialMedia {
     imageAlt: string,
     order: number,
     isActive: boolean,
+    showHeader: boolean,
+    showFooter: boolean,
     public createdAt: Date,
     public createdBy: string,
   ) {
-    super(id, name, link, imageUrl, imageKey, imageAlt, order, isActive);
+    super(
+      id,
+      name,
+      link,
+      imageUrl,
+      imageKey,
+      imageAlt,
+      order,
+      isActive,
+      showHeader,
+      showFooter,
+    );
   }
 }
 
@@ -38,9 +53,22 @@ export class CreateSocialMedia extends BaseSocialMedia {
     imageKey: string,
     imageAlt: string,
     isActive: boolean,
+    showHeader: boolean,
+    showFooter: boolean,
     public createdBy: string,
   ) {
-    super(id, name, link, imageUrl, imageKey, imageAlt, order, isActive);
+    super(
+      id,
+      name,
+      link,
+      imageUrl,
+      imageKey,
+      imageAlt,
+      order,
+      isActive,
+      showHeader,
+      showFooter,
+    );
   }
 }
 
@@ -50,7 +78,9 @@ export class UpdateSocialMedia {
     public name?: string,
     public link?: string,
     public order?: number,
-    public isActive?: boolean,
     public imageAlt?: string,
+    public isActive?: boolean,
+    public showHeader?: boolean,
+    public showFooter?: boolean,
   ) {}
 }

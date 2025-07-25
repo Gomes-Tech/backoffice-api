@@ -1,11 +1,15 @@
+import { BaseRepository } from '@domain/common';
 import { ListUser, User } from '../entities';
 
-export abstract class UserRepository {
-  abstract findAll(): Promise<ListUser[]>;
-  abstract findById(id: string): Promise<User | null>;
+export abstract class UserRepository extends BaseRepository<
+  User,
+  User,
+  Partial<User>,
+  ListUser,
+  User,
+  User,
+  User
+> {
   abstract findByEmail(email: string): Promise<User | null>;
   abstract resetPassword(id: string, password: string): Promise<void>;
-  abstract create(user: User, createdBy: string): Promise<User>;
-  abstract update(id: string, user: Partial<User>): Promise<User>;
-  abstract delete(id: string): Promise<void>;
 }

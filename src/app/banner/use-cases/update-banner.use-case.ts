@@ -10,9 +10,13 @@ export class UpdateBannerUseCase {
   ) {}
 
   async execute(id: string, dto: UpdateBannerDTO, userId: string) {
-    await this.bannerRepository.update(id, {
-      ...dto,
-      updatedBy: userId,
-    });
+    await this.bannerRepository.update(
+      id,
+      {
+        ...dto,
+        updatedBy: userId,
+      },
+      '',
+    );
   }
 }

@@ -16,10 +16,14 @@ export class UpdateCategoryUseCase {
     dto: UpdateCategoryDTO,
     userId: string,
   ): Promise<void> {
-    await this.categoryRepository.update(id, {
-      ...dto,
-      updatedBy: userId,
-    });
+    await this.categoryRepository.update(
+      id,
+      {
+        ...dto,
+        updatedBy: userId,
+      },
+      '',
+    );
 
     await this.cacheService.del('categories:tree');
     await this.cacheService.del('categories');
