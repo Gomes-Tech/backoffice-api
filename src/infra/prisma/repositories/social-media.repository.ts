@@ -32,6 +32,8 @@ export class PrismaSocialMediaRepository extends SocialMediaRepository {
         imageAlt: true,
         imageUrl: true,
         imageKey: true,
+        showFooter: true,
+        showHeader: true,
         createdAt: true,
         createdBy: {
           select: {
@@ -64,6 +66,8 @@ export class PrismaSocialMediaRepository extends SocialMediaRepository {
         imageAlt: true,
         imageUrl: true,
         imageKey: true,
+        showFooter: true,
+        showHeader: true,
       },
     });
   }
@@ -94,13 +98,16 @@ export class PrismaSocialMediaRepository extends SocialMediaRepository {
 
   async update(id: string, dto: UpdateSocialMedia): Promise<void> {
     try {
-      const { name, link, order, isActive, updatedBy } = dto;
+      const { name, link, order, isActive, showFooter, showHeader, updatedBy } =
+        dto;
 
       const data: Record<string, any> = {
         ...(name !== undefined && { name }),
         ...(link !== undefined && { link }),
         ...(order !== undefined && { order }),
         ...(isActive !== undefined && { isActive }),
+        ...(showFooter !== undefined && { showFooter }),
+        ...(showHeader !== undefined && { showHeader }),
         updatedBy: {
           connect: { id: updatedBy },
         },

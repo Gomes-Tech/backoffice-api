@@ -35,8 +35,9 @@ model User {
   updatedBanners        Banner[]         @relation("UserUpdatedBanners")
   updatedCategories     Category[]       @relation("UserUpdatedCategories")
   deletedCategories     Category[]       @relation("UserDeletedCategories")
-  // updatedProducts   Product[]  @relation("UserUpdatedProducts")
-  // deletedProducts   Product[]  @relation("UserDeletedProducts")
+  createdProducts       Product[]        @relation("UserCreatedProducts")
+  updatedProducts       Product[]        @relation("UserUpdatedProducts")
+  deletedProducts       Product[]        @relation("UserDeletedProducts")
   HeaderMenu            HeaderMenu[]
   updatedHeaderMenu     HeaderMenu[]     @relation("UserUpdatedHeaderMenu")
   deletedHeaderMenu     HeaderMenu[]     @relation("UserDeletedHeaderMenu")
@@ -49,6 +50,9 @@ model User {
   createdAttributeValue AttributeValue[] @relation("UserCreatedAttributeValues")
   updatedAttributeValue AttributeValue[] @relation("UserUpdatedAttributeValues")
   deletedAttributeValue AttributeValue[] @relation("UserDeletedAttributeValues")
+  createdFooterMenu     FooterMenu[]     @relation("UserCreatedFooterMenu")
+  updatedFooterMenu     FooterMenu[]     @relation("UserUpdatedFooterMenu")
+  deletedFooterMenu     FooterMenu[]     @relation("UserDeletedFooterMenu")
 
   @@map("users")
 }
@@ -80,6 +84,55 @@ model Role {
   deletedById String?  @map("deleted_by")
 
   @@map("roles")
+}
+
+model Country {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  State     State[]
+}
+
+model State {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  countryId String   @map("country_id")
+  country   Country  @relation(fields: [countryId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  City      City[]
+}
+
+model City {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  stateId   String   @map("state_id")
+  state     State    @relation(fields: [stateId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+}
+
+model SocialMedia {
+  id         String  @id @default(cuid())
+  name       String  @unique
+  link       String
+  order      Int     @unique
+  isActive   Boolean @default(true) @map("is_active")
+  imageUrl   String  @map("image_url")
+  imageAlt   String  @map("image_alt")
+  imageKey   String  @map("image_key")
+  showFooter Boolean @default(true)
+  showHeader Boolean @default(false)
+
+  createdBy   User     @relation("UserCreatedSocialMedia", fields: [createdById], references: [id])
+  createdById String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  updatedBy   User?    @relation("UserUpdatedSocialMedia", fields: [updatedById], references: [id])
+  updatedById String?  @map("updated_by")
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  deletedBy   User?    @relation("UserDeletedSocialMedia", fields: [deletedById], references: [id])
+  deletedById String?  @map("deleted_by")
+
+  @@map("social_media")
 }
 
 model Banner {
@@ -145,6 +198,7 @@ model Category {
   parentId        String?
   parent          Category?  @relation("CategoryToParent", fields: [parentId], references: [id])
   children        Category[] @relation("CategoryToParent")
+  products        Product[]  @relation("ProductCategories")
 
   createdBy   User     @relation(fields: [createdById], references: [id])
   createdById String   @map("created_by")
@@ -159,94 +213,88 @@ model Category {
   @@map("categories")
 }
 
-model Country {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
-  State     State[]
-}
+model Product {
+  id                String  @id @default(cuid())
+  name              String  @unique
+  slug              String  @unique
+  description       String?
+  isGreenSeal       Boolean @map("is_green_seal")
+  freeShipping      Boolean @map("free_shipping")
+  immediateShipping Boolean @map("immediate_shipping")
+  isPersonalized    Boolean @map("is_personalized")
+  isExclusive       Boolean @map("is_exclusive")
+  inCutout          Boolean @map("in_cutout")
 
-model State {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  countryId String   @map("country_id")
-  country   Country  @relation(fields: [countryId], references: [id])
-  createdAt DateTime @default(now()) @map("created_at")
-  City      City[]
-}
+  seoTitle        String? @map("seo_title")
+  seoDescription  String? @map("seo_description")
+  seoKeywords     String? @map("seo_keywords")
+  seoCanonicalUrl String? @map("seo_canonical_url")
+  seoMetaRobots   String? @map("seo_meta_robots")
 
-model City {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  stateId   String   @map("state_id")
-  state     State    @relation(fields: [stateId], references: [id])
-  createdAt DateTime @default(now()) @map("created_at")
-}
+  categories      Category[]       @relation("ProductCategories")
+  productVariants ProductVariant[]
 
-model SocialMedia {
-  id       String  @id @default(cuid())
-  name     String  @unique
-  link     String
-  order    Int     @unique
-  isActive Boolean @default(true) @map("is_active")
-  imageUrl String  @map("image_url")
-  imageAlt String  @map("image_alt")
-  imageKey String  @map("image_key")
-
-  createdBy   User     @relation("UserCreatedSocialMedia", fields: [createdById], references: [id])
+  createdBy   User     @relation("UserCreatedProducts", fields: [createdById], references: [id])
   createdById String   @map("created_by")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
-  updatedBy   User?    @relation("UserUpdatedSocialMedia", fields: [updatedById], references: [id])
+  updatedBy   User?    @relation("UserUpdatedProducts", fields: [updatedById], references: [id])
   updatedById String?  @map("updated_by")
   isDeleted   Boolean  @default(false) @map("is_deleted")
-  deletedBy   User?    @relation("UserDeletedSocialMedia", fields: [deletedById], references: [id])
+  deletedBy   User?    @relation("UserDeletedProducts", fields: [deletedById], references: [id])
   deletedById String?  @map("deleted_by")
 
-  @@map("social_media")
+  @@map("products")
 }
 
-// model Product {
-//   id          String  @id @default(cuid())
-//   name        String  @unique
-//   slug        String  @unique
-//   description String?
-//   price       Int
-//   isActive    Boolean @default(true) @map("is_active")
+model ProductVariant {
+  id                       String                         @id @default(cuid())
+  price                    Int
+  sku                      Int
+  isActive                 Boolean                        @default(true) @map("is_active")
+  discountPrice            String                         @map("discount_price")
+  discountPix              String                         @map("discount_pix")
+  stock                    Int?
+  weight                   String
+  length                   String
+  width                    String
+  height                   String
+  barCode                  String                         @map("bar_code")
+  productVariantAttributes ProductVariantAttributeValue[]
 
-//   isGreenSeal    Boolean @map("is_green_seal")
-//   freeShipping   Boolean @map("free_shipping")
-//   isPersonalized Boolean @map("is_personalized")
-//   isExclusive    Boolean @map("is_exclusive")
-//   inCutout       Boolean @map("in_cutout")
+  productId    String
+  product      Product        @relation(fields: [productId], references: [id])
+  productImage ProductImage[]
+}
 
-//   seoTitle        String? @map("seo_title")
-//   seoDescription  String? @map("seo_description")
-//   seoKeywords     String? @map("seo_keywords")
-//   seoCanonicalUrl String? @map("seo_canonical_url")
-//   seoMetaRobots   String? @map("seo_meta_robots")
+model ProductImage {
+  id               String         @id @default(cuid())
+  variant          ProductVariant @relation(fields: [productVariantId], references: [id])
+  productVariantId String         @map("product_variant_id")
+  desktopImageUrl  String         @map("desktop_image_url")
+  desktopImageAlt  String         @map("desktop_image_alt")
+  desktopImageKey  String         @map("desktop_image_key")
+  mobileImageUrl   String         @map("mobile_image_url")
+  mobileImageAlt   String         @map("mobile_image_alt")
+  mobileImageKey   String         @map("mobile_image_key")
+  isFirst          Boolean        @map("is_first")
+  createdAt        DateTime       @default(now()) @map("created_at")
+}
 
-//   variants ProductVariant[]
+model ProductVariantAttributeValue {
+  id               String         @id @default(cuid())
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  productVariantId String         @map("product_variant_id")
 
-//   // createdBy   User     @relation(fields: [createdById], references: [id])
-//   // createdById String   @map("created_by")
-//   // createdAt   DateTime @default(now()) @map("created_at")
-//   // updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
-//   // updatedBy   User?    @relation("UserUpdatedProducts", fields: [updatedById], references: [id])
-//   // updatedById String?  @map("updated_by")
-//   // isDeleted   Boolean  @default(false) @map("is_deleted")
-//   // deletedBy   User?    @relation("UserDeletedProducts", fields: [deletedById], references: [id])
-//   // deletedById String?  @map("deleted_by")
+  attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id])
+  attributeValueId String         @map("attribute_value_id")
 
-//   @@map("products")
-// }
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-// model ProductVariant {
-//   id String @id @default(cuid())
-
-//   Product   Product @relation(fields: [productId], references: [id])
-//   productId String
-// }
+  @@unique([productVariantId, attributeValueId])
+  @@map("product_variant_attribute_value")
+}
 
 model Attribute {
   id     String           @id @default(cuid())
@@ -267,11 +315,12 @@ model Attribute {
 }
 
 model AttributeValue {
-  id          String    @id @default(cuid())
-  name        String    @unique
-  value       String    @unique
-  attributeId String    @map("attribute_id")
-  attribute   Attribute @relation(fields: [attributeId], references: [id])
+  id              String                         @id @default(cuid())
+  name            String                         @unique
+  value           String                         @unique
+  attributeId     String                         @map("attribute_id")
+  attribute       Attribute                      @relation(fields: [attributeId], references: [id])
+  productVariants ProductVariantAttributeValue[]
 
   createdBy   User     @relation("UserCreatedAttributeValues", fields: [createdById], references: [id])
   createdById String   @map("created_by")
@@ -284,6 +333,45 @@ model AttributeValue {
   deletedById String?  @map("deleted_by")
 
   @@map("attribute_value")
+}
+
+model FooterMenu {
+  id          String           @id @default(cuid())
+  name        String
+  items       FooterMenuItem[]
+  isActive    Boolean
+  createdBy   User             @relation("UserCreatedFooterMenu", fields: [createdById], references: [id])
+  createdById String           @map("created_by")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @default(now()) @updatedAt @map("updated_at")
+  updatedBy   User?            @relation("UserUpdatedFooterMenu", fields: [updatedById], references: [id])
+  updatedById String?          @map("updated_by")
+  isDeleted   Boolean          @default(false) @map("is_deleted")
+  deletedBy   User?            @relation("UserDeletedFooterMenu", fields: [deletedById], references: [id])
+  deletedById String?          @map("deleted_by")
+
+  @@map("footer_menu")
+}
+
+model FooterMenuItem {
+  id          String  @id @default(cuid())
+  type        String
+  url         String?
+  imageUrl    String?
+  imageAlt    String?
+  imageKey    String?
+  imageWidth  String?
+  imageHeight String?
+  content     String?
+
+  footerMenu   FooterMenu @relation(fields: [footerMenuId], references: [id])
+  footerMenuId String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([footerMenuId])
+  @@map("footer_menu_item")
 }
 
 model seedStatus {

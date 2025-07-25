@@ -2,6 +2,7 @@ export * from './attribute-value.repository';
 export * from './attribute.repository';
 export * from './banner.repository';
 export * from './category.repository';
+export * from './footer-menu.repository';
 export * from './header-menu.repository';
 export * from './role.repository';
 export * from './social-media.repository';

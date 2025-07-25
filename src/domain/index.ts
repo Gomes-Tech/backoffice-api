@@ -2,6 +2,8 @@ export * from './attribute';
 export * from './attribute-value';
 export * from './banner';
 export * from './category';
+export * from './common';
+export * from './footer-menu';
 export * from './header-menu';
 export * from './role';
 export * from './social-media';

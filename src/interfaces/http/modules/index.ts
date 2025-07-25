@@ -3,6 +3,7 @@ export * from './attribute.module';
 export * from './auth.module';
 export * from './banner.module';
 export * from './category.module';
+export * from './footer-menu.module';
 export * from './header-menu.module';
 export * from './role.module';
 export * from './social-media.module';
