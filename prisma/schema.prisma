@@ -260,6 +260,11 @@ model ProductVariant {
   width                    String
   height                   String
   barCode                  String                         @map("bar_code")
+  seoTitle                 String?                        @map("seo_title")
+  seoDescription           String?                        @map("seo_description")
+  seoKeywords              String?                        @map("seo_keywords")
+  seoCanonicalUrl          String?                        @map("seo_canonical_url")
+  seoMetaRobots            String?                        @map("seo_meta_robots")
   productVariantAttributes ProductVariantAttributeValue[]
 
   productId    String
