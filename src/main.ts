@@ -34,7 +34,7 @@ async function bootstrap() {
   app.getHttpAdapter().getInstance().disable('x-powered-by');
 
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('PORT') || 4000;
+  const port = configService.get<number>('PORT') || 3333;
 
   await app.listen(port, () => Logger.log(`http://localhost:${port}`));
 }
