@@ -6,9 +6,11 @@ import {
   UpdateFooterMenu,
 } from '@domain/footer-menu';
 import { BadRequestException, NotFoundException } from '@infra/filters';
+import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 
+@Injectable()
 export class PrismaFooterMenuRepository extends FooterMenuRepository {
   constructor(private readonly prismaService: PrismaService) {
     super();
@@ -108,6 +110,7 @@ export class PrismaFooterMenuRepository extends FooterMenuRepository {
         include: { items: true },
       });
     } catch (error) {
+      console.log(error);
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2025'

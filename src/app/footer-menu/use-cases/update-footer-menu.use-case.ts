@@ -41,7 +41,7 @@ export class UpdateFooterMenuUseCase {
           }
           try {
             const result = await this.storageService.uploadFile(
-              'product-images',
+              'footer-menus',
               file.originalname,
               file.buffer,
             );

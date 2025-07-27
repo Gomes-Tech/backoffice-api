@@ -8,7 +8,10 @@ import {
 } from '@app/footer-menu';
 import { FooterMenu, ListFooterMenu } from '@domain/footer-menu';
 import { Roles, UserId } from '@interfaces/http/decorators';
-import { CreateFooterMenuDTO, UpdateAttributeDTO } from '@interfaces/http/dtos';
+import {
+  CreateFooterMenuDTO,
+  UpdateFooterMenuDTO,
+} from '@interfaces/http/dtos';
 import {
   Body,
   Controller,
@@ -64,12 +67,13 @@ export class FooterMenuController {
     await this.createFooterMenuUseCase.execute(dto, userId, files);
   }
 
+  @Roles('admin')
   @Patch('/:id')
   @UseInterceptors(AnyFilesInterceptor())
   @HttpCode(HttpStatus.NO_CONTENT)
   async update(
     @Param('id') id: string,
-    @Body() dto: UpdateAttributeDTO,
+    @Body() dto: UpdateFooterMenuDTO,
     @UploadedFiles() files: Express.Multer.File[],
     @UserId() userId: string,
   ) {

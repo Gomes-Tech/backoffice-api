@@ -1,4 +1,4 @@
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
@@ -51,10 +51,11 @@ export class UpdateFooterMenuDTO {
   @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   @IsBoolean()
-  isActive?: boolean;
+  isActive: boolean;
 
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
+  @Type(() => UpdateFooterMenuItemDTO)
   items?: UpdateFooterMenuItemDTO[];
 }
