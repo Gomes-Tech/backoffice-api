@@ -32,7 +32,7 @@ async function bootstrap() {
 
   app.getHttpAdapter().getInstance().disable('x-powered-by');
 
-  await app.listen(process.env.PORT || 3333, () => Logger.log(`http://localhost:${port}`));
+  await app.listen(process.env.PORT || 3333, () => Logger.log(`Servidor ON`));
 }
 
 bootstrap();
