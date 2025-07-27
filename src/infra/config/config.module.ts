@@ -16,7 +16,7 @@ import * as Joi from 'joi';
             refreshSecret: process.env.JWT_REFRESH_SECRET,
             refreshExpires: process.env.JWT_REFRESH_EXPIRES,
           },
-          port: parseInt(process.env.PORT, 10),
+          port: Number(process.env.PORT || '3000'),
           databaseUrl: process.env.DATABASE_URL,
           supabase: {
             url: process.env.SUPABASE_URL,
