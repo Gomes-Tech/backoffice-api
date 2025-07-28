@@ -7,7 +7,7 @@ import {
   UpdateFooterMenuUseCase,
 } from '@app/footer-menu';
 import { FooterMenu, ListFooterMenu } from '@domain/footer-menu';
-import { Roles, UserId } from '@interfaces/http/decorators';
+import { Public, Roles, UserId } from '@interfaces/http/decorators';
 import {
   CreateFooterMenuDTO,
   UpdateFooterMenuDTO,
@@ -45,6 +45,7 @@ export class FooterMenuController {
     return await this.findAllFooterMenuUseCase.execute();
   }
 
+  @Public()
   @Get('/list')
   async getAll(): Promise<FooterMenu[]> {
     return await this.getAllFooterMenuUseCase.execute();

@@ -20,11 +20,22 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'https://decoreasy.vercel.app',
-      'https://backoffice-eta-seven.vercel.app',
-    ],
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'https://decoreasy.vercel.app',
+        'https://backoffice-eta-seven.vercel.app',
+      ];
+
+      if (
+        !origin ||
+        origin.startsWith('http://localhost') ||
+        allowedOrigins.includes(origin)
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST', 'PATCH', 'OPTIONS', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
