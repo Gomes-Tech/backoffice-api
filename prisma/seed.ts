@@ -187,6 +187,223 @@ async function main() {
     });
   }
 
+  const attribute = await prisma.attribute.create({
+    data: {
+      id: uuidv4(),
+      name: 'Cor',
+      createdBy: {
+        connect: { id: adminUser.id },
+      },
+    },
+  });
+
+  const colors = [
+    { name: 'Rosa Blush', value: '#D9BEB9' },
+    { name: 'Rosa Claro', value: '#DDA5B0' },
+    { name: 'Rosa Pink', value: '#CF5D8E' },
+    { name: 'Violeta', value: '#816E9B' },
+    { name: 'Lavanda', value: '#BFA8BC' },
+    { name: 'Verde Água', value: '#7EAFA4' },
+    { name: 'Verde Sereno', value: '#4CAA8D' },
+    { name: 'Azul Claro', value: '#72A0AF' },
+    { name: 'Verde Bandeira', value: '#478A2D' },
+    { name: 'Verde Escuro', value: '#34442A' },
+    { name: 'Azul Escuro', value: '#282963' },
+    { name: 'Laranja', value: '#C1442E' },
+    { name: 'Salmão', value: '#DC8F57' },
+    { name: 'Amarelo Pastel', value: '#E7DAA5' },
+    { name: 'Avelã', value: '#B29880' },
+    { name: 'Capuccino', value: '#967353' },
+    { name: 'Canela', value: '#9A705D' },
+    { name: 'Rose Gold', value: '#DEAFA5' },
+    { name: 'Cobre', value: '#EBAD84' },
+    { name: 'Dourado', value: '#F3C87C' },
+    { name: 'Preto', value: '#383531' },
+    { name: 'Grafite', value: '#5A5752' },
+    { name: 'Cinza Claro', value: '#969289' },
+  ];
+
+  for (const color of colors) {
+    await prisma.attributeValue.create({
+      data: {
+        id: uuidv4(),
+        name: color.name,
+        value: color.value,
+        attribute: {
+          connect: { id: attribute.id },
+        },
+        createdBy: {
+          connect: { id: adminUser.id },
+        },
+      },
+    });
+  }
+
+  const footerMenus = [
+    {
+      id: 'd092c2c5-ff33-4d19-a8fe-7e849f7c4828',
+      name: 'Formas de Pagamento',
+      isActive: true,
+      items: [
+        {
+          id: 'd4e15590-6be3-4649-9409-9766b89f3e37',
+          imageAlt: 'visa.svg',
+          imageKey: 'footer-menus/1753682431243-visa.svg',
+          imageUrl:
+            'https://rkauidnzwwateglzfgnz.supabase.co/storage/v1/object/public/backoffice/footer-menus/1753682431243-visa.svg',
+          imageHeight: '27',
+          imageWidth: '43',
+          type: 'IMAGE',
+          url: null,
+          content: null,
+        },
+      ],
+    },
+    {
+      id: 'f10a13e3-154c-4a79-a1c0-35012593293c',
+      name: 'Institucional',
+      isActive: true,
+      items: [
+        {
+          id: '2742888b-8ce7-4518-9b30-8d25565b7800',
+          imageAlt: null,
+          imageKey: null,
+          imageUrl: null,
+          imageHeight: null,
+          imageWidth: null,
+          type: 'LINK',
+          url: 'https://www.instagram.com/decoreasy_/',
+          content: 'Quem Somos',
+        },
+        {
+          id: '98f733cb-dba8-44cf-a70c-a798f4854eec',
+          imageAlt: null,
+          imageKey: null,
+          imageUrl: null,
+          imageHeight: null,
+          imageWidth: null,
+          type: 'LINK',
+          url: 'https://www.instagram.com/decoreasy_/',
+          content: 'Mapa do Site',
+        },
+        {
+          id: 'f493ccf0-b416-49cb-95ad-f521f765c650',
+          imageAlt: null,
+          imageKey: null,
+          imageUrl: null,
+          imageHeight: null,
+          imageWidth: null,
+          type: 'LINK',
+          url: 'https://www.instagram.com/decoreasy_/',
+          content: 'Seja Parceiro',
+        },
+        {
+          id: 'c2a895d0-b33f-4f4b-b8ab-240212612ea7',
+          imageAlt: null,
+          imageKey: null,
+          imageUrl: null,
+          imageHeight: null,
+          imageWidth: null,
+          type: 'LINK',
+          url: 'https://www.instagram.com/decoreasy_/',
+          content: 'Troca e Devolução',
+        },
+        {
+          id: 'c28bfa97-40b6-4811-9b0a-61399dbab475',
+          imageAlt: null,
+          imageKey: null,
+          imageUrl: null,
+          imageHeight: null,
+          imageWidth: null,
+          type: 'LINK',
+          url: 'https://www.instagram.com/decoreasy_/',
+          content: 'Segurança e Privacidade',
+        },
+        {
+          id: 'caee3ef7-5535-4850-83fe-9d8dd9c8405b',
+          imageAlt: null,
+          imageKey: null,
+          imageUrl: null,
+          imageHeight: null,
+          imageWidth: null,
+          type: 'LINK',
+          url: 'https://www.instagram.com/decoreasy_/',
+          content: 'Pagamentos',
+        },
+        {
+          id: '30ad76fa-1bf5-45bb-9a91-c31624d3340b',
+          imageAlt: null,
+          imageKey: null,
+          imageUrl: null,
+          imageHeight: null,
+          imageWidth: null,
+          type: 'LINK',
+          url: 'https://www.instagram.com/decoreasy_/',
+          content: 'Prazos e Entrega',
+        },
+        {
+          id: '44aadea9-6229-4d71-ad20-631ca34527c5',
+          imageAlt: null,
+          imageKey: null,
+          imageUrl: null,
+          imageHeight: null,
+          imageWidth: null,
+          type: 'LINK',
+          url: 'https://www.instagram.com/decoreasy_/',
+          content: 'Blog',
+        },
+        {
+          id: 'd831df41-d6a7-4547-8d71-4e8ebe2b0b94',
+          imageAlt: null,
+          imageKey: null,
+          imageUrl: null,
+          imageHeight: null,
+          imageWidth: null,
+          type: 'LINK',
+          url: 'https://www.instagram.com/decoreasy_/',
+          content: 'Inspirações',
+        },
+        {
+          id: 'ed35ba60-2919-45fd-b670-6de51be29cc9',
+          imageAlt: null,
+          imageKey: null,
+          imageUrl: null,
+          imageHeight: null,
+          imageWidth: null,
+          type: 'LINK',
+          url: 'https://www.instagram.com/decoreasy_/',
+          content: 'Monte seu Quartinho',
+        },
+      ],
+    },
+  ];
+
+  for (const menu of footerMenus) {
+    await prisma.footerMenu.create({
+      data: {
+        id: menu.id,
+        name: menu.name,
+        isActive: menu.isActive,
+        createdBy: {
+          connect: { id: adminUser.id },
+        },
+        items: {
+          create: menu.items.map((item) => ({
+            id: item.id,
+            type: item.type,
+            url: item.url,
+            content: item.content,
+            imageAlt: item.imageAlt,
+            imageKey: item.imageKey,
+            imageUrl: item.imageUrl,
+            imageHeight: item.imageHeight,
+            imageWidth: item.imageWidth,
+          })),
+        },
+      },
+    });
+  }
+
   await prisma.seedStatus.create({
     data: { id: 'main-seed', executedAt: new Date() },
   });
