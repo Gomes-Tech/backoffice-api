@@ -1,5 +1,10 @@
 import { BaseRepository } from '@domain/common';
-import { CreateSocialMedia, SocialMedia, UpdateSocialMedia } from '../entities';
+import {
+  CreateSocialMedia,
+  ListSocialMedia,
+  SocialMedia,
+  UpdateSocialMedia,
+} from '../entities';
 
 export abstract class SocialMediaRepository extends BaseRepository<
   SocialMedia,
@@ -7,4 +12,6 @@ export abstract class SocialMediaRepository extends BaseRepository<
   UpdateSocialMedia,
   SocialMedia,
   Omit<SocialMedia, 'createdBy' | 'createdAt'>
-> {}
+> {
+  abstract list(): Promise<ListSocialMedia[]>;
+}

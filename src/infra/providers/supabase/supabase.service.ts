@@ -1,6 +1,8 @@
 import { UploadFileException } from '@infra/filters';
 import { Injectable } from '@nestjs/common';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { lookup } from 'mime-types';
+import { extname } from 'node:path';
 
 interface StorageFile {
   id: string;
@@ -28,9 +30,14 @@ export class SupabaseService {
     filename: string,
     fileContent: Buffer,
   ): Promise<StorageFile> {
+    const contentType = lookup(extname(filename)) || undefined;
+
     const { data, error } = await this.supabase.storage
       .from('backoffice')
-      .upload(`${folder}/${Date.now()}-${filename}`, fileContent);
+      .upload(`${folder}/${Date.now()}-${filename}`, fileContent, {
+        contentType,
+        upsert: false,
+      });
 
     if (error) {
       throw new UploadFileException();

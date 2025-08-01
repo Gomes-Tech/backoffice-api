@@ -26,5 +26,6 @@ export class UpdateSocialMediaUseCase {
     );
 
     await this.cacheService.del('social_media');
+    await this.cacheService.del('list_social_media');
   }
 }

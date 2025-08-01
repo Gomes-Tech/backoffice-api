@@ -1,5 +1,6 @@
 import {
   CreateSocialMedia,
+  ListSocialMedia,
   SocialMedia,
   SocialMediaRepository,
   UpdateSocialMedia,
@@ -29,11 +30,43 @@ export class PrismaSocialMediaRepository extends SocialMediaRepository {
         link: true,
         order: true,
         isActive: true,
-        imageAlt: true,
-        imageUrl: true,
-        imageKey: true,
+        headerImageUrl: true,
+        headerImageKey: true,
+        headerImageAlt: true,
+        footerImageKey: true,
+        footerImageUrl: true,
+        footerImageAlt: true,
         showFooter: true,
         showHeader: true,
+        createdAt: true,
+        createdBy: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    return data.map((item) => ({
+      ...item,
+      createdBy: item.createdBy.name,
+    }));
+  }
+
+  async list(): Promise<ListSocialMedia[]> {
+    const data = await this.prismaService.socialMedia.findMany({
+      where: {
+        isDeleted: false,
+      },
+      orderBy: {
+        order: 'asc',
+      },
+      select: {
+        id: true,
+        name: true,
+        link: true,
+        order: true,
+        isActive: true,
         createdAt: true,
         createdBy: {
           select: {
@@ -63,9 +96,12 @@ export class PrismaSocialMediaRepository extends SocialMediaRepository {
         link: true,
         order: true,
         isActive: true,
-        imageAlt: true,
-        imageUrl: true,
-        imageKey: true,
+        headerImageUrl: true,
+        headerImageKey: true,
+        headerImageAlt: true,
+        footerImageKey: true,
+        footerImageUrl: true,
+        footerImageAlt: true,
         showFooter: true,
         showHeader: true,
       },

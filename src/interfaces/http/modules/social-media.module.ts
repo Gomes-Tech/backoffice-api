@@ -5,6 +5,7 @@ import {
   FindSocialMediaByIdUseCase,
   UpdateSocialMediaUseCase,
 } from '@app/social-media';
+import { ListAllSocialMediaUseCase } from '@app/social-media/use-cases/list-all-social-media.use-case copy';
 import { PrismaSocialMediaRepository } from '@infra/prisma';
 import { Module } from '@nestjs/common';
 import { SocialMediaController } from '../controllers';
@@ -14,6 +15,7 @@ import { SocialMediaController } from '../controllers';
   controllers: [SocialMediaController],
   providers: [
     FindAllSocialMediaUseCase,
+    ListAllSocialMediaUseCase,
     FindSocialMediaByIdUseCase,
     CreateSocialMediaUseCase,
     UpdateSocialMediaUseCase,
@@ -26,6 +28,7 @@ import { SocialMediaController } from '../controllers';
   ],
   exports: [
     FindAllSocialMediaUseCase,
+    ListAllSocialMediaUseCase,
     FindSocialMediaByIdUseCase,
     CreateSocialMediaUseCase,
     UpdateSocialMediaUseCase,

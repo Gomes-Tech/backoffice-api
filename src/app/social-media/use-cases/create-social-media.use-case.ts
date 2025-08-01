@@ -17,25 +17,37 @@ export class CreateSocialMediaUseCase {
   async execute(
     dto: CreateSocialMediaDTO,
     userId: string,
-    file: Express.Multer.File,
+    header: Express.Multer.File,
+    footer: Express.Multer.File,
   ): Promise<void> {
-    const image = await this.storageService.uploadFile(
-      'social-medias',
-      file.originalname,
-      file.buffer,
-    );
+    const [headerUpload, footerUpload] = await Promise.all([
+      this.storageService.uploadFile(
+        'social-medias',
+        header.originalname,
+        header.buffer,
+      ),
+      this.storageService.uploadFile(
+        'social-medias',
+        footer.originalname,
+        footer.buffer,
+      ),
+    ]);
 
     const data: CreateSocialMedia = {
       id: uuidv4(),
       createdBy: userId,
       ...dto,
-      imageUrl: image.publicUrl,
-      imageAlt: dto.name,
-      imageKey: image.path,
+      headerImageUrl: headerUpload.publicUrl,
+      headerImageKey: headerUpload.path,
+      headerImageAlt: dto.name,
+      footerImageUrl: footerUpload.publicUrl,
+      footerImageKey: footerUpload.path,
+      footerImageAlt: dto.name,
     };
 
     await this.socialMediaRepository.create(data);
 
     await this.cacheService.del('social_media');
+    await this.cacheService.del('list_social_media');
   }
 }

@@ -5,6 +5,7 @@ import {
   FindSocialMediaByIdUseCase,
   UpdateSocialMediaUseCase,
 } from '@app/social-media';
+import { ListAllSocialMediaUseCase } from '@app/social-media/use-cases/list-all-social-media.use-case copy';
 import { Public, Roles, UserId } from '@interfaces/http/decorators';
 import {
   CreateSocialMediaDTO,
@@ -20,17 +21,18 @@ import {
   Param,
   Patch,
   Post,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @Controller('social-media')
 export class SocialMediaController {
   constructor(
     private readonly findAllSocialMediaUseCase: FindAllSocialMediaUseCase,
+    private readonly listAllSocialMediaUseCase: ListAllSocialMediaUseCase,
     private readonly findSocialMediaByIdUseCase: FindSocialMediaByIdUseCase,
     private readonly createSocialMediaUseCase: CreateSocialMediaUseCase,
     private readonly updateSocialMediaUseCase: UpdateSocialMediaUseCase,
@@ -44,7 +46,11 @@ export class SocialMediaController {
     return await this.findAllSocialMediaUseCase.execute();
   }
 
-  @Public()
+  @Get('/list')
+  async list() {
+    return await this.listAllSocialMediaUseCase.execute();
+  }
+
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
   async findById(@Param('id') id: string) {
@@ -54,14 +60,26 @@ export class SocialMediaController {
   @Roles('admin')
   @Post()
   @UsePipes(ValidationPipe)
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'header', maxCount: 1 },
+      { name: 'footer', maxCount: 1 },
+    ]),
+  )
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body() dto: CreateSocialMediaDTO,
     @UserId() userId: string,
-    @UploadedFile() image: Express.Multer.File,
+    @UploadedFiles()
+    files: {
+      header?: Express.Multer.File[];
+      footer?: Express.Multer.File[];
+    },
   ) {
-    await this.createSocialMediaUseCase.execute(dto, userId, image);
+    const header = files.header?.[0];
+    const footer = files.footer?.[0];
+
+    await this.createSocialMediaUseCase.execute(dto, userId, header, footer);
   }
 
   @Roles('admin')

@@ -111,16 +111,19 @@ model City {
 }
 
 model SocialMedia {
-  id         String  @id @default(cuid())
-  name       String  @unique
-  link       String
-  order      Int     @unique
-  isActive   Boolean @default(true) @map("is_active")
-  imageUrl   String  @map("image_url")
-  imageAlt   String  @map("image_alt")
-  imageKey   String  @map("image_key")
-  showFooter Boolean @default(true)
-  showHeader Boolean @default(false)
+  id             String  @id @default(cuid())
+  name           String  @unique
+  link           String
+  order          Int     @unique
+  isActive       Boolean @default(true) @map("is_active")
+  headerImageUrl String  @map("header_image_url")
+  headerImageAlt String  @map("header_image_alt")
+  headerImageKey String  @map("header_image_key")
+  footerImageUrl String  @map("footer_image_url")
+  footerImageAlt String  @map("footer_image_alt")
+  footerImageKey String  @map("footer_image_key")
+  showFooter     Boolean @default(true)
+  showHeader     Boolean @default(false)
 
   createdBy   User     @relation("UserCreatedSocialMedia", fields: [createdById], references: [id])
   createdById String   @map("created_by")
