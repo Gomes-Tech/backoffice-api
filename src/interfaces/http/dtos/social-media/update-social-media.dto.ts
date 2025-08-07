@@ -3,25 +3,25 @@ import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
 export class UpdateSocialMediaDTO {
   @IsOptional()
   @IsString()
-  name: string;
+  name?: string;
 
   @IsOptional()
   @IsString()
-  link: string;
+  link?: string;
 
   @IsOptional()
   @IsInt()
-  order: number;
+  order?: number;
 
   @IsOptional()
   @IsBoolean()
-  isActive: boolean;
+  isActive?: boolean;
 
   @IsOptional()
   @IsBoolean()
-  showHeader: boolean;
+  showHeader?: boolean;
 
   @IsOptional()
   @IsBoolean()
-  showFooter: boolean;
+  showFooter?: boolean;
 }

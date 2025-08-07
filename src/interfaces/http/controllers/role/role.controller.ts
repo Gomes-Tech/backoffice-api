@@ -20,7 +20,9 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-
+import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
+@ApiTags('roles')
+@ApiBearerAuth()
 @Roles('admin')
 @Controller('roles')
 export class RoleController {
@@ -40,6 +42,7 @@ export class RoleController {
 
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', type: String })
   async findById(@Param('id') id: string) {
     return await this.findRoleByIdUseCase.execute(id);
   }

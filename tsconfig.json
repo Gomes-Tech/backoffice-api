@@ -18,6 +18,11 @@
       "@infra/*": ["infra/*"],
       "@shared/*": ["shared/*"]
     },
+    "plugins": [
+      {
+        "name": "@nestjs/swagger/plugin"
+      }
+    ],
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,

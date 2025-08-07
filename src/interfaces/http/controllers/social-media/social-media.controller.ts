@@ -5,7 +5,8 @@ import {
   FindSocialMediaByIdUseCase,
   UpdateSocialMediaUseCase,
 } from '@app/social-media';
-import { ListAllSocialMediaUseCase } from '@app/social-media/use-cases/list-all-social-media.use-case copy';
+import { ListAllSocialMediaUseCase } from '@app/social-media/use-cases/list-all-social-media.use-case';
+import { ListSocialMedia, SocialMedia } from '@domain/social-media';
 import { Public, Roles, UserId } from '@interfaces/http/decorators';
 import {
   CreateSocialMediaDTO,
@@ -27,7 +28,17 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiNoContentResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('Social Media')
 @Controller('social-media')
 export class SocialMediaController {
   constructor(
@@ -47,11 +58,17 @@ export class SocialMediaController {
   }
 
   @Get('/list')
+  @ApiOperation({ summary: 'Listar mídias sociais' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiResponse({ status: 200, type: ListSocialMedia })
   async list() {
     return await this.listAllSocialMediaUseCase.execute();
   }
 
   @Get('/:id')
+  @ApiOperation({ summary: 'Buscar mídia por ID' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiResponse({ status: 200, type: SocialMedia })
   @HttpCode(HttpStatus.OK)
   async findById(@Param('id') id: string) {
     return await this.findSocialMediaByIdUseCase.execute(id);
@@ -67,6 +84,10 @@ export class SocialMediaController {
     ]),
   )
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Cria um novo registro de mídia social' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: CreateSocialMediaDTO })
+  @ApiResponse({ status: 201, description: 'Mídia Social criada com sucesso.' })
   async create(
     @Body() dto: CreateSocialMediaDTO,
     @UserId() userId: string,
@@ -85,6 +106,9 @@ export class SocialMediaController {
   @Roles('admin')
   @Patch('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Atualizar uma mídia social existente' })
+  @ApiBody({ type: CreateSocialMediaDTO })
+  @ApiNoContentResponse({ description: 'Mídia Social atualizada com sucesso.' })
   async update(
     @Body() dto: UpdateSocialMediaDTO,
     @UserId() userId: string,

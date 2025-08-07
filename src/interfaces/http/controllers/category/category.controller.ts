@@ -21,7 +21,18 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiNoContentResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('categories')
+@ApiBearerAuth()
 @Controller('categories')
 export class CategoryController {
   constructor(
@@ -35,6 +46,11 @@ export class CategoryController {
 
   @Roles('admin')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Listar todas as categorias no painel admin' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de categorias retornada com sucesso.',
+  })
   @Get()
   async findAll() {
     return await this.findAllCategoriesUseCase.execute();
@@ -43,6 +59,11 @@ export class CategoryController {
   @Public()
   @Get('/tree')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Obter estrutura hierárquica de categorias' })
+  @ApiResponse({
+    status: 200,
+    description: 'Árvore de categorias retornada com sucesso.',
+  })
   async findTree() {
     return await this.findCategoryTreeUseCase.execute();
   }
@@ -50,6 +71,9 @@ export class CategoryController {
   @Public()
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Buscar categoria por ID' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiResponse({ status: 200, description: 'Categoria encontrada.' })
   async findById(@Param('id') id: string) {
     return await this.findCategoryByIdUseCase.execute(id);
   }
@@ -57,6 +81,9 @@ export class CategoryController {
   @Roles('admin')
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Criar uma nova categoria' })
+  @ApiBody({ type: CreateCategoryDTO })
+  @ApiResponse({ status: 201, description: 'Categoria criada com sucesso.' })
   @Post()
   async create(@Body() dto: CreateCategoryDTO, @UserId() userId: string) {
     await this.createCategoryUseCase.execute(dto, userId);
@@ -65,6 +92,10 @@ export class CategoryController {
   @Roles('admin')
   @Patch('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Atualizar uma categoria existente' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiBody({ type: UpdateCategoryDTO })
+  @ApiNoContentResponse({ description: 'Categoria atualizada com sucesso.' })
   async update(
     @Body() dto: UpdateCategoryDTO,
     @UserId() userId: string,
@@ -76,6 +107,9 @@ export class CategoryController {
   @Roles('admin')
   @Delete('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Deletar uma categoria' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiNoContentResponse({ description: 'Categoria deletada com sucesso.' })
   async delete(@Param('id') id: string, @UserId() userId: string) {
     await this.deleteCategoryUseCase.execute(id, userId);
   }

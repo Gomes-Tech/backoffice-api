@@ -3,19 +3,19 @@ import { IsBoolean, IsOptional, IsString } from 'class-validator';
 export class UpdateCategoryDTO {
   @IsOptional()
   @IsString()
-  name: string;
+  name?: string;
 
   @IsOptional()
   @IsString()
-  slug: string;
+  slug?: string;
 
   @IsOptional()
   @IsBoolean()
-  isActive: boolean;
+  isActive?: boolean;
 
   @IsOptional()
   @IsBoolean()
-  showMenu: boolean;
+  showMenu?: boolean;
 
   @IsOptional()
   @IsString()
@@ -23,21 +23,21 @@ export class UpdateCategoryDTO {
 
   @IsOptional()
   @IsString()
-  seoTitle: string;
+  seoTitle?: string;
 
   @IsOptional()
   @IsString()
-  seoDescription: string;
+  seoDescription?: string;
 
   @IsOptional()
   @IsString()
-  seoKeywords: string;
+  seoKeywords?: string;
 
   @IsOptional()
   @IsString()
-  seoCanonicalUrl: string;
+  seoCanonicalUrl?: string;
 
   @IsOptional()
   @IsString()
-  seoMetaRobots: string;
+  seoMetaRobots?: string;
 }
