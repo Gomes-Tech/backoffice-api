@@ -7,6 +7,7 @@ import {
   CategoryModule,
   FooterMenuModule,
   HeaderMenuModule,
+  ProductModule,
   RoleModule,
   SocialMediaModule,
   UserModule,
@@ -44,6 +45,7 @@ import {
     SocialMediaModule,
     FooterMenuModule,
     RoleModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [

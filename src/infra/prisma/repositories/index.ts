@@ -4,6 +4,7 @@ export * from './banner.repository';
 export * from './category.repository';
 export * from './footer-menu.repository';
 export * from './header-menu.repository';
+export * from './product.repository';
 export * from './role.repository';
 export * from './social-media.repository';
 export * from './token-password.repository';

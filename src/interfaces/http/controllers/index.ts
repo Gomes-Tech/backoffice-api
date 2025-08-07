@@ -5,6 +5,7 @@ export * from './banner';
 export * from './category';
 export * from './footer-menu';
 export * from './header-menu';
+export * from './product';
 export * from './role';
 export * from './social-media';
 export * from './user';
