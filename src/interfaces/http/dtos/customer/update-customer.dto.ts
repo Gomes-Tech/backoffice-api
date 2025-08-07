@@ -1,6 +1,6 @@
 import { IsOptional, IsString } from 'class-validator';
 
-export class UpdateUserDto {
+export class UpdateCustomer {
   @IsOptional()
   @IsString()
   name?: string;
@@ -8,12 +8,4 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   password?: string;
-
-  @IsOptional()
-  @IsString()
-  refreshToken?: string;
-
-  @IsOptional()
-  @IsString()
-  photo?: string;
 }

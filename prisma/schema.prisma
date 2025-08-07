@@ -8,6 +8,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Customer {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("customers")
+}
+
 model User {
   id        String     @id @default(cuid())
   name      String
@@ -22,9 +35,8 @@ model User {
   updatedAt DateTime   @default(now()) @updatedAt @map("updated_at")
   banner    Banner[]
   category  Category[]
-  // Product   Product[]
 
-  createdById  String? @map("created_by_id") // Pode ser opcional
+  createdById  String? @map("created_by_id")
   createdBy    User?   @relation("UserCreatedBy", fields: [createdById], references: [id])
   createdUsers User[]  @relation("UserCreatedBy")
 

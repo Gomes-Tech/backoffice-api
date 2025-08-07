@@ -1,10 +1,11 @@
-import { AuthGuard, RolesGuard } from '@interfaces/http';
+import { AuthGuard, CustomerAuthGuard, RolesGuard } from '@interfaces/http';
 import {
   AttributeModule,
   AttributeValueModule,
   AuthModule,
   BannerModule,
   CategoryModule,
+  CustomerModule,
   FooterMenuModule,
   HeaderMenuModule,
   ProductModule,
@@ -40,6 +41,7 @@ import {
     AttributeValueModule,
     BannerModule,
     UserModule,
+    CustomerModule,
     CategoryModule,
     HeaderMenuModule,
     SocialMediaModule,
@@ -53,6 +55,10 @@ import {
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: CustomerAuthGuard,
     },
     {
       provide: APP_GUARD,
