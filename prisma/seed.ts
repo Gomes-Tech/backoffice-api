@@ -600,6 +600,94 @@ async function main() {
     });
   }
 
+  const socialMedias = [
+    {
+      id: '6b63fb2e-6dca-4bb1-a4c5-4edc0713bd6e',
+      name: 'Instagram',
+      link: 'https://www.instagram.com/decoreasy_/',
+      order: 1,
+      isActive: true,
+      headerImageUrl:
+        'https://rkauidnzwwateglzfgnz.supabase.co/storage/v1/object/public/backoffice/social-medias/1754042678152-Insta%20Icon.svg',
+      headerImageKey: 'social-medias/1754042678152-Insta Icon.svg',
+      headerImageAlt: 'Instagram',
+      footerImageKey: 'social-medias/1754042678153-Insta Icon (1).svg',
+      footerImageUrl:
+        'https://rkauidnzwwateglzfgnz.supabase.co/storage/v1/object/public/backoffice/social-medias/1754042678153-Insta%20Icon%20(1).svg',
+      footerImageAlt: 'Instagram',
+      showFooter: true,
+      showHeader: true,
+      createdAt: '2025-08-01T10:04:38.767Z',
+    },
+    {
+      id: '59f10dbc-c7ec-42ac-9ef1-b37afc8ffbf4',
+      name: 'tiktok',
+      link: 'https://www.instagram.com/decoreasy_/',
+      order: 2,
+      isActive: true,
+      headerImageUrl:
+        'https://rkauidnzwwateglzfgnz.supabase.co/storage/v1/object/public/backoffice/social-medias/1754042715234-TikTok%20Icon.svg',
+      headerImageKey: 'social-medias/1754042715234-TikTok Icon.svg',
+      headerImageAlt: 'tiktok',
+      footerImageKey: 'social-medias/1754042715234-TikTok Icon (1).svg',
+      footerImageUrl:
+        'https://rkauidnzwwateglzfgnz.supabase.co/storage/v1/object/public/backoffice/social-medias/1754042715234-TikTok%20Icon%20(1).svg',
+      footerImageAlt: 'tiktok',
+      showFooter: true,
+      showHeader: true,
+      createdAt: '2025-08-01T10:05:15.579Z',
+    },
+    {
+      id: '99c22df7-196e-454a-83d9-1e49cfcecc13',
+      name: 'whatsapp',
+      link: 'https://www.instagram.com/decoreasy_/',
+      order: 3,
+      isActive: true,
+      headerImageUrl:
+        'https://rkauidnzwwateglzfgnz.supabase.co/storage/v1/object/public/backoffice/social-medias/1754042742230-WhatsApp%20Icon.svg',
+      headerImageKey: 'social-medias/1754042742230-WhatsApp Icon.svg',
+      headerImageAlt: 'whatsapp',
+      footerImageKey: 'social-medias/1754042742230-WhatsApp Icon (1).svg',
+      footerImageUrl:
+        'https://rkauidnzwwateglzfgnz.supabase.co/storage/v1/object/public/backoffice/social-medias/1754042742230-WhatsApp%20Icon%20(1).svg',
+      footerImageAlt: 'whatsapp',
+      showFooter: true,
+      showHeader: true,
+      createdAt: '2025-08-01T10:05:42.497Z',
+    },
+    {
+      id: '99a8a58c-46ff-415c-9e79-82fb6882d618',
+      name: 'youtube',
+      link: 'https://www.instagram.com/decoreasy_/',
+      order: 4,
+      isActive: true,
+      headerImageUrl:
+        'https://rkauidnzwwateglzfgnz.supabase.co/storage/v1/object/public/backoffice/social-medias/1754042765978-YouTube%20Icon.svg',
+      headerImageKey: 'social-medias/1754042765978-YouTube Icon.svg',
+      headerImageAlt: 'youtube',
+      footerImageKey: 'social-medias/1754042765978-YouTube Icon (1).svg',
+      footerImageUrl:
+        'https://rkauidnzwwateglzfgnz.supabase.co/storage/v1/object/public/backoffice/social-medias/1754042765978-YouTube%20Icon%20(1).svg',
+      footerImageAlt: 'youtube',
+      showFooter: true,
+      showHeader: true,
+      createdAt: '2025-08-01T10:06:06.401Z',
+    },
+  ];
+
+  for (const social of socialMedias) {
+    await prisma.socialMedia.create({
+      data: {
+        ...social,
+        createdBy: {
+          connect: {
+            id: adminUser.id,
+          },
+        },
+      },
+    });
+  }
+
   await prisma.seedStatus.create({
     data: { id: 'main-seed', executedAt: new Date() },
   });
