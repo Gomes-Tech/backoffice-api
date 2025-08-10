@@ -7,6 +7,7 @@ import {
   UpdateCategoryUseCase,
 } from '@app/category';
 import { Public, Roles, UserId } from '@interfaces/http/decorators';
+import { AuthType } from '@interfaces/http/decorators/auth.decorator';
 import { CreateCategoryDTO, UpdateCategoryDTO } from '@interfaces/http/dtos';
 import {
   Body,
@@ -33,6 +34,7 @@ import {
 
 @ApiTags('categories')
 @ApiBearerAuth()
+@AuthType('user')
 @Controller('categories')
 export class CategoryController {
   constructor(

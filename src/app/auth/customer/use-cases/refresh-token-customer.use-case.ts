@@ -1,13 +1,15 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 
 import { FindCustomerByIdUseCase, UpdateCustomerUseCase } from '@app/customer';
 import { ReturnCustomer } from '@domain/customer';
+import { CLIENT_JWT } from '@interfaces/http/modules/jwt.module';
 
 @Injectable()
 export class RefreshTokenCustomerUseCase {
   constructor(
+    @Inject(CLIENT_JWT)
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly findCustomerByIdUseCase: FindCustomerByIdUseCase,

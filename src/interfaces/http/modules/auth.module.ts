@@ -11,23 +11,14 @@ import {
   SignUpUseCase,
 } from '@app/auth';
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { AuthController, CustomerAuthController } from '../controllers';
 import { CustomerModule } from './customer.module';
+import { JwtModule } from './jwt.module';
 import { TokenPasswordModule } from './token-password.module';
 import { UserModule } from './user.module';
 
 @Module({
-  imports: [
-    JwtModule.register({
-      global: true,
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_EXPIRES },
-    }),
-    UserModule,
-    CustomerModule,
-    TokenPasswordModule,
-  ],
+  imports: [JwtModule, UserModule, CustomerModule, TokenPasswordModule],
   controllers: [AuthController, CustomerAuthController],
   providers: [
     SignInUserUseCase,

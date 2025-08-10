@@ -5,7 +5,7 @@ import {
   FindRoleByIdUseCase,
   UpdateRoleUseCase,
 } from '@app/role';
-import { Roles, UserId } from '@interfaces/http/decorators';
+import { AuthType, Roles, UserId } from '@interfaces/http/decorators';
 import { CreateRoleDTO, UpdateRoleDTO } from '@interfaces/http/dtos';
 import {
   Body,
@@ -24,6 +24,7 @@ import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 @ApiTags('roles')
 @ApiBearerAuth()
 @Roles('admin')
+@AuthType('user')
 @Controller('roles')
 export class RoleController {
   constructor(

@@ -8,12 +8,12 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { CLIENT_JWT } from '../modules/jwt.module';
+import { ADMIN_JWT } from '../modules/jwt.module';
 
 @Injectable()
-export class CustomerAuthGuard implements CanActivate {
+export class AuthGuard implements CanActivate {
   constructor(
-    @Inject(CLIENT_JWT)
+    @Inject(ADMIN_JWT)
     private jwtService: JwtService,
     private reflector: Reflector,
   ) {}
@@ -27,22 +27,20 @@ export class CustomerAuthGuard implements CanActivate {
     if (isPublic) {
       return true;
     }
-
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException('Token de cliente não encontrado');
+      throw new UnauthorizedException();
     }
-
     try {
       const payload = await this.jwtService.verifyAsync(token);
 
-      request['client'] = payload;
-      return true;
+      request['user'] = payload;
     } catch {
-      throw new UnauthorizedException('Token inválido ou expirado');
+      throw new UnauthorizedException('Token inválido ou expirado!');
     }
+    return true;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

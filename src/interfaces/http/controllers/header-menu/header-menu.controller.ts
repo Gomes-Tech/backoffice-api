@@ -5,7 +5,7 @@ import {
   FindHeaderMenuByIdUseCase,
   UpdateHeaderMenuUseCase,
 } from '@app/header-menu';
-import { Public, Roles, UserId } from '@interfaces/http/decorators';
+import { AuthType, Public, Roles, UserId } from '@interfaces/http/decorators';
 import {
   CreateHeaderMenuDTO,
   UpdateHeaderMenuDTO,
@@ -24,6 +24,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
+@AuthType('user')
 @Controller('header-menu')
 export class HeaderMenuController {
   constructor(

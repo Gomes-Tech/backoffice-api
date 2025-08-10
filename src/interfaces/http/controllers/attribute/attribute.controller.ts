@@ -5,7 +5,7 @@ import {
   UpdateAttributeUseCase,
 } from '@app/attribute';
 import { Attribute } from '@domain/attribute';
-import { Roles, UserId } from '@interfaces/http/decorators';
+import { AuthType, Public, Roles, UserId } from '@interfaces/http/decorators';
 import { CreateAttributeDTO, UpdateAttributeDTO } from '@interfaces/http/dtos';
 import {
   Body,
@@ -21,6 +21,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
+@AuthType('user')
 @Controller('attributes')
 export class AttributeController {
   constructor(
@@ -30,11 +31,13 @@ export class AttributeController {
     private readonly deleteAttributeUseCase: DeleteAttributeUseCase,
   ) {}
 
+  @Public()
   @Get()
   async findAll(): Promise<Attribute[]> {
     return await this.findAllAttributeUseCase.execute();
   }
 
+  @Roles('admin')
   @Post()
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.CREATED)
@@ -42,6 +45,7 @@ export class AttributeController {
     await this.createAttributeUseCase.execute(dto, userId);
   }
 
+  @Roles('admin')
   @Patch('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async update(

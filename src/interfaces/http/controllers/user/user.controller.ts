@@ -5,7 +5,7 @@ import {
   UpdateUserUseCase,
 } from '@app/user';
 import { ListUser } from '@domain/user';
-import { Roles } from '@interfaces/http/decorators';
+import { AuthType, Roles } from '@interfaces/http/decorators';
 import { UpdateUserDto } from '@interfaces/http/dtos';
 import {
   Body,
@@ -22,6 +22,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('users')
 @ApiBearerAuth()
+@AuthType('user')
 @Controller('users')
 export class UserController {
   constructor(

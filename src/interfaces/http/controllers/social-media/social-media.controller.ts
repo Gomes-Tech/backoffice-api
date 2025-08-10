@@ -7,7 +7,7 @@ import {
 } from '@app/social-media';
 import { ListAllSocialMediaUseCase } from '@app/social-media/use-cases/list-all-social-media.use-case';
 import { ListSocialMedia, SocialMedia } from '@domain/social-media';
-import { Public, Roles, UserId } from '@interfaces/http/decorators';
+import { AuthType, Public, Roles, UserId } from '@interfaces/http/decorators';
 import {
   CreateSocialMediaDTO,
   UpdateSocialMediaDTO,
@@ -39,6 +39,7 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('Social Media')
+@AuthType('user')
 @Controller('social-media')
 export class SocialMediaController {
   constructor(

@@ -7,7 +7,7 @@ import {
   UpdateFooterMenuUseCase,
 } from '@app/footer-menu';
 import { FooterMenu, ListFooterMenu } from '@domain/footer-menu';
-import { Public, Roles, UserId } from '@interfaces/http/decorators';
+import { AuthType, Public, Roles, UserId } from '@interfaces/http/decorators';
 import {
   CreateFooterMenuDTO,
   UpdateFooterMenuDTO,
@@ -29,6 +29,7 @@ import {
 } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 
+@AuthType('user')
 @Controller('footer-menus')
 export class FooterMenuController {
   constructor(
@@ -56,6 +57,7 @@ export class FooterMenuController {
     return await this.findFooterMenuByIdUseCase.execute(id);
   }
 
+  @Roles('admin')
   @Post()
   @UsePipes(ValidationPipe)
   @UseInterceptors(AnyFilesInterceptor())

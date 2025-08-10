@@ -1,14 +1,20 @@
-import { UnauthorizedException } from '@infra/filters';
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+// auth-dispatch.guard.ts
+import {
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
+import { AUTH_TYPE_KEY } from '../decorators/auth.decorator';
+import { CustomerAuthGuard } from './customer-auth.guard';
+import { AuthGuard } from './user-auth.guard';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthDispatchGuard {
   constructor(
-    private jwtService: JwtService,
     private reflector: Reflector,
+    private customerAuth: CustomerAuthGuard,
+    private userAuth: AuthGuard,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -16,29 +22,23 @@ export class AuthGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-
     if (isPublic) {
       return true;
     }
-    const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
-    if (!token) {
-      throw new UnauthorizedException();
-    }
-    try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET,
-      });
 
-      request['user'] = payload;
-    } catch {
-      throw new UnauthorizedException('Token inválido ou expirado!');
-    }
-    return true;
-  }
+    const type = this.reflector.getAllAndOverride<string>(AUTH_TYPE_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    if (type === 'customer') {
+      return this.customerAuth.canActivate(context) as Promise<boolean>;
+    }
+
+    if (type === 'user') {
+      return this.userAuth.canActivate(context) as Promise<boolean>;
+    }
+
+    throw new UnauthorizedException('Auth type not specified');
   }
 }

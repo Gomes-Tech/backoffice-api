@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 
@@ -7,12 +7,14 @@ import { User } from '@domain/user';
 import { CryptographyService } from '@infra/criptography';
 import { LoginException } from '@infra/filters';
 import { LoginDTO, UserResponseDTO } from '@interfaces/http';
+import { ADMIN_JWT } from '@interfaces/http/modules/jwt.module';
 
 @Injectable()
 export class SignInUserUseCase {
   constructor(
     private readonly findUserByEmail: FindUserByEmailUseCase,
     private readonly configService: ConfigService,
+    @Inject(ADMIN_JWT)
     private readonly jwtService: JwtService,
     private readonly cryptographyService: CryptographyService,
   ) {}

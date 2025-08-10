@@ -7,7 +7,7 @@ import {
   UpdateBannerUseCase,
 } from '@app/banner';
 import { BadRequestException } from '@infra/filters';
-import { Public, Roles, UserId } from '@interfaces/http/decorators';
+import { AuthType, Public, Roles, UserId } from '@interfaces/http/decorators';
 import { CreateBannerDTO, UpdateBannerDTO } from '@interfaces/http/dtos';
 import {
   Body,
@@ -26,6 +26,7 @@ import {
 } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 
+@AuthType('user')
 @Controller('banners')
 export class BannerController {
   constructor(
