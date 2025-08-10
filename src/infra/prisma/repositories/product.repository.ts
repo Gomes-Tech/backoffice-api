@@ -19,7 +19,45 @@ export class PrismaProductRepository extends ProductRepository {
     return null;
   }
 
-  async create(dto: unknown, createdBy?: string): Promise<void> {}
+  async create(dto: any, createdBy?: string): Promise<void> {
+    try {
+      const product = await this.prismaService.product.create({
+        data: {
+          name: dto.name,
+          slug: dto.slug,
+          categories: dto.categories,
+          description: dto.description,
+          seoTitle: dto.seoTitle,
+          seoDescription: dto.seoDescription,
+          seoCanonicalUrl: dto.seoCanonicalUrl,
+          seoKeywords: dto.seoKeywords,
+          seoMetaRobots: dto.seoMetaRobots,
+          isGreenSeal: dto.isGreenSeal,
+          freeShipping: dto.freeShipping,
+          immediateShipping: dto.immediateShipping,
+          isPersonalized: dto.isPersonalized,
+          isExclusive: dto.isExclusive,
+          inCutout: dto.inCutout,
+          createdBy: {
+            connect: {
+              id: createdBy,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException(dto?.createdBy + ' não encontrado.');
+      }
+
+      throw new BadRequestException(
+        'Erro ao criar o produto: ' + error.message,
+      );
+    }
+  }
 
   async update(id: string, dto: unknown, userId: string): Promise<void> {}
 
