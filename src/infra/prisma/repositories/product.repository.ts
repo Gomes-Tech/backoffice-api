@@ -1,9 +1,18 @@
-import { ListProduct, Product } from '@domain/product/entities';
+import {
+  CreateProductImage,
+  CreateProductVariant,
+  ListProduct,
+  Product,
+} from '@domain/product/entities';
 import { ProductRepository } from '@domain/product/repositories';
 import { BadRequestException, NotFoundException } from '@infra/filters';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
+
+type CreateReturn = {
+  id: string;
+};
 
 @Injectable()
 export class PrismaProductRepository extends ProductRepository {
@@ -19,13 +28,17 @@ export class PrismaProductRepository extends ProductRepository {
     return null;
   }
 
-  async create(dto: any, createdBy?: string): Promise<void> {
+  async create(dto: any, createdBy?: string): Promise<CreateReturn> {
     try {
       const product = await this.prismaService.product.create({
         data: {
           name: dto.name,
           slug: dto.slug,
-          categories: dto.categories,
+          categories: {
+            connect: dto.categories.map((categoryId: string) => ({
+              id: categoryId,
+            })),
+          },
           description: dto.description,
           seoTitle: dto.seoTitle,
           seoDescription: dto.seoDescription,
@@ -45,6 +58,8 @@ export class PrismaProductRepository extends ProductRepository {
           },
         },
       });
+
+      return { id: product.id };
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -56,6 +71,77 @@ export class PrismaProductRepository extends ProductRepository {
       throw new BadRequestException(
         'Erro ao criar o produto: ' + error.message,
       );
+    }
+  }
+
+  async createVariant(dto: CreateProductVariant): Promise<{ id: string }> {
+    try {
+      const variant = await this.prismaService.productVariant.create({
+        data: {
+          id: dto.id,
+          barCode: dto.barCode,
+          discountPix: dto.discountPix,
+          price: dto.price,
+          stock: dto.stock,
+          sku: dto.sku,
+          discountPrice: dto.discountPrice,
+          height: dto.height,
+          length: dto.length,
+          weight: dto.weight,
+          width: dto.width,
+          isActive: dto.isActive,
+          seoCanonicalUrl: dto.seoCanonicalUrl,
+          seoTitle: dto.seoTitle,
+          seoKeywords: dto.seoKeywords,
+          seoDescription: dto.seoDescription,
+          seoMetaRobots: dto.seoMetaRobots,
+          productVariantAttributes: {
+            createMany: {
+              data: dto.productVariantAttributes.map((item) => ({
+                attributeValueId: item,
+              })),
+            },
+          },
+          product: {
+            connect: {
+              id: dto.productId,
+            },
+          },
+        },
+      });
+
+      return {
+        id: variant.id,
+      };
+    } catch (error) {
+      throw new BadRequestException(
+        'Erro ao criar a variação: ' + error.message,
+      );
+    }
+  }
+
+  async createImageVariant(dto: CreateProductImage): Promise<void> {
+    try {
+      await this.prismaService.productImage.create({
+        data: {
+          id: dto.id,
+          mobileImageAlt: dto.mobileImageAlt,
+          mobileImageFirst: dto.mobileImageFirst,
+          mobileImageKey: dto.mobileImageKey,
+          mobileImageUrl: dto.mobileImageUrl,
+          desktopImageUrl: dto.desktopImageUrl,
+          desktopImageKey: dto.desktopImageKey,
+          desktopImageFirst: dto.desktopImageFirst,
+          desktopImageAlt: dto.desktopImageAlt,
+          variant: {
+            connect: {
+              id: dto.productVariant,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException('Erro ao criar a imagem: ' + error.message);
     }
   }
 

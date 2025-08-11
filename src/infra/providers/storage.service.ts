@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SupabaseService } from './supabase';
 
-interface StorageFile {
+export interface StorageFile {
   id: string;
   path: string;
   fullPath: string;

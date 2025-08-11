@@ -267,14 +267,14 @@ model ProductVariant {
   price                    Int
   sku                      Int
   isActive                 Boolean                        @default(true) @map("is_active")
-  discountPrice            String                         @map("discount_price")
-  discountPix              String                         @map("discount_pix")
+  discountPrice            String?                        @map("discount_price")
+  discountPix              String?                        @map("discount_pix")
   stock                    Int?
   weight                   String
   length                   String
   width                    String
   height                   String
-  barCode                  String                         @map("bar_code")
+  barCode                  String?                        @map("bar_code")
   seoTitle                 String?                        @map("seo_title")
   seoDescription           String?                        @map("seo_description")
   seoKeywords              String?                        @map("seo_keywords")
@@ -288,17 +288,18 @@ model ProductVariant {
 }
 
 model ProductImage {
-  id               String         @id @default(cuid())
-  variant          ProductVariant @relation(fields: [productVariantId], references: [id])
-  productVariantId String         @map("product_variant_id")
-  desktopImageUrl  String         @map("desktop_image_url")
-  desktopImageAlt  String         @map("desktop_image_alt")
-  desktopImageKey  String         @map("desktop_image_key")
-  mobileImageUrl   String         @map("mobile_image_url")
-  mobileImageAlt   String         @map("mobile_image_alt")
-  mobileImageKey   String         @map("mobile_image_key")
-  isFirst          Boolean        @map("is_first")
-  createdAt        DateTime       @default(now()) @map("created_at")
+  id                String         @id @default(cuid())
+  variant           ProductVariant @relation(fields: [productVariantId], references: [id])
+  productVariantId  String         @map("product_variant_id")
+  desktopImageUrl   String         @map("desktop_image_url")
+  desktopImageAlt   String         @map("desktop_image_alt")
+  desktopImageKey   String         @map("desktop_image_key")
+  mobileImageUrl    String         @map("mobile_image_url")
+  mobileImageAlt    String         @map("mobile_image_alt")
+  mobileImageKey    String         @map("mobile_image_key")
+  desktopImageFirst Boolean        @map("desktop_image_first")
+  mobileImageFirst  Boolean        @map("mobile_image_first")
+  createdAt         DateTime       @default(now()) @map("created_at")
 }
 
 model ProductVariantAttributeValue {

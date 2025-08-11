@@ -1,9 +1,24 @@
 import { BaseRepository } from '@domain/common';
-import { ListProduct, Product } from '../entities';
+import {
+  CreateProduct,
+  CreateProductImage,
+  CreateProductVariant,
+  ListProduct,
+  Product,
+} from '../entities';
+
+type CreateReturn = {
+  id: string;
+};
 
 export abstract class ProductRepository extends BaseRepository<
   Product,
+  CreateProduct,
   unknown,
-  unknown,
-  ListProduct
-> {}
+  ListProduct,
+  Product,
+  CreateReturn
+> {
+  abstract createImageVariant(dto: CreateProductImage): Promise<void>;
+  abstract createVariant(dto: CreateProductVariant): Promise<CreateReturn>;
+}

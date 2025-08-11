@@ -1,5 +1,6 @@
-import { DeleteProductUseCase } from '@app/product';
-import { Roles, UserId } from '@interfaces/http/decorators';
+import { CreateProductUseCase, DeleteProductUseCase } from '@app/product';
+import { AuthType, Roles, UserId } from '@interfaces/http/decorators';
+import { CreateProductDTO } from '@interfaces/http/dtos';
 import {
   Body,
   Controller,
@@ -13,9 +14,16 @@ import {
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
+export type ProductFile = Express.Multer.File & {
+  isFirst?: boolean;
+};
+@AuthType('user')
 @Controller('products')
 export class ProductController {
-  constructor(private readonly deleteProductUseCase: DeleteProductUseCase) {}
+  constructor(
+    private readonly createProductUseCase: CreateProductUseCase,
+    private readonly deleteProductUseCase: DeleteProductUseCase,
+  ) {}
 
   @Post()
   @UseInterceptors(
@@ -27,11 +35,14 @@ export class ProductController {
   async create(
     @UploadedFiles()
     files: {
-      desktopImages?: Express.Multer.File[];
-      mobileImages?: Express.Multer.File[];
+      desktopImages: ProductFile[];
+      mobileImages: ProductFile[];
     },
-    @Body() dto: any,
-  ) {}
+    @Body() dto: CreateProductDTO,
+    @UserId() userId: string,
+  ) {
+    await this.createProductUseCase.execute(dto, files, userId);
+  }
 
   @Roles('admin')
   @Delete('/:id')

@@ -1,9 +1,12 @@
+import { Transform, Type, plainToInstance } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
 
 export class CreateProductDTO {
@@ -21,41 +24,95 @@ export class CreateProductDTO {
 
   @IsNotEmpty()
   @IsBoolean()
+  @Transform(({ value }) => value === 'true' || value === true, {
+    toClassOnly: true,
+  })
   isGreenSeal: boolean;
 
   @IsNotEmpty()
   @IsBoolean()
+  @Transform(({ value }) => value === 'true' || value === true, {
+    toClassOnly: true,
+  })
   freeShipping: boolean;
 
   @IsNotEmpty()
   @IsBoolean()
+  @Transform(({ value }) => value === 'true' || value === true, {
+    toClassOnly: true,
+  })
   immediateShipping: boolean;
 
   @IsNotEmpty()
   @IsBoolean()
+  @Transform(({ value }) => value === 'true' || value === true, {
+    toClassOnly: true,
+  })
   isPersonalized: boolean;
 
   @IsNotEmpty()
   @IsBoolean()
+  @Transform(({ value }) => value === 'true' || value === true, {
+    toClassOnly: true,
+  })
   isExclusive: boolean;
 
   @IsNotEmpty()
   @IsBoolean()
+  @Transform(({ value }) => value === 'true' || value === true, {
+    toClassOnly: true,
+  })
   inCutout: boolean;
 
   @IsNotEmpty()
   @IsArray()
+  @IsString({ each: true })
+  @Transform(
+    ({ value }) => {
+      if (typeof value === 'string') {
+        try {
+          return JSON.parse(value);
+        } catch {
+          return [];
+        }
+      }
+      return value;
+    },
+    { toClassOnly: true },
+  )
   categories: string[];
 
   @IsNotEmpty()
   @IsArray()
+  @ValidateNested({ each: true })
+  // @Type(() => ProductVariant) // opcional quando já instanciamos manualmente
+  @Transform(
+    ({ value }) => {
+      const arr =
+        typeof value === 'string'
+          ? (() => {
+              try {
+                return JSON.parse(value);
+              } catch {
+                return [];
+              }
+            })()
+          : value;
+
+      if (!Array.isArray(arr)) return [];
+      // Garante instâncias de ProductVariant
+      return arr.map((item) => plainToInstance(ProductVariant, item));
+    },
+    { toClassOnly: true },
+  )
   productVariants: ProductVariant[];
 }
 
 class ProductVariant {
-  @IsNotEmpty()
-  @IsString()
-  stock?: string;
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  stock?: number;
 
   @IsNotEmpty()
   @IsString()
@@ -73,12 +130,50 @@ class ProductVariant {
   @IsString()
   height: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  barCode: string;
+  barCode?: string;
+
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsNumber()
+  price: number;
+
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsNumber()
+  sku: number;
+
+  @IsArray()
+  @IsString({ each: true })
+  @Transform(
+    ({ value }) => {
+      if (typeof value === 'string') {
+        try {
+          return JSON.parse(value);
+        } catch {
+          return [];
+        }
+      }
+      return value;
+    },
+    { toClassOnly: true },
+  )
+  productVariantAttributes: string[];
+
+  @IsOptional()
+  @IsString()
+  discountPix?: string;
+
+  @IsOptional()
+  @IsString()
+  discountPrice?: string;
 
   @IsNotEmpty()
   @IsBoolean()
+  @Transform(({ value }) => value === 'true' || value === true, {
+    toClassOnly: true,
+  })
   isActive: boolean;
 
   @IsOptional()
