@@ -2,3 +2,5 @@ export * from './create-product-image.use-case';
 export * from './create-product-variant.use-case';
 export * from './create-product.use-case';
 export * from './delete-product.use-case';
+export * from './find-product-by-id.use-case';
+export * from './find-product-by-slug.use-case';

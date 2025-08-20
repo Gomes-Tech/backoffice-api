@@ -1,10 +1,16 @@
-import { CreateProductUseCase, DeleteProductUseCase } from '@app/product';
-import { AuthType, Roles, UserId } from '@interfaces/http/decorators';
+import {
+  CreateProductUseCase,
+  DeleteProductUseCase,
+  FindProductByIdUseCase,
+  FindProductBySlugUseCase,
+} from '@app/product';
+import { AuthType, Public, Roles, UserId } from '@interfaces/http/decorators';
 import { CreateProductDTO } from '@interfaces/http/dtos';
 import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -21,9 +27,23 @@ export type ProductFile = Express.Multer.File & {
 @Controller('products')
 export class ProductController {
   constructor(
+    private readonly findProductByIdUseCase: FindProductByIdUseCase,
+    private readonly findProductByIdSlugUseCase: FindProductBySlugUseCase,
     private readonly createProductUseCase: CreateProductUseCase,
     private readonly deleteProductUseCase: DeleteProductUseCase,
   ) {}
+
+  @Public()
+  @Get('/:slug')
+  async getProductById(@Param('slug') slug: string) {
+    return this.findProductByIdSlugUseCase.execute(slug);
+  }
+
+  @AuthType('user')
+  @Get('/admin/:id')
+  async getProductByIdAdmin(@Param('id') id: string) {
+    return this.findProductByIdUseCase.execute(id);
+  }
 
   @Post()
   @UseInterceptors(
@@ -33,15 +53,15 @@ export class ProductController {
     ]),
   )
   async create(
-    @UploadedFiles()
-    files: {
-      desktopImages: ProductFile[];
-      mobileImages: ProductFile[];
-    },
     @Body() dto: CreateProductDTO,
     @UserId() userId: string,
+    @UploadedFiles()
+    files?: {
+      desktopImages?: ProductFile[];
+      mobileImages?: ProductFile[];
+    },
   ) {
-    await this.createProductUseCase.execute(dto, files, userId);
+    await this.createProductUseCase.execute(dto, userId, files || {});
   }
 
   @Roles('admin')

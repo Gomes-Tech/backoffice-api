@@ -3,6 +3,8 @@ import {
   CreateProductUseCase,
   CreateProductVariantUseCase,
   DeleteProductUseCase,
+  FindProductByIdUseCase,
+  FindProductBySlugUseCase,
 } from '@app/product';
 import { PrismaProductRepository } from '@infra/prisma';
 import { Module } from '@nestjs/common';
@@ -12,6 +14,8 @@ import { ProductController } from '../controllers';
   imports: [],
   controllers: [ProductController],
   providers: [
+    FindProductByIdUseCase,
+    FindProductBySlugUseCase,
     CreateProductImageUseCase,
     CreateProductUseCase,
     CreateProductVariantUseCase,

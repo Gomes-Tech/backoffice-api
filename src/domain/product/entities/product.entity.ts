@@ -15,6 +15,59 @@ class ListProductVariant {
   ) {}
 }
 
+export class ProductAdmin {
+  constructor(
+    public readonly id: string,
+    public name: string,
+    public slug: string,
+    public isGreenSeal: boolean,
+    public freeShipping: boolean,
+    public immediateShipping: boolean,
+    public isPersonalized: boolean,
+    public isExclusive: boolean,
+    public inCutout: boolean,
+    public categories: string[],
+    public productVariants: ProductVariantAdmin[],
+    public description?: string,
+    public technicalInfo?: string,
+    public videoLink?: string,
+    public seoTitle?: string,
+    public seoDescription?: string,
+    public seoKeywords?: string,
+    public seoCanonicalUrl?: string,
+    public seoMetaRobots?: string,
+  ) {}
+}
+
+export class ProductVariantAdmin {
+  constructor(
+    public readonly id: string,
+    public price: number,
+    public sku: number,
+    public isActive: boolean,
+    public discountPrice: string,
+    public discountPix: string,
+    public weight: string,
+    public length: string,
+    public width: string,
+    public height: string,
+    public barCode: string,
+    public images: {
+      desktopImageUrl: string;
+      mobileImageUrl: string;
+      mobileImageFirst: boolean;
+      desktopImageFirst: boolean;
+    }[],
+    public productVariantAttributes: string[],
+    public stock?: number,
+    public seoTitle?: string,
+    public seoDescription?: string,
+    public seoKeywords?: string,
+    public seoCanonicalUrl?: string,
+    public seoMetaRobots?: string,
+  ) {}
+}
+
 export class Product {
   constructor(
     public readonly id: string,
@@ -27,12 +80,23 @@ export class Product {
     public isExclusive: boolean,
     public inCutout: boolean,
     public productVariants: ProductVariant[],
-    public categories: string[],
+    public categories: {
+      id: string;
+      name: string;
+      slug: string;
+    }[],
     public description?: string,
+    public technicalInfo?: string,
+    public videoLink?: string,
+    public seoTitle?: string,
+    public seoDescription?: string,
+    public seoKeywords?: string,
+    public seoCanonicalUrl?: string,
+    public seoMetaRobots?: string,
   ) {}
 }
 
-class ProductVariant {
+export class ProductVariant {
   constructor(
     public readonly id: string,
     public price: number,
@@ -56,33 +120,35 @@ class ProductVariant {
   ) {}
 }
 
-class ProductImage {
+export class ProductImage {
   constructor(
     public readonly id: string,
     public desktopImageUrl: string,
     public desktopImageAlt: string,
+    public desktopImageFirst: boolean,
     public mobileImageUrl: string,
     public mobileImageAlt: string,
-    public isFirst: boolean,
+    public mobileImageFirst: boolean,
   ) {}
 }
 
-class ProductVariantAttributeValue {
+export class ProductVariantAttributeValue {
   constructor(
     public readonly id: string,
-    public attributeValue: AttributeValue[],
+    public attributeValue: AttributeValueProduct,
   ) {}
 }
 
-class AttributeValue {
+export class AttributeValueProduct {
   constructor(
     public readonly id: string,
     public name: string,
-    public attribute: Attribute,
+    public value: string,
+    public attribute: AttributeProduct,
   ) {}
 }
 
-class Attribute {
+export class AttributeProduct {
   constructor(
     public readonly id: string,
     public name: string,
@@ -91,7 +157,7 @@ class Attribute {
 
 export class CreateProduct {
   constructor(
-    public readonly id: string,
+    public id: string,
     public name: string,
     public slug: string,
     public isGreenSeal: boolean,
@@ -102,12 +168,19 @@ export class CreateProduct {
     public inCutout: boolean,
     public categories: string[],
     public description?: string,
+    public technicalInfo?: string,
+    public videoLink?: string,
+    public seoTitle?: string,
+    public seoDescription?: string,
+    public seoKeywords?: string,
+    public seoCanonicalUrl?: string,
+    public seoMetaRobots?: string,
   ) {}
 }
 
 export class CreateProductVariant {
   constructor(
-    public readonly id: string,
+    public id: string,
     public price: number,
     public isActive: boolean,
     public weight: string,
@@ -131,7 +204,7 @@ export class CreateProductVariant {
 
 export class CreateProductImage {
   constructor(
-    public readonly id: string,
+    public id: string,
     public productVariant: string,
     public desktopImageUrl: string,
     public desktopImageAlt: string,

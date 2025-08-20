@@ -66,28 +66,48 @@ async function main() {
       parentId: null,
     },
     {
+      id: '7124c5f2-67a1-4b2b-86e0-ec937d1e9cf6',
+      name: 'Galhos em Recorte',
+      parentId: null,
+    },
+    {
+      id: '54d6c036-9854-4aeb-82ed-0f017b6e21ff',
+      name: 'Réguas de Crescimento',
+      parentId: null,
+    },
+    {
+      id: '994ea61b-5758-4769-a797-2a8b2cb4f827',
+      name: 'Prateleira',
+      parentId: null,
+    },
+    {
+      id: '36524921-a8ff-4529-abd3-81513a9734be',
+      name: 'Cabideiro',
+      parentId: null,
+    },
+    {
+      id: '67a24010-d8d0-482f-a9b6-a9e9433e73c5',
+      name: 'Espelho Decorativo',
+      parentId: null,
+    },
+    {
       id: 'a332c5da-7066-4405-9379-b91071097e6d',
       name: 'Papel de Parede',
       parentId: null,
     },
     {
       id: '0d360427-1c08-493b-8018-a5f1f7fac0e6',
-      name: 'infantil',
+      name: 'Papel de Parede Menino',
       parentId: 'a332c5da-7066-4405-9379-b91071097e6d',
     },
     {
       id: '5f018c52-88ed-4890-845b-ca4a8897dc68',
-      name: 'Menina',
-      parentId: '0d360427-1c08-493b-8018-a5f1f7fac0e6',
-    },
-    {
-      id: '2b88b8a2-6cae-4a83-b185-b47a8f10fb51',
-      name: 'Menino',
-      parentId: '0d360427-1c08-493b-8018-a5f1f7fac0e6',
+      name: 'Papel de Parede Menina',
+      parentId: 'a332c5da-7066-4405-9379-b91071097e6d',
     },
     {
       id: '82021e33-9bc1-4712-986d-acb73ac9f850',
-      name: 'Sala',
+      name: 'Papel de Parede Sala',
       parentId: 'a332c5da-7066-4405-9379-b91071097e6d',
     },
   ];

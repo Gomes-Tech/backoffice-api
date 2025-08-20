@@ -233,12 +233,14 @@ model Product {
   name              String  @unique
   slug              String  @unique
   description       String?
+  technicalInfo     String? @map("technical_info")
   isGreenSeal       Boolean @map("is_green_seal")
   freeShipping      Boolean @map("free_shipping")
   immediateShipping Boolean @map("immediate_shipping")
   isPersonalized    Boolean @map("is_personalized")
   isExclusive       Boolean @map("is_exclusive")
   inCutout          Boolean @map("in_cutout")
+  videoLink         String? @map("video_link")
 
   seoTitle        String? @map("seo_title")
   seoDescription  String? @map("seo_description")
@@ -285,6 +287,9 @@ model ProductVariant {
   productId    String
   product      Product        @relation(fields: [productId], references: [id])
   productImage ProductImage[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 }
 
 model ProductImage {

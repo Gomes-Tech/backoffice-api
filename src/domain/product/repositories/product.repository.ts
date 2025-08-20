@@ -5,6 +5,7 @@ import {
   CreateProductVariant,
   ListProduct,
   Product,
+  ProductAdmin,
 } from '../entities';
 
 type CreateReturn = {
@@ -16,9 +17,10 @@ export abstract class ProductRepository extends BaseRepository<
   CreateProduct,
   unknown,
   ListProduct,
-  Product,
+  ProductAdmin,
   CreateReturn
 > {
+  abstract findBySlug(slug: string): Promise<Product>;
   abstract createImageVariant(dto: CreateProductImage): Promise<void>;
   abstract createVariant(dto: CreateProductVariant): Promise<CreateReturn>;
 }

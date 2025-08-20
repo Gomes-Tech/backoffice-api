@@ -2,6 +2,7 @@ import { Transform, Type, plainToInstance } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
+  IsDefined,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -22,46 +23,116 @@ export class CreateProductDTO {
   @IsString()
   description?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
+  @IsString()
+  technicalInfo?: string;
+
+  @IsOptional()
+  @IsString()
+  desktopImageFirst?: string;
+
+  @IsOptional()
+  @IsString()
+  mobileImageFirst?: string;
+
+  @IsOptional()
+  @IsString()
+  videoLink?: string;
+
+  @IsDefined()
   @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === true, {
-    toClassOnly: true,
-  })
+  @Transform(
+    ({ value }) => {
+      const val =
+        typeof value === 'string' ? value.replace(/^"|"$/g, '') : value;
+      if (val === 'true') return true;
+      if (val === 'false') return false;
+      return false;
+    },
+    {
+      toClassOnly: true,
+    },
+  )
   isGreenSeal: boolean;
 
-  @IsNotEmpty()
+  @IsDefined()
   @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === true, {
-    toClassOnly: true,
-  })
+  @Transform(
+    ({ value }) => {
+      const val =
+        typeof value === 'string' ? value.replace(/^"|"$/g, '') : value;
+      if (val === 'true') return true;
+      if (val === 'false') return false;
+      return false;
+    },
+    {
+      toClassOnly: true,
+    },
+  )
   freeShipping: boolean;
 
-  @IsNotEmpty()
+  @IsDefined()
   @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === true, {
-    toClassOnly: true,
-  })
+  @Transform(
+    ({ value }) => {
+      const val =
+        typeof value === 'string' ? value.replace(/^"|"$/g, '') : value;
+      if (val === 'true') return true;
+      if (val === 'false') return false;
+      return false;
+    },
+    {
+      toClassOnly: true,
+    },
+  )
   immediateShipping: boolean;
 
-  @IsNotEmpty()
+  @IsDefined()
   @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === true, {
-    toClassOnly: true,
-  })
+  @Transform(
+    ({ value }) => {
+      const val =
+        typeof value === 'string' ? value.replace(/^"|"$/g, '') : value;
+      if (val === 'true') return true;
+      if (val === 'false') return false;
+      return false;
+    },
+    {
+      toClassOnly: true,
+    },
+  )
   isPersonalized: boolean;
 
-  @IsNotEmpty()
+  @IsDefined()
   @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === true, {
-    toClassOnly: true,
-  })
+  @Transform(
+    ({ value }) => {
+      const val =
+        typeof value === 'string' ? value.replace(/^"|"$/g, '') : value;
+      if (val === 'true') return true;
+      if (val === 'false') return false;
+      return false;
+    },
+    {
+      toClassOnly: true,
+    },
+  )
   isExclusive: boolean;
 
-  @IsNotEmpty()
+  @IsDefined()
   @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === true, {
-    toClassOnly: true,
-  })
+  @Transform(
+    ({ value }) => {
+      const val =
+        typeof value === 'string' ? value.replace(/^"|"$/g, '') : value;
+      if (val === 'true') return true;
+      if (val === 'false') return false;
+      return false;
+    },
+    {
+      toClassOnly: true,
+    },
+  )
   inCutout: boolean;
 
   @IsNotEmpty()
@@ -85,7 +156,7 @@ export class CreateProductDTO {
   @IsNotEmpty()
   @IsArray()
   @ValidateNested({ each: true })
-  // @Type(() => ProductVariant) // opcional quando já instanciamos manualmente
+  @Type(() => ProductVariant)
   @Transform(
     ({ value }) => {
       const arr =
@@ -106,6 +177,26 @@ export class CreateProductDTO {
     { toClassOnly: true },
   )
   productVariants: ProductVariant[];
+
+  @IsOptional()
+  @IsString()
+  seoTitle?: string;
+
+  @IsOptional()
+  @IsString()
+  seoDescription?: string;
+
+  @IsOptional()
+  @IsString()
+  seoKeywords?: string;
+
+  @IsOptional()
+  @IsString()
+  seoCanonicalUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  seoMetaRobots?: string;
 }
 
 class ProductVariant {
@@ -135,7 +226,7 @@ class ProductVariant {
   barCode?: string;
 
   @IsNotEmpty()
-  @Type(() => Number)
+  @Transform(({ value }) => Number(value), { toClassOnly: true })
   @IsNumber()
   price: number;
 
@@ -169,11 +260,20 @@ class ProductVariant {
   @IsString()
   discountPrice?: string;
 
-  @IsNotEmpty()
+  @IsDefined()
   @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === true, {
-    toClassOnly: true,
-  })
+  @Transform(
+    ({ value }) => {
+      const val =
+        typeof value === 'string' ? value.replace(/^"|"$/g, '') : value;
+      if (val === 'true') return true;
+      if (val === 'false') return false;
+      return false;
+    },
+    {
+      toClassOnly: true,
+    },
+  )
   isActive: boolean;
 
   @IsOptional()

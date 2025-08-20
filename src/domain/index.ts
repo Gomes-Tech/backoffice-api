@@ -5,6 +5,7 @@ export * from './category';
 export * from './common';
 export * from './footer-menu';
 export * from './header-menu';
+export * from './product';
 export * from './role';
 export * from './social-media';
 export * from './token-password';

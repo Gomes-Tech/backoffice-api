@@ -1,13 +1,17 @@
+import { ProductMapper } from '@domain/product';
 import {
+  CreateProduct,
   CreateProductImage,
   CreateProductVariant,
   ListProduct,
   Product,
+  ProductAdmin,
 } from '@domain/product/entities';
 import { ProductRepository } from '@domain/product/repositories';
 import { BadRequestException, NotFoundException } from '@infra/filters';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma.service';
 
 type CreateReturn = {
@@ -24,14 +28,171 @@ export class PrismaProductRepository extends ProductRepository {
     return [];
   }
 
-  async findById(id: string): Promise<Product> {
-    return null;
+  async findById(id: string): Promise<ProductAdmin> {
+    const data = await this.prismaService.product.findUnique({
+      where: { id, isDeleted: false },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        isExclusive: true,
+        isGreenSeal: true,
+        isPersonalized: true,
+        immediateShipping: true,
+        freeShipping: true,
+        categories: {
+          select: {
+            id: true,
+          },
+        },
+        videoLink: true,
+        seoTitle: true,
+        seoCanonicalUrl: true,
+        seoDescription: true,
+        seoKeywords: true,
+        seoMetaRobots: true,
+        technicalInfo: true,
+        description: true,
+        inCutout: true,
+        productVariants: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+          take: 1,
+          select: {
+            id: true,
+            price: true,
+            barCode: true,
+            length: true,
+            productImage: {
+              select: {
+                desktopImageUrl: true,
+                desktopImageFirst: true,
+                mobileImageUrl: true,
+                mobileImageFirst: true,
+              },
+            },
+            discountPix: true,
+            discountPrice: true,
+            weight: true,
+            sku: true,
+            stock: true,
+            width: true,
+            isActive: true,
+            height: true,
+            productVariantAttributes: {
+              select: {
+                attributeValueId: true,
+              },
+            },
+            seoCanonicalUrl: true,
+            seoDescription: true,
+            seoKeywords: true,
+            seoMetaRobots: true,
+            seoTitle: true,
+          },
+        },
+      },
+    });
+
+    return ProductMapper.toAdmin(data);
   }
 
-  async create(dto: any, createdBy?: string): Promise<CreateReturn> {
+  async findBySlug(slug: string): Promise<Product> {
+    const data = await this.prismaService.product.findUnique({
+      where: { slug, isDeleted: false },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        isExclusive: true,
+        isGreenSeal: true,
+        isPersonalized: true,
+        immediateShipping: true,
+        freeShipping: true,
+        categories: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        videoLink: true,
+        seoTitle: true,
+        seoCanonicalUrl: true,
+        seoDescription: true,
+        seoKeywords: true,
+        seoMetaRobots: true,
+        technicalInfo: true,
+        description: true,
+        inCutout: true,
+        productVariants: {
+          where: {
+            isActive: true,
+          },
+          select: {
+            id: true,
+            price: true,
+            barCode: true,
+            length: true,
+            productImage: {
+              select: {
+                desktopImageUrl: true,
+                desktopImageAlt: true,
+                desktopImageFirst: true,
+                mobileImageUrl: true,
+                mobileImageAlt: true,
+                mobileImageFirst: true,
+              },
+            },
+            discountPix: true,
+            discountPrice: true,
+            weight: true,
+            sku: true,
+            stock: true,
+            width: true,
+            isActive: true,
+            height: true,
+            productVariantAttributes: {
+              select: {
+                id: true,
+                attributeValue: {
+                  select: {
+                    id: true,
+                    name: true,
+                    value: true,
+                    attribute: {
+                      select: {
+                        id: true,
+                        name: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            seoCanonicalUrl: true,
+            seoDescription: true,
+            seoKeywords: true,
+            seoMetaRobots: true,
+            seoTitle: true,
+          },
+        },
+      },
+    });
+
+    if (!data) {
+      return null;
+    }
+
+    return ProductMapper.toView(data);
+  }
+
+  async create(dto: CreateProduct, createdBy?: string): Promise<CreateReturn> {
     try {
       const product = await this.prismaService.product.create({
         data: {
+          id: dto.id,
           name: dto.name,
           slug: dto.slug,
           categories: {
@@ -39,7 +200,9 @@ export class PrismaProductRepository extends ProductRepository {
               id: categoryId,
             })),
           },
+          videoLink: dto.videoLink,
           description: dto.description,
+          technicalInfo: dto.technicalInfo,
           seoTitle: dto.seoTitle,
           seoDescription: dto.seoDescription,
           seoCanonicalUrl: dto.seoCanonicalUrl,
@@ -65,7 +228,7 @@ export class PrismaProductRepository extends ProductRepository {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2025'
       ) {
-        throw new NotFoundException(dto?.createdBy + ' não encontrado.');
+        throw new NotFoundException(createdBy + ' não encontrado.');
       }
 
       throw new BadRequestException(
@@ -98,6 +261,7 @@ export class PrismaProductRepository extends ProductRepository {
           productVariantAttributes: {
             createMany: {
               data: dto.productVariantAttributes.map((item) => ({
+                id: uuidv4(),
                 attributeValueId: item,
               })),
             },
