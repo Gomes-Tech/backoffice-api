@@ -1,8 +1,8 @@
 import { AttributeValueRepository } from '@domain/attribute-value';
 import { UpdateAttributeValueDTO } from '@interfaces/http';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { FindAttributeValueByIdUseCase } from './find-attribute-value-by-id.use-case';
 import { FindAttributeValueByValueUseCase } from './find-attribute-value-by-value.use-case';
+import { FindAttributeValueByIdUseCase } from './find-attribute-value-by-id.use-case';
 
 @Injectable()
 export class UpdateAttributeValueUseCase {

@@ -1,3 +1,4 @@
+import { FindAttributeValueByIdWithAttributeUseCase } from '@app/attribute-value';
 import { ProductRepository } from '@domain/product/repositories';
 import { StorageFile, StorageService } from '@infra/providers';
 import { CreateProductDTO } from '@interfaces/http';
@@ -15,6 +16,7 @@ export class CreateProductUseCase {
     private readonly storageService: StorageService,
     private readonly createProductImageUseCase: CreateProductImageUseCase,
     private readonly createProductVariantUseCase: CreateProductVariantUseCase,
+    private readonly findAttributeValueByIdWithAttributeUseCase: FindAttributeValueByIdWithAttributeUseCase,
   ) {}
 
   async execute(
@@ -51,41 +53,110 @@ export class CreateProductUseCase {
 
     const mainVariant = dto.productVariants[0];
 
-    const { id: variantId } = await this.createProductVariantUseCase.execute({
-      id: uuidv4(),
-      productId,
-      barCode: mainVariant.barCode,
-      discountPix: mainVariant.discountPix,
-      discountPrice: mainVariant.discountPrice,
-      height: mainVariant.height,
-      isActive: mainVariant.isActive,
-      length: mainVariant.length,
-      price: mainVariant.price,
-      sku: mainVariant.sku,
-      weight: mainVariant.weight,
-      width: mainVariant.width,
-      productVariantAttributes: mainVariant.productVariantAttributes,
-      seoCanonicalUrl: mainVariant.seoCanonicalUrl,
-      seoDescription: mainVariant.seoDescription,
-      seoKeywords: mainVariant.seoKeywords,
-      seoMetaRobots: mainVariant.seoMetaRobots,
-      seoTitle: mainVariant.seoTitle,
-      stock: mainVariant.stock,
-    });
+    let createdVariantIds: string[] = [];
 
     if (
-      files.desktopImages &&
-      files.desktopImages.length > 0 &&
-      files.mobileImages &&
-      files.mobileImages.length > 0
+      mainVariant.productVariantAttributes &&
+      mainVariant.productVariantAttributes.length > 0
     ) {
+      // Se houver atributos -> gerar combinações
+      const attributeResults = await Promise.allSettled(
+        mainVariant.productVariantAttributes.map(async (valueId) => {
+          const value =
+            await this.findAttributeValueByIdWithAttributeUseCase.execute(
+              valueId,
+            );
+          return { id: value.id, attributeId: value.attributeId };
+        }),
+      );
+
+      const attributeValues = attributeResults
+        .filter(
+          (
+            res,
+          ): res is PromiseFulfilledResult<{
+            id: string;
+            attributeId: string;
+          }> => res.status === 'fulfilled',
+        )
+        .map((res) => res.value);
+
+      // Agrupa por attributeId
+      const grouped: Record<string, string[]> = {};
+      for (const val of attributeValues) {
+        if (!grouped[val.attributeId]) grouped[val.attributeId] = [];
+        grouped[val.attributeId].push(val.id);
+      }
+
+      // Gera combinações
+      const combinations = this.cartesian(Object.values(grouped));
+
+      let addMore = 0;
+
+      for (const combo of combinations) {
+        const variant = await this.createProductVariantUseCase.execute({
+          id: uuidv4(),
+          productId,
+          barCode: mainVariant.barCode,
+          discountPix: mainVariant.discountPix,
+          discountPrice: mainVariant.discountPrice,
+          height: mainVariant.height,
+          isActive: mainVariant.isActive,
+          length: mainVariant.length,
+          price: mainVariant.price,
+          sku: mainVariant.sku + addMore,
+          weight: mainVariant.weight,
+          width: mainVariant.width,
+          productVariantAttributes: combo,
+          seoCanonicalUrl: mainVariant.seoCanonicalUrl,
+          seoDescription: mainVariant.seoDescription,
+          seoKeywords: mainVariant.seoKeywords,
+          seoMetaRobots: mainVariant.seoMetaRobots,
+          seoTitle: mainVariant.seoTitle,
+          stock: mainVariant.stock,
+        });
+        createdVariantIds.push(variant.id);
+
+        addMore++;
+      }
+    } else {
+      // Se não houver atributos -> cria só 1 variação
+      const variant = await this.createProductVariantUseCase.execute({
+        id: uuidv4(),
+        productId,
+        barCode: mainVariant.barCode,
+        discountPix: mainVariant.discountPix,
+        discountPrice: mainVariant.discountPrice,
+        height: mainVariant.height,
+        isActive: mainVariant.isActive,
+        length: mainVariant.length,
+        price: mainVariant.price,
+        sku: mainVariant.sku,
+        weight: mainVariant.weight,
+        width: mainVariant.width,
+        productVariantAttributes: [],
+        seoCanonicalUrl: mainVariant.seoCanonicalUrl,
+        seoDescription: mainVariant.seoDescription,
+        seoKeywords: mainVariant.seoKeywords,
+        seoMetaRobots: mainVariant.seoMetaRobots,
+        seoTitle: mainVariant.seoTitle,
+        stock: mainVariant.stock,
+      });
+      createdVariantIds.push(variant.id);
+    }
+
+    // Agora createdVariantIds[0] é a "main variant" para imagens
+    const mainVariantId = createdVariantIds[0];
+
+    // Só cria imagens se houver arquivos
+    if (files?.desktopImages?.length && files?.mobileImages?.length) {
       const desktopResults = await Promise.allSettled(
         files.desktopImages.map((file, index) =>
           this.storageService
             .uploadFile('products/desktop', file.originalname, file.buffer)
             .then((storageFile) => ({
               ...storageFile,
-              isFirst: dto.desktopImageFirst === String(index), // preserva a flag
+              isFirst: dto.desktopImageFirst === String(index),
               alt: dto.name,
             })),
         ),
@@ -128,7 +199,7 @@ export class CreateProductUseCase {
       const images = Array.from({ length: maxLength }, (_, i) => ({
         desktopImageUrl: desktopUrls[i].publicUrl,
         desktopImageAlt: desktopUrls[i].alt,
-        desktopImageKey: mobileUrls[i].path,
+        desktopImageKey: desktopUrls[i].path,
         mobileImageUrl: mobileUrls[i].publicUrl,
         mobileImageKey: mobileUrls[i].path,
         mobileImageAlt: mobileUrls[i].alt,
@@ -141,12 +212,19 @@ export class CreateProductUseCase {
           await this.createProductImageUseCase.execute({
             id: uuidv4(),
             ...image,
-            productVariant: variantId,
+            productVariant: mainVariantId, // agora vincula à primeira variação criada
           });
         } catch (error) {
           continue;
         }
       }
     }
+  }
+
+  private cartesian(arrays: string[][]): string[][] {
+    return arrays.reduce<string[][]>(
+      (acc, curr) => acc.flatMap((a) => curr.map((c) => [...a, c])),
+      [[]],
+    );
   }
 }

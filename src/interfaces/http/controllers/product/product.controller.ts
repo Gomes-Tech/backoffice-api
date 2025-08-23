@@ -23,7 +23,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 export type ProductFile = Express.Multer.File & {
   isFirst?: boolean;
 };
-@AuthType('user')
+@AuthType(['user'])
 @Controller('products')
 export class ProductController {
   constructor(
@@ -39,7 +39,7 @@ export class ProductController {
     return this.findProductByIdSlugUseCase.execute(slug);
   }
 
-  @AuthType('user')
+  @AuthType(['user'])
   @Get('/admin/:id')
   async getProductByIdAdmin(@Param('id') id: string) {
     return this.findProductByIdUseCase.execute(id);

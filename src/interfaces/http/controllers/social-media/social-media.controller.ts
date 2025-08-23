@@ -39,7 +39,7 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('Social Media')
-@AuthType('user')
+@AuthType(['user'])
 @Controller('social-media')
 export class SocialMediaController {
   constructor(

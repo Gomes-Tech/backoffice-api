@@ -2,7 +2,9 @@ import {
   CreateAttributeValueUseCase,
   DeleteAttributeValueUseCase,
   FindAllAttributeValueByAttributeUseCase,
+  FindAllAttributeValueUseCase,
   FindAttributeValueByIdUseCase,
+  FindAttributeValueByIdWithAttributeUseCase,
   FindAttributeValueByNameUseCase,
   FindAttributeValueByValueUseCase,
   UpdateAttributeValueUseCase,
@@ -15,7 +17,9 @@ import { AttributeValueController } from '../controllers';
   imports: [],
   controllers: [AttributeValueController],
   providers: [
+    FindAllAttributeValueUseCase,
     FindAllAttributeValueByAttributeUseCase,
+    FindAttributeValueByIdWithAttributeUseCase,
     FindAttributeValueByIdUseCase,
     FindAttributeValueByNameUseCase,
     FindAttributeValueByValueUseCase,
@@ -29,6 +33,7 @@ import { AttributeValueController } from '../controllers';
     },
   ],
   exports: [
+    FindAttributeValueByIdWithAttributeUseCase,
     {
       provide: 'AttributeValueRepository',
       useExisting: PrismaAttributeValueRepository,

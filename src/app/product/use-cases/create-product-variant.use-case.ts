@@ -1,3 +1,4 @@
+import { FindAttributeValueByIdWithAttributeUseCase } from '@app/attribute-value';
 import { CreateProductVariant } from '@domain/product/entities';
 import { ProductRepository } from '@domain/product/repositories';
 import { Inject, Injectable } from '@nestjs/common';

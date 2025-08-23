@@ -2,6 +2,7 @@ import {
   CreateAttributeValueUseCase,
   DeleteAttributeValueUseCase,
   FindAllAttributeValueByAttributeUseCase,
+  FindAllAttributeValueUseCase,
   UpdateAttributeValueUseCase,
 } from '@app/attribute-value';
 import { AttributeValue } from '@domain/attribute-value';
@@ -24,19 +25,26 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-@AuthType('user')
+@AuthType(['user'])
 @Controller('attribute-values')
 export class AttributeValueController {
   constructor(
     private readonly findAllAttributeValueByAttributeUseCase: FindAllAttributeValueByAttributeUseCase,
+    private readonly findAllAttributeValueUseCase: FindAllAttributeValueUseCase,
     private readonly createAttributeValueUseCase: CreateAttributeValueUseCase,
     private readonly updateAttributeValueUseCase: UpdateAttributeValueUseCase,
     private readonly deleteAttributeValueUseCase: DeleteAttributeValueUseCase,
   ) {}
 
   @Public()
+  @Get()
+  async findAll(): Promise<AttributeValue[]> {
+    return await this.findAllAttributeValueUseCase.execute();
+  }
+
+  @Public()
   @Get('/:attributeId')
-  async findAll(
+  async findAllByAttributeId(
     @Param('attributeId') attributeId: string,
   ): Promise<AttributeValue[]> {
     return await this.findAllAttributeValueByAttributeUseCase.execute(

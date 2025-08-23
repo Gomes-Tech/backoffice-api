@@ -24,7 +24,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-@AuthType('user')
+@AuthType(['user'])
 @Controller('header-menu')
 export class HeaderMenuController {
   constructor(

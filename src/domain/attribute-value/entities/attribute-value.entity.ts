@@ -6,6 +6,24 @@ export class AttributeValue {
   ) {}
 }
 
+export class ListAttributeValue extends AttributeValue {
+  constructor(
+    id: string,
+    name: string,
+    value: string,
+    public readonly attributeId: string,
+  ) {
+    super(id, name, value);
+  }
+}
+
+export class AttributeValueWithAttribute {
+  constructor(
+    public id: string,
+    public attributeId: string,
+  ) {}
+}
+
 export class CreateAttributeValue extends AttributeValue {
   constructor(
     id: string,

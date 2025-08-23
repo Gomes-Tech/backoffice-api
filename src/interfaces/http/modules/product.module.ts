@@ -9,9 +9,10 @@ import {
 import { PrismaProductRepository } from '@infra/prisma';
 import { Module } from '@nestjs/common';
 import { ProductController } from '../controllers';
+import { AttributeValueModule } from './attribute-value.module';
 
 @Module({
-  imports: [],
+  imports: [AttributeValueModule],
   controllers: [ProductController],
   providers: [
     FindProductByIdUseCase,

@@ -26,16 +26,19 @@ export class AuthDispatchGuard {
       return true;
     }
 
-    const type = this.reflector.getAllAndOverride<string>(AUTH_TYPE_KEY, [
+    const types = this.reflector.getAllAndOverride<string[]>(AUTH_TYPE_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
 
-    if (type === 'customer') {
+    if (!types || types.length === 0) return true;
+
+    if (types.includes('customer')) {
       return this.customerAuth.canActivate(context) as Promise<boolean>;
     }
 
-    if (type === 'user') {
+    // checa se "user" está na lista
+    if (types.includes('user')) {
       return this.userAuth.canActivate(context) as Promise<boolean>;
     }
 

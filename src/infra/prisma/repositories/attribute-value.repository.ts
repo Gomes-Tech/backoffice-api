@@ -1,7 +1,9 @@
 import {
   AttributeValue,
   AttributeValueRepository,
+  AttributeValueWithAttribute,
   CreateAttributeValue,
+  ListAttributeValue,
   UpdateAttributeValue,
 } from '@domain/attribute-value';
 import { BadRequestException, NotFoundException } from '@infra/filters';
@@ -15,8 +17,30 @@ export class PrismaAttributeValueRepository extends AttributeValueRepository {
     super();
   }
 
-  findAll(): Promise<any[]> {
-    return;
+  async findAll(): Promise<ListAttributeValue[]> {
+    return await this.prismaService.attributeValue.findMany({
+      where: {
+        isDeleted: false,
+      },
+      select: {
+        id: true,
+        name: true,
+        value: true,
+        attributeId: true,
+      },
+    });
+  }
+
+  async findWithAttributeId(
+    atrrValueId: string,
+  ): Promise<AttributeValueWithAttribute> {
+    return await this.prismaService.attributeValue.findUnique({
+      where: { id: atrrValueId },
+      select: {
+        id: true,
+        attributeId: true,
+      },
+    });
   }
 
   async findAllByAttribute(attributeId: string): Promise<AttributeValue[]> {
