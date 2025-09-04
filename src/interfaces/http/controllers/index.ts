@@ -3,6 +3,7 @@ export * from './attribute-value';
 export * from './auth';
 export * from './banner';
 export * from './category';
+export * from './customer';
 export * from './footer-menu';
 export * from './header-menu';
 export * from './product';

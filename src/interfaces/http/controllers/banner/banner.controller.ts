@@ -80,13 +80,22 @@ export class BannerController {
 
   @Roles('admin')
   @Patch('/:id')
+  @UsePipes(ValidationPipe)
+  @UseInterceptors(AnyFilesInterceptor())
   @HttpCode(HttpStatus.NO_CONTENT)
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateBannerDTO,
+    @UploadedFiles() files: Express.Multer.File[],
     @UserId() userId: string,
   ) {
-    await this.updateBannerUseCase.execute(id, dto, userId);
+    const desktop = files.find((file) => file.fieldname === 'desktop');
+    const mobile = files.find((file) => file.fieldname === 'mobile');
+
+    await this.updateBannerUseCase.execute(id, dto, userId, {
+      desktop,
+      mobile,
+    });
   }
 
   @Roles('admin')

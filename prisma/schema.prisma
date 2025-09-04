@@ -251,6 +251,10 @@ model Product {
   categories      Category[]       @relation("ProductCategories")
   productVariants ProductVariant[]
 
+  productFAQ      ProductFAQ[]
+  relatedProducts RelatedProduct[]
+  similarProducts SimilarProduct[]
+
   createdBy   User     @relation("UserCreatedProducts", fields: [createdById], references: [id])
   createdById String   @map("created_by")
   createdAt   DateTime @default(now()) @map("created_at")
@@ -359,6 +363,34 @@ model AttributeValue {
   deletedById String?  @map("deleted_by")
 
   @@map("attribute_value")
+}
+
+model ProductFAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Product   Product? @relation(fields: [productId], references: [id])
+  productId String?  @map("product_id")
+
+  @@map("product_faq")
+}
+
+model RelatedProduct {
+  id        String  @id @default(cuid())
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @map("product_id")
+
+  @@map("related_products")
+}
+
+model SimilarProduct {
+  id        String  @id @default(cuid())
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @map("product_id")
+
+  @@map("similar_products")
 }
 
 model FooterMenu {

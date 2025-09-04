@@ -40,6 +40,18 @@ export class PrismaCustomerRepository extends CustomerRepository {
     });
   }
 
+  async findMe(id: string): Promise<{ name: string }> {
+    return await this.prismaService.customer.findUnique({
+      where: {
+        id,
+        isDeleted: false,
+      },
+      select: {
+        name: true,
+      },
+    });
+  }
+
   async findByEmail(email: string): Promise<Customer> {
     return await this.prismaService.customer.findUnique({
       where: {

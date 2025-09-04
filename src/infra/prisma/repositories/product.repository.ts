@@ -1,11 +1,13 @@
 import { ProductMapper } from '@domain/product';
 import {
   CreateProduct,
+  CreateProductFAQ,
   CreateProductImage,
   CreateProductVariant,
   ListProduct,
   Product,
   ProductAdmin,
+  UpdateProduct,
 } from '@domain/product/entities';
 import { ProductRepository } from '@domain/product/repositories';
 import { BadRequestException, NotFoundException } from '@infra/filters';
@@ -92,6 +94,12 @@ export class PrismaProductRepository extends ProductRepository {
             seoTitle: true,
           },
         },
+        similarProducts: {
+          select: { id: true },
+        },
+        relatedProducts: {
+          select: { id: true },
+        },
       },
     });
 
@@ -126,6 +134,13 @@ export class PrismaProductRepository extends ProductRepository {
         technicalInfo: true,
         description: true,
         inCutout: true,
+        productFAQ: {
+          select: {
+            id: true,
+            question: true,
+            answer: true,
+          },
+        },
         productVariants: {
           where: {
             isActive: true,
@@ -309,7 +324,82 @@ export class PrismaProductRepository extends ProductRepository {
     }
   }
 
-  async update(id: string, dto: unknown, userId: string): Promise<void> {}
+  async createProductFAQ(dto: CreateProductFAQ): Promise<void> {
+    try {
+      await this.prismaService.productFAQ.create({
+        data: {
+          id: dto.id,
+          answer: dto.answer,
+          question: dto.question,
+          Product: {
+            connect: {
+              id: dto.productId,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException(
+        'Erro ao criar a faq do produto: ' + error.message,
+      );
+    }
+  }
+
+  async update(id: string, dto: UpdateProduct, userId: string): Promise<void> {
+    try {
+      await this.prismaService.product.update({
+        where: { id, isDeleted: false },
+        data: {
+          name: dto.name,
+          slug: dto.slug,
+          description: dto.description,
+          technicalInfo: dto.technicalInfo,
+          seoTitle: dto.seoTitle,
+          seoDescription: dto.seoDescription,
+          seoCanonicalUrl: dto.seoCanonicalUrl,
+          seoKeywords: dto.seoKeywords,
+          seoMetaRobots: dto.seoMetaRobots,
+          videoLink: dto.videoLink,
+          categories: {
+            set: dto.categories.map((categoryId) => ({ id: categoryId })), // sobrescreve categorias
+          },
+          updatedBy: {
+            connect: { id: userId },
+          },
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Produto não encontrado.');
+      }
+
+      throw new BadRequestException(
+        'Erro ao atualizar o produto: ' + error.message,
+      );
+    }
+  }
+
+  async updateProductFAQ(dto: CreateProductFAQ): Promise<void> {
+    try {
+      await this.prismaService.productFAQ.update({
+        where: { id: dto.id },
+        data: {
+          question: dto.question,
+          answer: dto.answer,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('FAQ do produto não encontrado');
+      }
+    }
+  }
 
   async delete(id: string, userId: string): Promise<void> {
     try {

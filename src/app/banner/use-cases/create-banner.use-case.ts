@@ -20,12 +20,12 @@ export class CreateBannerUseCase {
     const [desktopImage, mobileImage] = await Promise.all([
       this.storageService.uploadFile(
         'banners',
-        files.desktop.filename,
+        files.desktop.originalname,
         files.desktop.buffer,
       ),
       this.storageService.uploadFile(
         'banners/mobile',
-        files.mobile.filename,
+        files.mobile.originalname,
         files.mobile.buffer,
       ),
     ]);
@@ -36,6 +36,8 @@ export class CreateBannerUseCase {
       mobileImageUrl: mobileImage.publicUrl,
       desktopImageKey: desktopImage.path,
       desktopImageUrl: desktopImage.publicUrl,
+      mobileImageAlt: dto.name,
+      desktopImageAlt: dto.name,
       createdBy: userId,
       ...dto,
     };

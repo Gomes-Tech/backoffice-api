@@ -40,7 +40,7 @@ export class SignInCustomerUseCase {
     return {
       accessToken,
       refreshToken,
-      customer: customerExisting,
+      // customer: customerExisting,
     };
   }
 
@@ -67,5 +67,5 @@ export class SignInCustomerUseCase {
 type Output = {
   accessToken: string;
   refreshToken: string;
-  customer: ReturnCustomer;
+  // customer: ReturnCustomer;
 };

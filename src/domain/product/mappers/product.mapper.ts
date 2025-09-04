@@ -21,6 +21,8 @@ type ProductWithRelations = Prisma.ProductGetPayload<{
     isPersonalized: true;
     immediateShipping: true;
     freeShipping: true;
+    similarProducts: { select: { id: true } };
+    relatedProducts: { select: { id: true } };
     categories: { select: { id: true } };
     videoLink: true;
     seoTitle: true;
@@ -84,6 +86,7 @@ type ProductWithRelationsView = Prisma.ProductGetPayload<{
     technicalInfo: true;
     description: true;
     inCutout: true;
+    productFAQ: { select: { id: true; question: true; answer: true } };
     productVariants: {
       select: {
         id: true;
@@ -159,6 +162,8 @@ export class ProductMapper {
       product.seoKeywords ?? undefined,
       product.seoCanonicalUrl ?? undefined,
       product.seoMetaRobots ?? undefined,
+      product.similarProducts?.map((sp) => sp.id) ?? [],
+      product.relatedProducts?.map((rp) => rp.id) ?? [],
     );
   }
 

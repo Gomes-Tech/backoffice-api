@@ -2,7 +2,6 @@ import {
   CreateCustomerUseCase,
   FindCustomerByEmailUseCase,
 } from '@app/customer';
-import { ReturnCustomer } from '@domain/customer';
 import { BadRequestException } from '@infra/filters';
 import { CreateCustomerDTO } from '@interfaces/http';
 import { Injectable } from '@nestjs/common';
@@ -36,5 +35,5 @@ export class SignUpCustomerUseCase {
 type Output = {
   accessToken: string;
   refreshToken: string;
-  customer: ReturnCustomer;
+  // customer: ReturnCustomer;
 };

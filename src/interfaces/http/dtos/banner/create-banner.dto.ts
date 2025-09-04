@@ -1,6 +1,6 @@
+import { Transform } from 'class-transformer';
 import {
   IsBoolean,
-  IsDateString,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -21,22 +21,30 @@ export class CreateBannerDTO {
   isActive: boolean;
 
   @IsNotEmpty()
-  @IsString()
-  desktopImageAlt: string;
-
-  @IsNotEmpty()
-  @IsString()
-  mobileImageAlt: string;
-
-  @IsNotEmpty()
   @IsNumber()
   order: number;
 
   @IsOptional()
-  @IsDateString()
+  @Transform(
+    ({ value }) => {
+      if (!value) return undefined;
+      return new Date(value);
+    },
+    {
+      toClassOnly: true,
+    },
+  )
   initialDate?: Date;
 
   @IsOptional()
-  @IsDateString()
+  @Transform(
+    ({ value }) => {
+      if (!value) return undefined;
+      return new Date(value);
+    },
+    {
+      toClassOnly: true,
+    },
+  )
   finishDate?: Date;
 }

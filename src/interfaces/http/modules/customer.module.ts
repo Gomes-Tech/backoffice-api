@@ -4,17 +4,20 @@ import {
   FindAllCustomersUseCase,
   FindCustomerByEmailUseCase,
   FindCustomerByIdUseCase,
+  FindMeUseCase,
   UpdateCustomerUseCase,
 } from '@app/customer';
 import { PrismaCustomerRepository } from '@infra/prisma';
 import { Module } from '@nestjs/common';
+import { CustomerController } from '../controllers';
 
 @Module({
   imports: [],
-  controllers: [],
+  controllers: [CustomerController],
   providers: [
     FindAllCustomersUseCase,
     FindCustomerByIdUseCase,
+    FindMeUseCase,
     FindCustomerByEmailUseCase,
     CreateCustomerUseCase,
     UpdateCustomerUseCase,

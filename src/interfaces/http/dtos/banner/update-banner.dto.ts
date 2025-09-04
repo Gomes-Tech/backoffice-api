@@ -1,10 +1,5 @@
-import {
-  IsBoolean,
-  IsDateString,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateBannerDTO {
   @IsOptional()
@@ -17,11 +12,11 @@ export class UpdateBannerDTO {
 
   @IsOptional()
   @IsString()
-  desktopImageAlt?: string;
+  desktopImageUrl?: string;
 
   @IsOptional()
   @IsString()
-  mobileImageAlt?: string;
+  mobileImageUrl?: string;
 
   @IsOptional()
   @IsNumber()
@@ -32,10 +27,26 @@ export class UpdateBannerDTO {
   name?: string;
 
   @IsOptional()
-  @IsDateString()
+  @Transform(
+    ({ value }) => {
+      if (!value) return undefined;
+      return new Date(value);
+    },
+    {
+      toClassOnly: true,
+    },
+  )
   initialDate?: Date;
 
   @IsOptional()
-  @IsDateString()
+  @Transform(
+    ({ value }) => {
+      if (!value) return undefined;
+      return new Date(value);
+    },
+    {
+      toClassOnly: true,
+    },
+  )
   finishDate?: Date;
 }

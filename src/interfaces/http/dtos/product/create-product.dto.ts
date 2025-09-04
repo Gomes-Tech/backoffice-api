@@ -153,6 +153,64 @@ export class CreateProductDTO {
   )
   categories: string[];
 
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @Transform(
+    ({ value }) => {
+      if (typeof value === 'string') {
+        try {
+          return JSON.parse(value);
+        } catch {
+          return [];
+        }
+      }
+      return value;
+    },
+    { toClassOnly: true },
+  )
+  relatedProducts: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @Transform(
+    ({ value }) => {
+      if (typeof value === 'string') {
+        try {
+          return JSON.parse(value);
+        } catch {
+          return [];
+        }
+      }
+      return value;
+    },
+    { toClassOnly: true },
+  )
+  similarProducts: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Transform(
+    ({ value }) => {
+      const arr =
+        typeof value === 'string'
+          ? (() => {
+              try {
+                return JSON.parse(value);
+              } catch {
+                return [];
+              }
+            })()
+          : value;
+
+      if (!Array.isArray(arr)) return [];
+    },
+    { toClassOnly: true },
+  )
+  productFAQ: { question: string; answer: string }[];
+
   @IsNotEmpty()
   @IsArray()
   @ValidateNested({ each: true })

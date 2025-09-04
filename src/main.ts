@@ -64,6 +64,7 @@ async function bootstrap() {
     },
     methods: ['GET', 'POST', 'PATCH', 'OPTIONS', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
 
   app.use(helmet());

@@ -52,6 +52,7 @@ export class PrismaBannerRepository extends BannerRepository {
   async findList(): Promise<ListBanner[]> {
     const data = await this.prismaService.banner.findMany({
       where: {
+        isActive: true,
         isDeleted: false,
       },
       orderBy: {
@@ -102,6 +103,8 @@ export class PrismaBannerRepository extends BannerRepository {
         desktopImageKey: true,
         order: true,
         isActive: true,
+        finishDate: true,
+        initialDate: true,
       },
     });
   }
@@ -116,10 +119,8 @@ export class PrismaBannerRepository extends BannerRepository {
     try {
       const {
         updatedBy,
-        desktopImageAlt,
         isActive,
         link,
-        mobileImageAlt,
         order,
         name,
         initialDate,
@@ -131,10 +132,8 @@ export class PrismaBannerRepository extends BannerRepository {
         ...(name !== undefined && { name }),
         ...(link !== undefined && { link }),
         ...(isActive !== undefined && { isActive }),
-        ...(desktopImageAlt !== undefined && { desktopImageAlt }),
-        ...(mobileImageAlt !== undefined && { mobileImageAlt }),
-        ...(initialDate !== undefined && { initialDate }),
-        ...(finishDate !== undefined && { finishDate }),
+        initialDate,
+        finishDate,
         updatedBy: { connect: { id: updatedBy } },
       };
       await this.prismaService.banner.update({

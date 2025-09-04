@@ -36,6 +36,8 @@ export class ProductAdmin {
     public seoKeywords?: string,
     public seoCanonicalUrl?: string,
     public seoMetaRobots?: string,
+    public relatedProducts?: string[],
+    public similarProducts?: string[],
   ) {}
 }
 
@@ -93,6 +95,7 @@ export class Product {
     public seoKeywords?: string,
     public seoCanonicalUrl?: string,
     public seoMetaRobots?: string,
+    public productFAQ?: ProductFAQ[],
   ) {}
 }
 
@@ -155,6 +158,14 @@ export class AttributeProduct {
   ) {}
 }
 
+export class ProductFAQ {
+  constructor(
+    public id: string,
+    public question: string,
+    public answer: string,
+  ) {}
+}
+
 export class CreateProduct {
   constructor(
     public id: string,
@@ -175,6 +186,9 @@ export class CreateProduct {
     public seoKeywords?: string,
     public seoCanonicalUrl?: string,
     public seoMetaRobots?: string,
+    public productFAQ?: CreateProductFAQ[],
+    public relatedProducts?: string[],
+    public similarProducts?: string[],
   ) {}
 }
 
@@ -214,5 +228,39 @@ export class CreateProductImage {
     public mobileImageKey: string,
     public mobileImageFirst: boolean,
     public desktopImageFirst: boolean,
+  ) {}
+}
+
+export class CreateProductFAQ {
+  constructor(
+    public id: string,
+    public question: string,
+    public answer: string,
+    public productId: string,
+  ) {}
+}
+
+export class UpdateProduct {
+  constructor(
+    public name?: string,
+    public slug?: string,
+    public isGreenSeal?: boolean,
+    public freeShipping?: boolean,
+    public immediateShipping?: boolean,
+    public isPersonalized?: boolean,
+    public isExclusive?: boolean,
+    public inCutout?: boolean,
+    public categories?: string[],
+    public description?: string,
+    public technicalInfo?: string,
+    public videoLink?: string,
+    public seoTitle?: string,
+    public seoDescription?: string,
+    public seoKeywords?: string,
+    public seoCanonicalUrl?: string,
+    public seoMetaRobots?: string,
+    public productFAQ?: CreateProductFAQ[],
+    public relatedProducts?: string[],
+    public similarProducts?: string[],
   ) {}
 }

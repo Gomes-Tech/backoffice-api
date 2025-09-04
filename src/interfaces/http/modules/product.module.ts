@@ -1,4 +1,5 @@
 import {
+  CreateProductFAQUseCase,
   CreateProductImageUseCase,
   CreateProductUseCase,
   CreateProductVariantUseCase,
@@ -18,6 +19,7 @@ import { AttributeValueModule } from './attribute-value.module';
     FindProductByIdUseCase,
     FindProductBySlugUseCase,
     CreateProductImageUseCase,
+    CreateProductFAQUseCase,
     CreateProductUseCase,
     CreateProductVariantUseCase,
     DeleteProductUseCase,

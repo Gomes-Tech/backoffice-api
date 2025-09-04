@@ -5,6 +5,7 @@ import { CreateProductDTO } from '@interfaces/http';
 import { ProductFile } from '@interfaces/http/controllers';
 import { Inject, Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
+import { CreateProductFAQUseCase } from './create-product-faq.use-case';
 import { CreateProductImageUseCase } from './create-product-image.use-case';
 import { CreateProductVariantUseCase } from './create-product-variant.use-case';
 
@@ -17,6 +18,7 @@ export class CreateProductUseCase {
     private readonly createProductImageUseCase: CreateProductImageUseCase,
     private readonly createProductVariantUseCase: CreateProductVariantUseCase,
     private readonly findAttributeValueByIdWithAttributeUseCase: FindAttributeValueByIdWithAttributeUseCase,
+    private readonly createProductFAQUseCase: CreateProductFAQUseCase,
   ) {}
 
   async execute(
@@ -50,6 +52,16 @@ export class CreateProductUseCase {
       },
       userId,
     );
+
+    for (const faq of dto.productFAQ) {
+      await this.createProductFAQUseCase
+        .execute({
+          ...faq,
+          id: '',
+          productId: productId,
+        })
+        .catch(() => null);
+    }
 
     const mainVariant = dto.productVariants[0];
 

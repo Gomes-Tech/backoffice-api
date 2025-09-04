@@ -1,3 +1,4 @@
+export * from './create-product-faq.use-case';
 export * from './create-product-image.use-case';
 export * from './create-product-variant.use-case';
 export * from './create-product.use-case';
