@@ -75,8 +75,9 @@ async function bootstrap() {
   const port = configService.get<number>('PORT') || 3333;
 
   await app.listen(port, () => {
-    Logger.log(`http://localhost:${port}`);
+    Logger.log('Application is running on: 🚀');
     if (process.env.NODE_ENV !== 'production') {
+      Logger.log(`http://localhost:${port}`);
       Logger.log(`📗 API Reference: http://localhost:${port}/reference`);
     }
   });

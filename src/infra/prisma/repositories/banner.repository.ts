@@ -125,6 +125,10 @@ export class PrismaBannerRepository extends BannerRepository {
         name,
         initialDate,
         finishDate,
+        mobileImageKey,
+        mobileImageUrl,
+        desktopImageKey,
+        desktopImageUrl,
       } = dto;
 
       const data: Record<string, any> = {
@@ -132,6 +136,10 @@ export class PrismaBannerRepository extends BannerRepository {
         ...(name !== undefined && { name }),
         ...(link !== undefined && { link }),
         ...(isActive !== undefined && { isActive }),
+        ...(mobileImageUrl !== undefined && { mobileImageUrl }),
+        ...(desktopImageUrl !== undefined && { desktopImageUrl }),
+        ...(mobileImageKey !== undefined && { mobileImageKey }),
+        ...(desktopImageKey !== undefined && { desktopImageKey }),
         initialDate,
         finishDate,
         updatedBy: { connect: { id: updatedBy } },

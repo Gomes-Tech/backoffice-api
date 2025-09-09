@@ -19,22 +19,24 @@ export class UpdateBannerUseCase {
   ) {
     let data: UpdateBanner = { ...dto, updatedBy: userId };
 
-    if (files.desktop && files.mobile) {
-      const [desktopImage, mobileImage] = await Promise.all([
-        this.storageService.uploadFile(
-          'banners',
-          files.desktop.filename,
-          files.desktop.buffer,
-        ),
-        this.storageService.uploadFile(
-          'banners/mobile',
-          files.mobile.filename,
-          files.mobile.buffer,
-        ),
-      ]);
+    if (files.desktop) {
+      const desktopImage = await this.storageService.uploadFile(
+        'banners',
+        files.desktop.originalname,
+        files.desktop.buffer,
+      );
 
       data.desktopImageUrl = desktopImage.publicUrl;
       data.desktopImageKey = desktopImage.path;
+    }
+
+    if (files.mobile) {
+      const mobileImage = await this.storageService.uploadFile(
+        'banners/mobile',
+        files.mobile.originalname,
+        files.mobile.buffer,
+      );
+
       data.mobileImageUrl = mobileImage.publicUrl;
       data.mobileImageKey = mobileImage.path;
     }
