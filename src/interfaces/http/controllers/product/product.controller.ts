@@ -1,11 +1,13 @@
 import {
   CreateProductUseCase,
   DeleteProductUseCase,
+  FindAllProductViewUseCase,
   FindProductByIdUseCase,
   FindProductBySlugUseCase,
 } from '@app/product';
 import { AuthType, Public, Roles, UserId } from '@interfaces/http/decorators';
 import { CreateProductDTO } from '@interfaces/http/dtos';
+import { FindProductsFilterDto } from '@interfaces/http/dtos/product/find-all-query.dto';
 import {
   Body,
   Controller,
@@ -15,6 +17,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
@@ -31,7 +34,14 @@ export class ProductController {
     private readonly findProductByIdSlugUseCase: FindProductBySlugUseCase,
     private readonly createProductUseCase: CreateProductUseCase,
     private readonly deleteProductUseCase: DeleteProductUseCase,
+    private readonly findAllProductViewUseCase: FindAllProductViewUseCase,
   ) {}
+
+  @Public()
+  @Get('/list-view')
+  async getProductListView(@Query() filters: FindProductsFilterDto) {
+    return this.findAllProductViewUseCase.execute(filters);
+  }
 
   @Public()
   @Get('/:slug')

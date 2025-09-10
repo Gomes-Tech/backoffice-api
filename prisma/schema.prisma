@@ -65,6 +65,7 @@ model User {
   createdFooterMenu     FooterMenu[]     @relation("UserCreatedFooterMenu")
   updatedFooterMenu     FooterMenu[]     @relation("UserUpdatedFooterMenu")
   deletedFooterMenu     FooterMenu[]     @relation("UserDeletedFooterMenu")
+  deletedProductVariant ProductVariant[] @relation("UserDeletedProductVariants")
 
   @@map("users")
 }
@@ -241,6 +242,7 @@ model Product {
   isExclusive       Boolean @map("is_exclusive")
   inCutout          Boolean @map("in_cutout")
   videoLink         String? @map("video_link")
+  salesCount        Int     @default(0) @map("sales_count")
 
   seoTitle        String? @map("seo_title")
   seoDescription  String? @map("seo_description")
@@ -287,6 +289,9 @@ model ProductVariant {
   seoCanonicalUrl          String?                        @map("seo_canonical_url")
   seoMetaRobots            String?                        @map("seo_meta_robots")
   productVariantAttributes ProductVariantAttributeValue[]
+  isDeleted                Boolean                        @default(false) @map("is_deleted")
+  deletedBy                User?                          @relation("UserDeletedProductVariants", fields: [deletedById], references: [id])
+  deletedById              String?                        @map("deleted_by")
 
   productId    String
   product      Product        @relation(fields: [productId], references: [id])

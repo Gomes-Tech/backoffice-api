@@ -15,6 +15,44 @@ class ListProductVariant {
   ) {}
 }
 
+export class ListProductsToView {
+  constructor(
+    public readonly id: string,
+    public name: string,
+    public slug: string,
+    public freeShipping: boolean,
+    public immediateShipping: boolean,
+    public isPersonalized: boolean,
+    public isExclusive: boolean,
+    public productVariant: {
+      id: string;
+      price: number;
+      sku: number;
+      discountPrice: string;
+      discountPix: string;
+      stock?: number;
+      productImage: {
+        desktopImageUrl: string;
+        desktopImageAlt: string;
+      };
+    },
+  ) {}
+}
+
+export class FindAllProductFilters {
+  constructor(
+    public name?: string,
+    public categories?: string[],
+    public minPrice?: number,
+    public maxPrice?: number,
+    public sku?: string,
+    public attributeValueIds?: string[],
+    public take?: number,
+    public skip?: number,
+    public orderBy?: 'minPrice' | 'maxPrice' | 'bestSellers',
+  ) {}
+}
+
 export class ProductAdmin {
   constructor(
     public readonly id: string,

@@ -4,7 +4,9 @@ import {
   CreateProductFAQ,
   CreateProductImage,
   CreateProductVariant,
+  FindAllProductFilters,
   ListProduct,
+  ListProductsToView,
   Product,
   ProductAdmin,
   UpdateProduct,
@@ -24,6 +26,139 @@ type CreateReturn = {
 export class PrismaProductRepository extends ProductRepository {
   constructor(private readonly prismaService: PrismaService) {
     super();
+  }
+
+  async findToView(
+    filters?: FindAllProductFilters,
+  ): Promise<{ total: number; data: ListProductsToView[] }> {
+    const take = filters?.take || 10;
+    const skip = filters?.skip || 1;
+
+    const buildProductConditions = () => {
+      const conditions: any = { isDeleted: false };
+
+      if (filters?.name) {
+        conditions.name = {
+          contains: filters.name,
+          mode: 'insensitive',
+        };
+      }
+
+      if (filters?.categories?.length) {
+        // conditions.categories = {
+        //   some: { id: { in: filters.categories } },
+        // };
+
+        conditions.AND = filters.categories.map((categoryId) => ({
+          categories: { some: { id: categoryId } },
+        }));
+      }
+
+      return conditions;
+    };
+
+    const buildVariantConditions = () => {
+      const conditions: any = { isDeleted: false, isActive: true };
+
+      if (filters?.minPrice !== undefined || filters?.maxPrice !== undefined) {
+        conditions.price = {
+          ...(filters.minPrice !== undefined && { gte: filters.minPrice }),
+          ...(filters.maxPrice !== undefined && { lte: filters.maxPrice }),
+        };
+      }
+
+      if (filters?.sku) {
+        conditions.sku = { contains: filters.sku };
+      }
+
+      if (filters?.attributeValueIds?.length) {
+        conditions.productVariantAttributes = {
+          some: { attributeValueId: { in: filters.attributeValueIds } },
+        };
+      }
+
+      return conditions;
+    };
+
+    const whereConditions = buildProductConditions();
+    const variantConditions = buildVariantConditions();
+
+    if (Object.keys(variantConditions).length > 1) {
+      whereConditions.productVariants = { some: variantConditions };
+    }
+
+    let orderBy: any = { createdAt: 'desc' }; // padrão: mais recentes
+
+    if (filters?.orderBy) {
+      switch (filters.orderBy) {
+        case 'bestSellers':
+          orderBy = { salesCount: 'desc' };
+          break;
+      }
+    }
+
+    // total antes da paginação
+    const total = await this.prismaService.product.count({
+      where: whereConditions,
+    });
+
+    // paginação
+    const products = await this.prismaService.product.findMany({
+      where: whereConditions,
+      skip: (skip - 1) * take,
+      take,
+      orderBy,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        isExclusive: true,
+        isPersonalized: true,
+        immediateShipping: true,
+        freeShipping: true,
+        productVariants: {
+          where: { isDeleted: false },
+          orderBy: { createdAt: 'asc' },
+          select: {
+            id: true,
+            price: true,
+            productImage: {
+              where: {
+                desktopImageFirst: true,
+              },
+              select: {
+                desktopImageUrl: true,
+                desktopImageAlt: true,
+              },
+            },
+            discountPix: true,
+            discountPrice: true,
+            sku: true,
+            stock: true,
+          },
+        },
+      },
+    });
+
+    if (filters?.orderBy === 'minPrice' || filters?.orderBy === 'maxPrice') {
+      products.sort((a, b) => {
+        const aPrice =
+          filters.orderBy === 'minPrice'
+            ? Math.min(...a.productVariants.map((v) => v.price))
+            : Math.max(...a.productVariants.map((v) => v.price));
+
+        const bPrice =
+          filters.orderBy === 'minPrice'
+            ? Math.min(...b.productVariants.map((v) => v.price))
+            : Math.max(...b.productVariants.map((v) => v.price));
+
+        return filters.orderBy === 'minPrice'
+          ? aPrice - bPrice
+          : bPrice - aPrice;
+      });
+    }
+
+    return ProductMapper.toListView(products as any, total);
   }
 
   async findAll(): Promise<ListProduct[]> {
@@ -57,6 +192,7 @@ export class PrismaProductRepository extends ProductRepository {
         description: true,
         inCutout: true,
         productVariants: {
+          where: { isDeleted: false },
           orderBy: {
             createdAt: 'asc',
           },
@@ -361,7 +497,13 @@ export class PrismaProductRepository extends ProductRepository {
           seoMetaRobots: dto.seoMetaRobots,
           videoLink: dto.videoLink,
           categories: {
-            set: dto.categories.map((categoryId) => ({ id: categoryId })), // sobrescreve categorias
+            set: dto.categories.map((categoryId) => ({ id: categoryId })),
+          },
+          similarProducts: {
+            set: dto.similarProducts.map((productId) => ({ id: productId })),
+          },
+          relatedProducts: {
+            set: dto.relatedProducts.map((productId) => ({ id: productId })),
           },
           updatedBy: {
             connect: { id: userId },
@@ -378,6 +520,53 @@ export class PrismaProductRepository extends ProductRepository {
 
       throw new BadRequestException(
         'Erro ao atualizar o produto: ' + error.message,
+      );
+    }
+  }
+
+  async updateVariant(
+    variantId: string,
+    dto: Omit<CreateProductVariant, 'id' | 'productId'>,
+  ) {
+    try {
+      await this.prismaService.productVariant.update({
+        where: { id: variantId, isDeleted: false },
+        data: {
+          ...dto,
+          productVariantAttributes: {
+            deleteMany: {
+              productVariantId: variantId,
+              attributeValueId: { notIn: dto.productVariantAttributes },
+            },
+            upsert: dto.productVariantAttributes.map((attributeValueId) => ({
+              where: {
+                productVariantId_attributeValueId: {
+                  productVariantId: variantId,
+                  attributeValueId,
+                },
+              },
+              update: {
+                attributeValueId,
+              },
+              create: {
+                id: uuidv4(),
+                productVariantId: variantId,
+                attributeValueId,
+              },
+            })),
+          },
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Variação não encontrada.');
+      }
+
+      throw new BadRequestException(
+        'Erro ao atualizar a variação do produto: ' + error.message,
       );
     }
   }
@@ -422,6 +611,31 @@ export class PrismaProductRepository extends ProductRepository {
 
       throw new BadRequestException(
         'Erro ao excluir o produto: ' + error.message,
+      );
+    }
+  }
+
+  async deleteVariant(variantId: string, userId: string): Promise<void> {
+    try {
+      await this.prismaService.productVariant.update({
+        where: { id: variantId, isDeleted: false },
+        data: {
+          isDeleted: true,
+          deletedBy: {
+            connect: { id: userId },
+          },
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Variação não encontrada.');
+      }
+
+      throw new BadRequestException(
+        'Erro ao excluir a variação: ' + error.message,
       );
     }
   }

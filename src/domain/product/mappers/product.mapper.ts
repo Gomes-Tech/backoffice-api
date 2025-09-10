@@ -140,6 +140,33 @@ type ProductWithRelationsView = Prisma.ProductGetPayload<{
   };
 }>;
 
+type ProductListItem = {
+  id: string;
+  name: string;
+  slug: string;
+  isExclusive: boolean;
+  isPersonalized: boolean;
+  immediateShipping: boolean;
+  freeShipping: boolean;
+  productVariant: {
+    id: string;
+    price: number;
+    sku: number;
+    discountPrice: string | null;
+    discountPix: string | null;
+    stock: number | null;
+    productImage: {
+      desktopImageUrl: string;
+      desktopImageAlt: string;
+    } | null;
+  } | null;
+};
+
+type ListReturn = {
+  data: ProductListItem[];
+  total: number;
+};
+
 export class ProductMapper {
   static toAdmin(product: ProductWithRelations): ProductAdmin {
     return new ProductAdmin(
@@ -271,5 +298,28 @@ export class ProductMapper {
       variant.seoCanonicalUrl ?? null,
       variant.seoMetaRobots ?? null,
     );
+  }
+
+  static toListView(
+    products: Partial<ProductWithRelationsView>[],
+    total: number,
+  ): ListReturn {
+    return {
+      data:
+        products?.map((product) => ({
+          id: product.id,
+          name: product.name,
+          slug: product.slug,
+          isExclusive: product.isExclusive,
+          isPersonalized: product.isPersonalized,
+          immediateShipping: product.immediateShipping,
+          freeShipping: product.freeShipping,
+          productVariant: {
+            ...product.productVariants[0],
+            productImage: product.productVariants[0].productImage[0],
+          },
+        })) ?? [],
+      total,
+    };
   }
 }
