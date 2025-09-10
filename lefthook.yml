@@ -1,15 +1,3 @@
-pre-commit:
-  parallel: true
-  commands:
-    lint:
-      run: yarn lint
-      glob: "src/**/*.{js,ts}"
-      exclude: 
-        - node_modules/**
-        - .next/**
-        - dist/**
-        - tsconfig.json
-
 pre-push:
   commands:
     typecheck:
