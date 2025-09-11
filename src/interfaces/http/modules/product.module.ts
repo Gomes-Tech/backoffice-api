@@ -5,6 +5,7 @@ import {
   CreateProductVariantUseCase,
   DeleteProductUseCase,
   FindAllProductViewUseCase,
+  FindProductAttributesUseCase,
   FindProductByIdUseCase,
   FindProductBySlugUseCase,
 } from '@app/product';
@@ -18,6 +19,7 @@ import { AttributeValueModule } from './attribute-value.module';
   controllers: [ProductController],
   providers: [
     FindAllProductViewUseCase,
+    FindProductAttributesUseCase,
     FindProductByIdUseCase,
     FindProductBySlugUseCase,
     CreateProductImageUseCase,

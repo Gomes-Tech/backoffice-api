@@ -28,6 +28,12 @@ export abstract class ProductRepository extends BaseRepository<
   abstract findToView(
     filters?: FindAllProductFilters,
   ): Promise<{ data: ListProductsToView[]; total: number }>;
+  abstract findProductAttributes(productIds: string[]): Promise<
+    {
+      attributeName: string;
+      values: { name: string; value: string }[];
+    }[]
+  >;
   abstract createImageVariant(dto: CreateProductImage): Promise<void>;
   abstract createVariant(dto: CreateProductVariant): Promise<CreateReturn>;
   abstract createProductFAQ(dto: CreateProductFAQ): Promise<void>;

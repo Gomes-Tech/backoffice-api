@@ -2,6 +2,7 @@ import {
   CreateProductUseCase,
   DeleteProductUseCase,
   FindAllProductViewUseCase,
+  FindProductAttributesUseCase,
   FindProductByIdUseCase,
   FindProductBySlugUseCase,
 } from '@app/product';
@@ -35,12 +36,19 @@ export class ProductController {
     private readonly createProductUseCase: CreateProductUseCase,
     private readonly deleteProductUseCase: DeleteProductUseCase,
     private readonly findAllProductViewUseCase: FindAllProductViewUseCase,
+    private readonly findProductAttributesUseCase: FindProductAttributesUseCase,
   ) {}
 
   @Public()
   @Get('/list-view')
   async getProductListView(@Query() filters: FindProductsFilterDto) {
     return this.findAllProductViewUseCase.execute(filters);
+  }
+
+  @Public()
+  @Get('/attributes')
+  async getProductAttributes(@Query('productIds') productIds: string[]) {
+    return await this.findProductAttributesUseCase.execute(productIds);
   }
 
   @Public()

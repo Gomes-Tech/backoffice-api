@@ -162,11 +162,6 @@ type ProductListItem = {
   } | null;
 };
 
-type ListReturn = {
-  data: ProductListItem[];
-  total: number;
-};
-
 export class ProductMapper {
   static toAdmin(product: ProductWithRelations): ProductAdmin {
     return new ProductAdmin(
@@ -302,24 +297,21 @@ export class ProductMapper {
 
   static toListView(
     products: Partial<ProductWithRelationsView>[],
-    total: number,
-  ): ListReturn {
-    return {
-      data:
-        products?.map((product) => ({
-          id: product.id,
-          name: product.name,
-          slug: product.slug,
-          isExclusive: product.isExclusive,
-          isPersonalized: product.isPersonalized,
-          immediateShipping: product.immediateShipping,
-          freeShipping: product.freeShipping,
-          productVariant: {
-            ...product.productVariants[0],
-            productImage: product.productVariants[0].productImage[0],
-          },
-        })) ?? [],
-      total,
-    };
+  ): ProductListItem[] {
+    return (
+      products?.map((product) => ({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        isExclusive: product.isExclusive,
+        isPersonalized: product.isPersonalized,
+        immediateShipping: product.immediateShipping,
+        freeShipping: product.freeShipping,
+        productVariant: {
+          ...product.productVariants[0],
+          productImage: product.productVariants[0].productImage[0],
+        },
+      })) ?? []
+    );
   }
 }

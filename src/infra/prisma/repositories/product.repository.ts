@@ -31,7 +31,7 @@ export class PrismaProductRepository extends ProductRepository {
   async findToView(
     filters?: FindAllProductFilters,
   ): Promise<{ total: number; data: ListProductsToView[] }> {
-    const take = filters?.take || 10;
+    const take = filters?.take || 24;
     const skip = filters?.skip || 1;
 
     const buildProductConditions = () => {
@@ -97,48 +97,48 @@ export class PrismaProductRepository extends ProductRepository {
       }
     }
 
-    // total antes da paginação
-    const total = await this.prismaService.product.count({
-      where: whereConditions,
-    });
-
-    // paginação
-    const products = await this.prismaService.product.findMany({
-      where: whereConditions,
-      skip: (skip - 1) * take,
-      take,
-      orderBy,
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        isExclusive: true,
-        isPersonalized: true,
-        immediateShipping: true,
-        freeShipping: true,
-        productVariants: {
-          where: { isDeleted: false },
-          orderBy: { createdAt: 'asc' },
-          select: {
-            id: true,
-            price: true,
-            productImage: {
-              where: {
-                desktopImageFirst: true,
+    const [products, total] = await Promise.all([
+      await this.prismaService.product.findMany({
+        where: whereConditions,
+        skip: (skip - 1) * take,
+        take,
+        orderBy,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          isExclusive: true,
+          isPersonalized: true,
+          immediateShipping: true,
+          freeShipping: true,
+          productVariants: {
+            distinct: ['productId'],
+            where: { isDeleted: false, isActive: true },
+            orderBy: { createdAt: 'asc' },
+            select: {
+              id: true,
+              price: true,
+              productImage: {
+                where: {
+                  desktopImageFirst: true,
+                },
+                select: {
+                  desktopImageUrl: true,
+                  desktopImageAlt: true,
+                },
               },
-              select: {
-                desktopImageUrl: true,
-                desktopImageAlt: true,
-              },
+              discountPix: true,
+              discountPrice: true,
+              sku: true,
+              stock: true,
             },
-            discountPix: true,
-            discountPrice: true,
-            sku: true,
-            stock: true,
           },
         },
-      },
-    });
+      }),
+      await this.prismaService.product.count({
+        where: whereConditions,
+      }),
+    ]);
 
     if (filters?.orderBy === 'minPrice' || filters?.orderBy === 'maxPrice') {
       products.sort((a, b) => {
@@ -158,7 +158,7 @@ export class PrismaProductRepository extends ProductRepository {
       });
     }
 
-    return ProductMapper.toListView(products as any, total);
+    return { data: ProductMapper.toListView(products as any), total };
   }
 
   async findAll(): Promise<ListProduct[]> {
@@ -337,6 +337,60 @@ export class PrismaProductRepository extends ProductRepository {
     }
 
     return ProductMapper.toView(data);
+  }
+
+  async findProductAttributes(productIds: string[]) {
+    const rows = await this.prismaService.productVariantAttributeValue.findMany(
+      {
+        where: {
+          productVariant: {
+            product: {
+              id: { in: productIds },
+            },
+            isActive: true,
+            isDeleted: false,
+          },
+        },
+        distinct: ['attributeValueId'],
+        select: {
+          attributeValue: {
+            select: {
+              name: true,
+              value: true,
+              attribute: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    );
+
+    const map = new Map<string, { name: string; value: string }[]>();
+
+    rows.forEach((row) => {
+      const attrName = row.attributeValue.attribute.name;
+      const valueObj = {
+        name: row.attributeValue.name,
+        value: row.attributeValue.value,
+      };
+
+      if (!map.has(attrName)) {
+        map.set(attrName, [valueObj]);
+      } else {
+        const existing = map.get(attrName)!;
+        if (!existing.find((v) => v.value === valueObj.value)) {
+          existing.push(valueObj);
+        }
+      }
+    });
+
+    return Array.from(map.entries()).map(([attributeName, values]) => ({
+      attributeName,
+      values,
+    }));
   }
 
   async create(dto: CreateProduct, createdBy?: string): Promise<CreateReturn> {
