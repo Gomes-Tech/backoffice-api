@@ -3,6 +3,7 @@ import {
   DeleteCategoryUseCase,
   FindAllCategoriesUseCase,
   FindCategoryByIdUseCase,
+  FindCategoryBySlugUseCase,
   FindCategoryTreeUseCase,
   UpdateCategoryUseCase,
 } from '@app/category';
@@ -44,6 +45,7 @@ export class CategoryController {
     private readonly createCategoryUseCase: CreateCategoryUseCase,
     private readonly updateCategoryUseCase: UpdateCategoryUseCase,
     private readonly deleteCategoryUseCase: DeleteCategoryUseCase,
+    private readonly findCategoryBySlugUseCase: FindCategoryBySlugUseCase,
   ) {}
 
   @Roles('admin')
@@ -68,6 +70,16 @@ export class CategoryController {
   })
   async findTree() {
     return await this.findCategoryTreeUseCase.execute();
+  }
+
+  @Public()
+  @Get('/tree/:slug')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Buscar categoria por SLUG' })
+  @ApiParam({ name: 'slug', type: String })
+  @ApiResponse({ status: 200, description: 'Categoria encontrada.' })
+  async findBySlug(@Param('slug') slug: string) {
+    return await this.findCategoryBySlugUseCase.execute(slug);
   }
 
   @Public()

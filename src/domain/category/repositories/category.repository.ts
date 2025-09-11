@@ -14,5 +14,5 @@ export abstract class CategoryRepository extends BaseRepository<
   CategoryList
 > {
   abstract findCategoryTree(): Promise<CategoryTree[]>;
-  abstract findBySlug(slug: string): Promise<CategoryDetails | null>;
+  abstract findBySlug(slug: string): Promise<any>;
 }

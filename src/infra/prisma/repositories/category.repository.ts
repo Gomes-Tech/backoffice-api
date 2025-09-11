@@ -115,22 +115,49 @@ export class PrismaCategoryRepository extends CategoryRepository {
     });
   }
 
-  async findBySlug(slug: string): Promise<CategoryDetails | null> {
-    return await this.prismaService.category.findUnique({
-      where: { slug, isDeleted: false },
+  async findBySlug(slug: string): Promise<any> {
+    let category = await this.prismaService.category.findFirst({
+      where: {
+        slug,
+        isDeleted: false,
+        isActive: true,
+      },
       select: {
         id: true,
         name: true,
         slug: true,
-        isActive: true,
-        showMenu: true,
-        seoCanonicalUrl: true,
-        seoDescription: true,
-        seoKeywords: true,
-        seoMetaRobots: true,
-        seoTitle: true,
+        parentId: true,
       },
     });
+
+    if (!category) {
+      throw new BadRequestException('Categoria não encontrada');
+    }
+
+    // 2. Sobe a árvore coletando os pais
+    const path: { id: string; name: string; slug: string }[] = [];
+
+    while (category) {
+      path.unshift({
+        id: category.id,
+        name: category.name,
+        slug: category.slug,
+      });
+
+      if (!category.parentId) break;
+
+      category = await this.prismaService.category.findFirst({
+        where: { id: category.parentId },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          parentId: true,
+        },
+      });
+    }
+
+    return path;
   }
 
   async create(category: CreateCategory): Promise<void> {

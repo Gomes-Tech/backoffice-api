@@ -3,6 +3,7 @@ import {
   DeleteCategoryUseCase,
   FindAllCategoriesUseCase,
   FindCategoryByIdUseCase,
+  FindCategoryBySlugUseCase,
   FindCategoryTreeUseCase,
   UpdateCategoryUseCase,
 } from '@app/category';
@@ -16,6 +17,7 @@ import { CategoryController } from '../controllers';
   providers: [
     FindAllCategoriesUseCase,
     FindCategoryTreeUseCase,
+    FindCategoryBySlugUseCase,
     FindCategoryByIdUseCase,
     CreateCategoryUseCase,
     UpdateCategoryUseCase,
