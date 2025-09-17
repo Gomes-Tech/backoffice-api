@@ -31,7 +31,7 @@ export abstract class ProductRepository extends BaseRepository<
   abstract findProductAttributes(productIds: string[]): Promise<
     {
       attributeName: string;
-      values: { name: string; value: string }[];
+      values: { id: string; name: string; value: string }[];
     }[]
   >;
   abstract createImageVariant(dto: CreateProductImage): Promise<void>;

@@ -355,6 +355,7 @@ export class PrismaProductRepository extends ProductRepository {
         select: {
           attributeValue: {
             select: {
+              id: true,
               name: true,
               value: true,
               attribute: {
@@ -368,11 +369,15 @@ export class PrismaProductRepository extends ProductRepository {
       },
     );
 
-    const map = new Map<string, { name: string; value: string }[]>();
+    const map = new Map<
+      string,
+      { id: string; name: string; value: string }[]
+    >();
 
     rows.forEach((row) => {
       const attrName = row.attributeValue.attribute.name;
       const valueObj = {
+        id: row.attributeValue.id,
         name: row.attributeValue.name,
         value: row.attributeValue.value,
       };
