@@ -221,7 +221,7 @@ export class ProductMapper {
   }
 
   static toView(product: ProductWithRelationsView): Product {
-    return new Product(
+    const formatterProduct = new Product(
       product.id,
       product.name,
       product.slug,
@@ -242,6 +242,14 @@ export class ProductMapper {
       product.seoCanonicalUrl ?? undefined,
       product.seoMetaRobots ?? undefined,
     );
+
+    formatterProduct.productVariants.sort((a, b) => {
+      const aHasImage = a.images && a.images.length > 0 ? 1 : 0;
+      const bHasImage = b.images && b.images.length > 0 ? 1 : 0;
+      return bHasImage - aHasImage; // coloca os que têm imagens primeiro
+    });
+
+    return formatterProduct;
   }
 
   private static mapVariantToView(

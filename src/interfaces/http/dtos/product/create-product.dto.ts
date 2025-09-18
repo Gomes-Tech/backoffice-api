@@ -192,6 +192,7 @@ export class CreateProductDTO {
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
+  @Type(() => ProductFAQItem)
   @Transform(
     ({ value }) => {
       const arr =
@@ -206,10 +207,12 @@ export class CreateProductDTO {
           : value;
 
       if (!Array.isArray(arr)) return [];
+      // Garante instâncias de ProductVariant
+      return arr.map((item) => plainToInstance(ProductFAQItem, item));
     },
     { toClassOnly: true },
   )
-  productFAQ: { question: string; answer: string }[];
+  productFAQ: ProductFAQItem[];
 
   @IsNotEmpty()
   @IsArray()
@@ -353,4 +356,18 @@ class ProductVariant {
   @IsOptional()
   @IsString()
   seoMetaRobots?: string;
+}
+
+export class ProductFAQItem {
+  @IsOptional()
+  @IsString()
+  id?: string;
+
+  @IsNotEmpty()
+  @IsString()
+  question: string;
+
+  @IsNotEmpty()
+  @IsString()
+  answer: string;
 }

@@ -1,10 +1,11 @@
 export function renameFile(filename: string) {
-  let formatted = filename
-    .replaceAll(' ', '_')
-    .replaceAll('#', '')
-    .replaceAll('?', '');
+  // Separa extensão
+  const lastDotIndex = filename.lastIndexOf('.');
+  const name = lastDotIndex !== -1 ? filename.slice(0, lastDotIndex) : filename;
+  const extension = lastDotIndex !== -1 ? filename.slice(lastDotIndex) : '';
 
-  const utf8ToAsciiMap = {
+  // Mapa de caracteres UTF8 para ASCII
+  const utf8ToAsciiMap: Record<string, string> = {
     á: 'a',
     à: 'a',
     ã: 'a',
@@ -55,9 +56,21 @@ export function renameFile(filename: string) {
     Ñ: 'N',
   };
 
+  let formatted = name;
+
+  // Substitui acentos
   for (const key in utf8ToAsciiMap) {
     formatted = formatted.replaceAll(key, utf8ToAsciiMap[key]);
   }
 
-  return formatted;
+  // Substitui espaços e caracteres problemáticos por hífen
+  formatted = formatted.replace(/[^a-zA-Z0-9]/g, '-');
+
+  // Remove hífens duplicados
+  formatted = formatted.replace(/-+/g, '-');
+
+  // Remove hífen no início e no fim
+  formatted = formatted.replace(/^-|-$/g, '');
+
+  return formatted + extension.toLowerCase();
 }

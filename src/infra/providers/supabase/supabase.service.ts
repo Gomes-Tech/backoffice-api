@@ -1,5 +1,6 @@
 import { UploadFileException } from '@infra/filters';
 import { Injectable } from '@nestjs/common';
+import { renameFile } from '@shared/utils';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { lookup } from 'mime-types';
 import { extname } from 'node:path';
@@ -34,7 +35,7 @@ export class SupabaseService {
 
     const { data, error } = await this.supabase.storage
       .from('backoffice')
-      .upload(`${folder}/${Date.now()}-${filename}`, fileContent, {
+      .upload(`${folder}/${Date.now()}-${renameFile(filename)}`, fileContent, {
         contentType,
         upsert: false,
       });

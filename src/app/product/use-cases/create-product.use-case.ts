@@ -53,15 +53,18 @@ export class CreateProductUseCase {
       userId,
     );
 
-    for (const faq of dto.productFAQ) {
-      await this.createProductFAQUseCase
-        .execute({
-          ...faq,
-          id: '',
-          productId: productId,
-        })
-        .catch(() => null);
-    }
+    console.log(dto.productFAQ);
+
+    dto.productFAQ.map(
+      async (faq) =>
+        await this.createProductFAQUseCase
+          .execute({
+            ...faq,
+            id: '',
+            productId: productId,
+          })
+          .catch(() => null),
+    );
 
     const mainVariant = dto.productVariants[0];
 
