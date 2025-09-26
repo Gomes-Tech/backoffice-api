@@ -50,8 +50,10 @@ async function bootstrap() {
   app.enableCors({
     origin: (origin, callback) => {
       const allowedOrigins = [
+        'https://api.cron-job.org/',
         'https://decoreasy.vercel.app',
         'https://backoffice-eta-seven.vercel.app',
+        'https://s5dhcf9x-3000.brs.devtunnels.ms',
       ];
 
       if (
