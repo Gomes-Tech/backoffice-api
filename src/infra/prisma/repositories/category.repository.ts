@@ -111,6 +111,15 @@ export class PrismaCategoryRepository extends CategoryRepository {
         seoKeywords: true,
         seoMetaRobots: true,
         seoTitle: true,
+        categoryImageKey: true,
+        categoryImage: true,
+        categoryFAQ: {
+          select: {
+            id: true,
+            question: true,
+            answer: true,
+          },
+        },
       },
     });
   }
@@ -175,6 +184,8 @@ export class PrismaCategoryRepository extends CategoryRepository {
         seoMetaRobots,
         createdBy,
         parentId,
+        categoryImage,
+        categoryImageKey,
       } = category;
 
       await this.prismaService.category.create({
@@ -189,6 +200,8 @@ export class PrismaCategoryRepository extends CategoryRepository {
           seoKeywords,
           seoCanonicalUrl,
           seoMetaRobots,
+          categoryImage,
+          categoryImageKey,
           createdBy: {
             connect: { id: createdBy },
           },

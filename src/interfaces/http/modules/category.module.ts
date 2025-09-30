@@ -10,9 +10,10 @@ import {
 import { PrismaCategoryRepository } from '@infra/prisma';
 import { Module } from '@nestjs/common';
 import { CategoryController } from '../controllers';
+import { CategoryFAQModule } from './category-faq.module';
 
 @Module({
-  imports: [],
+  imports: [CategoryFAQModule],
   controllers: [CategoryController],
   providers: [
     FindAllCategoriesUseCase,

@@ -20,9 +20,12 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFile,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -95,12 +98,17 @@ export class CategoryController {
   @Roles('admin')
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FileInterceptor('image'))
   @ApiOperation({ summary: 'Criar uma nova categoria' })
   @ApiBody({ type: CreateCategoryDTO })
   @ApiResponse({ status: 201, description: 'Categoria criada com sucesso.' })
   @Post()
-  async create(@Body() dto: CreateCategoryDTO, @UserId() userId: string) {
-    await this.createCategoryUseCase.execute(dto, userId);
+  async create(
+    @Body() dto: CreateCategoryDTO,
+    @UploadedFile() file: Express.Multer.File,
+    @UserId() userId: string,
+  ) {
+    await this.createCategoryUseCase.execute(dto, file, userId);
   }
 
   @Roles('admin')

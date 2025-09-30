@@ -206,15 +206,19 @@ model Category {
   isActive Boolean @default(true) @map("is_active")
   showMenu Boolean @default(false) @map("show_menu")
 
-  seoTitle        String?    @map("seo_title")
-  seoDescription  String?    @map("seo_description")
-  seoKeywords     String?    @map("seo_keywords")
-  seoCanonicalUrl String?    @map("seo_canonical_url")
-  seoMetaRobots   String?    @map("seo_meta_robots")
+  seoTitle        String?       @map("seo_title")
+  seoDescription  String?       @map("seo_description")
+  seoKeywords     String?       @map("seo_keywords")
+  seoCanonicalUrl String?       @map("seo_canonical_url")
+  seoMetaRobots   String?       @map("seo_meta_robots")
   parentId        String?
-  parent          Category?  @relation("CategoryToParent", fields: [parentId], references: [id])
-  children        Category[] @relation("CategoryToParent")
-  products        Product[]  @relation("ProductCategories")
+  parent          Category?     @relation("CategoryToParent", fields: [parentId], references: [id])
+  children        Category[]    @relation("CategoryToParent")
+  products        Product[]     @relation("ProductCategories")
+  categoryFAQ     CategoryFAQ[]
+
+  categoryImage    String? @map("category_image")
+  categoryImageKey String? @map("category_image_key")
 
   createdBy   User     @relation(fields: [createdById], references: [id])
   createdById String   @map("created_by")
@@ -227,6 +231,18 @@ model Category {
   deletedById String?  @map("deleted_by")
 
   @@map("categories")
+}
+
+model CategoryFAQ {
+  id         String   @id @default(cuid())
+  question   String
+  answer     String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String   @map("category_id")
+
+  @@map("category_faqs")
 }
 
 model Product {

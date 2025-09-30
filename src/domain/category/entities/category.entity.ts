@@ -43,6 +43,9 @@ export class CategoryDetails extends BaseCategory {
     public seoKeywords: string,
     public seoCanonicalUrl: string,
     public seoMetaRobots: string,
+    public categoryFAQ: CategoryFAQ[],
+    public categoryImage?: string,
+    public categoryImageKey?: string,
   ) {
     super(id, name, slug, isActive, showMenu);
   }
@@ -62,9 +65,19 @@ export class CreateCategory extends BaseCategory {
     public seoCanonicalUrl: string,
     public seoMetaRobots: string,
     public createdBy: string,
+    public categoryImage?: string,
+    public categoryImageKey?: string,
   ) {
     super(id, name, slug, isActive, showMenu, parentId);
   }
+}
+
+class CategoryFAQ {
+  constructor(
+    public readonly id: string,
+    public question: string,
+    public answer: string,
+  ) {}
 }
 
 export class UpdateCategory {
@@ -80,5 +93,7 @@ export class UpdateCategory {
     public seoCanonicalUrl?: string,
     public seoMetaRobots?: string,
     public parentId?: string,
+    public categoryImage?: string,
+    public categoryImageKey?: string,
   ) {}
 }
