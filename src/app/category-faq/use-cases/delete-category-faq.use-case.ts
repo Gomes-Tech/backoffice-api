@@ -4,7 +4,7 @@ import { Inject, Injectable } from '@nestjs/common';
 @Injectable()
 export class DeleteCategoryFAQUseCase {
   constructor(
-    @Inject('CategoryRepository')
+    @Inject('CategoryFAQRepository')
     private readonly categoryFAQRepository: CategoryFAQRepository,
   ) {}
 

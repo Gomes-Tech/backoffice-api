@@ -4,7 +4,6 @@ import { CacheService } from '@infra/cache';
 import { StorageService } from '@infra/providers';
 import { CreateCategoryDTO } from '@interfaces/http';
 import { Inject, Injectable } from '@nestjs/common';
-import { renameFile } from '@shared/utils';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -22,12 +21,12 @@ export class CreateCategoryUseCase {
     image: Express.Multer.File,
     userId: string,
   ): Promise<void> {
-    let data = {};
+    let data = null;
 
     if (image) {
       const imageUrl = await this.storageService.uploadFile(
         'category',
-        renameFile(image.filename),
+        image.originalname,
         image.buffer,
       );
 
@@ -37,16 +36,13 @@ export class CreateCategoryUseCase {
       };
     }
 
-    data = {
-      ...data,
-      ...dto,
-    };
-
     const categoryId = uuidv4();
 
     await this.categoryRepository.create({
       id: categoryId,
       ...dto,
+      categoryImageUrl: data.categoryImageUrl,
+      categoryImageKey: data.categoryImageKey,
       createdBy: userId,
     });
 

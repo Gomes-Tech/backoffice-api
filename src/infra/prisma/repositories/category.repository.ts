@@ -112,7 +112,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
         seoMetaRobots: true,
         seoTitle: true,
         categoryImageKey: true,
-        categoryImage: true,
+        categoryImageUrl: true,
         categoryFAQ: {
           select: {
             id: true,
@@ -184,7 +184,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
         seoMetaRobots,
         createdBy,
         parentId,
-        categoryImage,
+        categoryImageUrl,
         categoryImageKey,
       } = category;
 
@@ -200,7 +200,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
           seoKeywords,
           seoCanonicalUrl,
           seoMetaRobots,
-          categoryImage,
+          categoryImageUrl,
           categoryImageKey,
           createdBy: {
             connect: { id: createdBy },
@@ -240,6 +240,8 @@ export class PrismaCategoryRepository extends CategoryRepository {
         seoMetaRobots,
         updatedBy,
         parentId,
+        categoryImageUrl,
+        categoryImageKey,
       } = category;
 
       const data: Record<string, any> = {
@@ -252,6 +254,8 @@ export class PrismaCategoryRepository extends CategoryRepository {
         ...(seoKeywords !== undefined && { seoKeywords }),
         ...(seoCanonicalUrl !== undefined && { seoCanonicalUrl }),
         ...(seoMetaRobots !== undefined && { seoMetaRobots }),
+        ...(categoryImageUrl !== undefined && { categoryImageUrl }),
+        ...(categoryImageKey !== undefined && { categoryImageKey }),
         updatedBy: { connect: { id: updatedBy } },
       };
 

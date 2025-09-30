@@ -44,7 +44,7 @@ export class CategoryDetails extends BaseCategory {
     public seoCanonicalUrl: string,
     public seoMetaRobots: string,
     public categoryFAQ: CategoryFAQ[],
-    public categoryImage?: string,
+    public categoryImageUrl?: string,
     public categoryImageKey?: string,
   ) {
     super(id, name, slug, isActive, showMenu);
@@ -65,7 +65,7 @@ export class CreateCategory extends BaseCategory {
     public seoCanonicalUrl: string,
     public seoMetaRobots: string,
     public createdBy: string,
-    public categoryImage?: string,
+    public categoryImageUrl?: string,
     public categoryImageKey?: string,
   ) {
     super(id, name, slug, isActive, showMenu, parentId);
@@ -93,7 +93,7 @@ export class UpdateCategory {
     public seoCanonicalUrl?: string,
     public seoMetaRobots?: string,
     public parentId?: string,
-    public categoryImage?: string,
+    public categoryImageUrl?: string,
     public categoryImageKey?: string,
   ) {}
 }

@@ -3,10 +3,7 @@ import {
   DeleteCategoryFAQUseCase,
   UpdateCategoryFAQUseCase,
 } from '@app/category-faq';
-import {
-  PrismaCategoryFAQRepository,
-  PrismaCategoryRepository,
-} from '@infra/prisma';
+import { PrismaCategoryFAQRepository } from '@infra/prisma';
 import { Module } from '@nestjs/common';
 
 @Module({
@@ -16,7 +13,7 @@ import { Module } from '@nestjs/common';
     CreateCategoryFAQUseCase,
     UpdateCategoryFAQUseCase,
     DeleteCategoryFAQUseCase,
-    PrismaCategoryRepository,
+    PrismaCategoryFAQRepository,
     {
       provide: 'CategoryFAQRepository',
       useExisting: PrismaCategoryFAQRepository,
@@ -26,7 +23,7 @@ import { Module } from '@nestjs/common';
     CreateCategoryFAQUseCase,
     UpdateCategoryFAQUseCase,
     DeleteCategoryFAQUseCase,
-    PrismaCategoryRepository,
+    PrismaCategoryFAQRepository,
     {
       provide: 'CategoryFAQRepository',
       useExisting: PrismaCategoryFAQRepository,

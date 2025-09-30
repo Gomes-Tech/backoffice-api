@@ -114,16 +114,18 @@ export class CategoryController {
   @Roles('admin')
   @Patch('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseInterceptors(FileInterceptor('image'))
   @ApiOperation({ summary: 'Atualizar uma categoria existente' })
   @ApiParam({ name: 'id', type: String })
   @ApiBody({ type: UpdateCategoryDTO })
   @ApiNoContentResponse({ description: 'Categoria atualizada com sucesso.' })
   async update(
+    @Param('id') id: string,
     @Body() dto: UpdateCategoryDTO,
     @UserId() userId: string,
-    @Param('id') id: string,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    await this.updateCategoryUseCase.execute(id, dto, userId);
+    await this.updateCategoryUseCase.execute(id, dto, file, userId);
   }
 
   @Roles('admin')

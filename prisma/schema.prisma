@@ -217,7 +217,7 @@ model Category {
   products        Product[]     @relation("ProductCategories")
   categoryFAQ     CategoryFAQ[]
 
-  categoryImage    String? @map("category_image")
+  categoryImageUrl String? @map("category_image")
   categoryImageKey String? @map("category_image_key")
 
   createdBy   User     @relation(fields: [createdById], references: [id])

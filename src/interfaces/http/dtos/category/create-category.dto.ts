@@ -75,7 +75,7 @@ export class CreateCategoryDTO {
   categoryFAQ: CategoryFAQItem[];
 }
 
-class CategoryFAQItem {
+export class CategoryFAQItem {
   @IsOptional()
   @IsString()
   id?: string;
