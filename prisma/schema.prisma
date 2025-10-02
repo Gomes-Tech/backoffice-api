@@ -9,14 +9,18 @@ datasource db {
 }
 
 model Customer {
-  id        String    @id @default(cuid())
-  name      String
-  email     String    @unique
-  password  String
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
-  isDeleted Boolean   @default(false)
-  deletedAt DateTime? @map("deleted_at")
+  id            String    @id @default(cuid())
+  name          String
+  lastname      String
+  taxIdentifier String    @unique @map("tax_identifier")
+  email         String    @unique
+  birthDate     String    @map("birth_date")
+  phone         String
+  password      String
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
+  isDeleted     Boolean   @default(false)
+  deletedAt     DateTime? @map("deleted_at")
 
   @@map("customers")
 }

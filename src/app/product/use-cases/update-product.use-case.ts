@@ -6,6 +6,5 @@ export class UpdateProductUseCase {
   // Implementation of the use case will go here
   constructor(private readonly productRepository: ProductRepository) {}
 
-
-  async execute() {}
+  async execute(id: string) {}
 }

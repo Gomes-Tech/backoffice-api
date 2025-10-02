@@ -38,7 +38,7 @@ export class CustomerAuthGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync(token);
 
-      request['client'] = payload;
+      request['customer'] = payload;
       return true;
     } catch {
       throw new UnauthorizedException('Token inválido ou expirado');
@@ -46,7 +46,6 @@ export class CustomerAuthGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    return request.cookies?.['accessToken']; // nome do cookie que você setou
   }
 }

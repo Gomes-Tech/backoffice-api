@@ -7,6 +7,22 @@ export class CreateCustomerDTO {
 
   @IsNotEmpty()
   @IsString()
+  lastname: string;
+
+  @IsNotEmpty()
+  @IsString()
+  birthDate: string;
+
+  @IsNotEmpty()
+  @IsString()
+  taxIdentifier: string;
+
+  @IsNotEmpty()
+  @IsString()
+  phone: string;
+
+  @IsNotEmpty()
+  @IsString()
   email: string;
 
   @IsNotEmpty()

@@ -2,7 +2,9 @@ import { ExecutionContext, createParamDecorator } from '@nestjs/common';
 import { authorizationToLoginPayload } from '@shared/utils';
 
 export const CustomerId = createParamDecorator((_, ctx: ExecutionContext) => {
-  const { authorization } = ctx.switchToHttp().getRequest().headers;
+  const request = ctx.switchToHttp().getRequest();
+
+  const authorization = request.cookies?.['accessToken'];
 
   const loginPayload = authorizationToLoginPayload(authorization);
 

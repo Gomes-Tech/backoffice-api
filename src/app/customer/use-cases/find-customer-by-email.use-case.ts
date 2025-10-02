@@ -1,4 +1,4 @@
-import { Customer, CustomerRepository } from '@domain/customer';
+import { CustomerRepository } from '@domain/customer';
 import { NotFoundException } from '@infra/filters';
 import { Inject, Injectable } from '@nestjs/common';
 
@@ -9,7 +9,9 @@ export class FindCustomerByEmailUseCase {
     private readonly customerRepository: CustomerRepository,
   ) {}
 
-  async execute(email: string): Promise<Customer | null> {
+  async execute(
+    email: string,
+  ): Promise<{ id: string; email: string; password: string } | null> {
     const customerExist = await this.customerRepository.findByEmail(email);
 
     if (!customerExist) {

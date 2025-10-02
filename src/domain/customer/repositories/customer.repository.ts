@@ -8,6 +8,8 @@ export abstract class CustomerRepository extends BaseRepository<
   ReturnCustomer,
   ReturnCustomer
 > {
-  abstract findByEmail(email: string): Promise<Customer>;
+  abstract findByEmail(
+    email: string,
+  ): Promise<Pick<Customer, 'id' | 'email' | 'password'>>;
   abstract findMe(id: string): Promise<{ name: string }>;
 }

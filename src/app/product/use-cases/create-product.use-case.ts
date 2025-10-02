@@ -53,8 +53,6 @@ export class CreateProductUseCase {
       userId,
     );
 
-    console.log(dto.productFAQ);
-
     dto.productFAQ.map(
       async (faq) =>
         await this.createProductFAQUseCase

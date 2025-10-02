@@ -18,6 +18,10 @@ export class CreateCustomerUseCase {
     const customer = new Customer(
       uuidv4(),
       dto.name,
+      dto.lastname,
+      dto.birthDate,
+      dto.phone,
+      dto.taxIdentifier,
       dto.email,
       passwordHashed,
     );
