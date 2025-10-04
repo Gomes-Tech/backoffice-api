@@ -135,33 +135,39 @@ export class PrismaUserRepository implements UserRepository {
     );
   }
   async update(id: string, user: Partial<User>): Promise<User> {
-    const updatedUser = await this.prismaService.user.update({
-      where: { id },
-      data: {
-        ...user,
-        role: {
-          connect: {
-            id: user.role,
+    try {
+      const updatedUser = await this.prismaService.user.update({
+        where: { id },
+        data: {
+          ...user,
+          ...(user.role && {
+            role: {
+              connect: {
+                id: user.role,
+              },
+            },
+          }),
+        },
+        include: {
+          role: {
+            select: {
+              name: true,
+            },
           },
         },
-      },
-      include: {
-        role: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-    return new User(
-      updatedUser.id,
-      updatedUser.name,
-      updatedUser.email,
-      updatedUser.password,
-      updatedUser.role.name,
-      updatedUser.isActive,
-      updatedUser.photo,
-    );
+      });
+      return new User(
+        updatedUser.id,
+        updatedUser.name,
+        updatedUser.email,
+        updatedUser.password,
+        updatedUser.role.name,
+        updatedUser.isActive,
+        updatedUser.photo,
+      );
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async resetPassword(id: string, password: string): Promise<void> {

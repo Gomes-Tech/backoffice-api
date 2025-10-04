@@ -33,7 +33,7 @@ export class AuthController {
   constructor(
     private readonly signInUser: SignInUserUseCase,
     private readonly signUpUser: SignUpUseCase,
-    private readonly refreshToken: RefreshTokenUseCase,
+    private readonly refreshTokenUseCase: RefreshTokenUseCase,
     private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
     private readonly resetPasswordUseCase: ResetPasswordUseCase,
     private readonly verifyTokenPasswordUseCase: VerifyTokenPasswordUseCase,
@@ -52,7 +52,7 @@ export class AuthController {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/',
       maxAge: 15 * 60 * 1000,
     });
@@ -60,7 +60,7 @@ export class AuthController {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
     });
@@ -78,8 +78,8 @@ export class AuthController {
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(
-    @Res({ passthrough: true }) res: Response,
     @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
   ) {
     // Pega o refreshToken do cookie HttpOnly
     const refreshToken = req.cookies?.['refreshToken'];
@@ -89,13 +89,13 @@ export class AuthController {
 
     // Chama o use case passando o refreshToken
     const { accessToken, refreshToken: newRefreshToken } =
-      await this.refreshToken.execute(refreshToken);
+      await this.refreshTokenUseCase.execute(refreshToken);
 
     // Atualiza os cookies HttpOnly
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/',
       maxAge: 15 * 60 * 1000, // 15 minutos
     });
@@ -103,7 +103,7 @@ export class AuthController {
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
     });
@@ -119,7 +119,7 @@ export class AuthController {
     res.cookie('accessToken', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/',
       maxAge: 0, // expira imediatamente
     });
@@ -127,7 +127,7 @@ export class AuthController {
     res.cookie('refreshToken', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/',
       maxAge: 0, // expira imediatamente
     });

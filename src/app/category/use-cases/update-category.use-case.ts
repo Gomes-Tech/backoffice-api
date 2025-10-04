@@ -25,7 +25,7 @@ export class UpdateCategoryUseCase {
     image: Express.Multer.File,
     userId: string,
   ): Promise<void> {
-    let data = {};
+    let data = null;
 
     if (image) {
       const imageUrl = await this.storageService.uploadFile(
@@ -40,15 +40,12 @@ export class UpdateCategoryUseCase {
       };
     }
 
-    data = {
-      ...data,
-      ...dto,
-    };
-
     await this.categoryRepository.update(
       id,
       {
         ...dto,
+        categoryImageUrl: data.categoryImageUrl,
+        categoryImageKey: data.categoryImageKey,
         updatedBy: userId,
       },
       '',

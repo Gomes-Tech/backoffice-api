@@ -5,7 +5,7 @@ import {
   UpdateUserUseCase,
 } from '@app/user';
 import { ListUser } from '@domain/user';
-import { AuthType, Roles } from '@interfaces/http/decorators';
+import { AuthType, Roles, UserId } from '@interfaces/http/decorators';
 import { UpdateUserDto } from '@interfaces/http/dtos';
 import {
   Body,
@@ -36,6 +36,11 @@ export class UserController {
   @Get()
   async getList(): Promise<ListUser[]> {
     return await this.findAllUsersUseCase.execute();
+  }
+
+  @Get('/me')
+  async getMe(@UserId() userId: string) {
+    return await this.findUserByIdUseCase.execute(userId);
   }
 
   @Get('/:id')

@@ -2,7 +2,7 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 
-import { FindUserByIdUseCase, UpdateUserUseCase, UserMapper } from '@app/user';
+import { FindUserByIdUseCase, UserMapper } from '@app/user';
 import { User } from '@domain/user';
 import { UserResponseDTO } from '@interfaces/http';
 import { ADMIN_JWT } from '@interfaces/http/modules/jwt.module';
@@ -14,7 +14,6 @@ export class RefreshTokenUseCase {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly findUserByIdUseCase: FindUserByIdUseCase,
-    private readonly updateUserUseCase: UpdateUserUseCase,
   ) {}
 
   async execute(refreshToken: string): Promise<Output> {
@@ -28,10 +27,6 @@ export class RefreshTokenUseCase {
       const accessToken = this.generateToken(user);
 
       const newRefreshToken = this.generateRefreshToken(user);
-
-      await this.updateUserUseCase.execute(user.id, {
-        refreshToken: newRefreshToken,
-      });
 
       return {
         accessToken,
