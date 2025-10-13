@@ -35,7 +35,6 @@ export class RefreshTokenCustomerUseCase {
       return {
         accessToken,
         refreshToken: newRefreshToken,
-        customer,
       };
     } catch (error) {
       throw new UnauthorizedException('Refresh token inválido ou expirado!');
@@ -65,5 +64,4 @@ export class RefreshTokenCustomerUseCase {
 type Output = {
   accessToken: string;
   refreshToken: string;
-  customer: ReturnCustomer;
 };

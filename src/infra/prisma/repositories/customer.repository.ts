@@ -53,6 +53,18 @@ export class PrismaCustomerRepository extends CustomerRepository {
     });
   }
 
+  async findByTaxIdentifier(taxIdentifier: string): Promise<{ id: string }> {
+    return await this.prismaService.customer.findFirst({
+      where: {
+        taxIdentifier,
+        isDeleted: false,
+      },
+      select: {
+        id: true,
+      },
+    });
+  }
+
   async findByEmail(
     email: string,
   ): Promise<{ id: string; email: string; password: string }> {

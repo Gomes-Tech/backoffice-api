@@ -2,11 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 
-import { FindUserByEmailUseCase, UserMapper } from '@app/user';
+import { FindUserByEmailUseCase } from '@app/user';
 import { User } from '@domain/user';
 import { CryptographyService } from '@infra/criptography';
 import { LoginException } from '@infra/filters';
-import { LoginDTO, UserResponseDTO } from '@interfaces/http';
+import { LoginDTO } from '@interfaces/http';
 import { ADMIN_JWT } from '@interfaces/http/modules/jwt.module';
 
 @Injectable()
@@ -40,7 +40,6 @@ export class SignInUserUseCase {
     return {
       accessToken,
       refreshToken,
-      user: UserMapper.toView(userExisting),
     };
   }
 
@@ -67,5 +66,4 @@ export class SignInUserUseCase {
 type Output = {
   accessToken: string;
   refreshToken: string;
-  user: UserResponseDTO;
 };

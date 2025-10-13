@@ -3,16 +3,15 @@ import { NotFoundException } from '@infra/filters';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
-export class FindCustomerByEmailUseCase {
+export class FindCustomerByTaxIdentifierUseCase {
   constructor(
     @Inject('CustomerRepository')
     private readonly customerRepository: CustomerRepository,
   ) {}
 
-  async execute(
-    email: string,
-  ): Promise<{ id: string; email: string; password: string } | null> {
-    const customerExist = await this.customerRepository.findByEmail(email);
+  async execute(taxIdentifier: string): Promise<{ id: string } | null> {
+    const customerExist =
+      await this.customerRepository.findByTaxIdentifier(taxIdentifier);
 
     if (!customerExist) {
       throw new NotFoundException('Usuário não encontrado!');

@@ -12,4 +12,5 @@ export abstract class CustomerRepository extends BaseRepository<
     email: string,
   ): Promise<Pick<Customer, 'id' | 'email' | 'password'>>;
   abstract findMe(id: string): Promise<{ name: string }>;
+  abstract findByTaxIdentifier(taxIdentifier: string): Promise<{ id: string }>;
 }

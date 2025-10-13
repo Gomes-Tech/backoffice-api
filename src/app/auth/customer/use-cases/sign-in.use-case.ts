@@ -40,7 +40,6 @@ export class SignInCustomerUseCase {
     return {
       accessToken,
       refreshToken,
-      // customer: customerExisting,
     };
   }
 

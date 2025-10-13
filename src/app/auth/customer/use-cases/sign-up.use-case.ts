@@ -1,6 +1,7 @@
 import {
   CreateCustomerUseCase,
   FindCustomerByEmailUseCase,
+  FindCustomerByTaxIdentifierUseCase,
 } from '@app/customer';
 import { BadRequestException } from '@infra/filters';
 import { CreateCustomerDTO } from '@interfaces/http';
@@ -11,6 +12,7 @@ import { SignInCustomerUseCase } from './sign-in.use-case';
 export class SignUpCustomerUseCase {
   constructor(
     private readonly findCustomerByEmail: FindCustomerByEmailUseCase,
+    private readonly findCustomerByTaxIdentifierUseCase: FindCustomerByTaxIdentifierUseCase,
     private readonly createCustomerUseCase: CreateCustomerUseCase,
     private readonly signInCustomerUseCase: SignInCustomerUseCase,
   ) {}
@@ -19,7 +21,11 @@ export class SignUpCustomerUseCase {
       .execute(data.email)
       .catch(() => null);
 
-    if (userExisting) {
+    const userTaxExisting = await this.findCustomerByTaxIdentifierUseCase
+      .execute(data.taxIdentifier)
+      .catch(() => null);
+
+    if (userExisting || userTaxExisting) {
       throw new BadRequestException('Usuário já existe!');
     }
 
@@ -35,5 +41,4 @@ export class SignUpCustomerUseCase {
 type Output = {
   accessToken: string;
   refreshToken: string;
-  // customer: ReturnCustomer;
 };

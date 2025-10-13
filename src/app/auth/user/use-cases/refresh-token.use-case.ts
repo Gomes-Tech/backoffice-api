@@ -2,9 +2,8 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 
-import { FindUserByIdUseCase, UserMapper } from '@app/user';
+import { FindUserByIdUseCase } from '@app/user';
 import { User } from '@domain/user';
-import { UserResponseDTO } from '@interfaces/http';
 import { ADMIN_JWT } from '@interfaces/http/modules/jwt.module';
 
 @Injectable()
@@ -31,7 +30,6 @@ export class RefreshTokenUseCase {
       return {
         accessToken,
         refreshToken: newRefreshToken,
-        user: UserMapper.toView(user),
       };
     } catch (error) {
       throw new UnauthorizedException('Refresh token inválido ou expirado!');
@@ -61,5 +59,4 @@ export class RefreshTokenUseCase {
 type Output = {
   accessToken: string;
   refreshToken: string;
-  user: UserResponseDTO;
 };

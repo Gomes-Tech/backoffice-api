@@ -1,6 +1,6 @@
 import { CreateUserUseCase, FindUserByEmailUseCase } from '@app/user';
 import { BadRequestException } from '@infra/filters';
-import { CreateUserDto, UserResponseDTO } from '@interfaces/http';
+import { CreateUserDto } from '@interfaces/http';
 import { Injectable } from '@nestjs/common';
 import { SignInUserUseCase } from './sign-in.use-case';
 
@@ -32,5 +32,4 @@ export class SignUpUseCase {
 type Output = {
   accessToken: string;
   refreshToken: string;
-  user: UserResponseDTO;
 };

@@ -4,6 +4,7 @@ import {
   FindAllCustomersUseCase,
   FindCustomerByEmailUseCase,
   FindCustomerByIdUseCase,
+  FindCustomerByTaxIdentifierUseCase,
   FindMeUseCase,
   UpdateCustomerUseCase,
 } from '@app/customer';
@@ -22,6 +23,7 @@ import { CustomerController } from '../controllers';
     CreateCustomerUseCase,
     UpdateCustomerUseCase,
     DeleteCustomerUseCase,
+    FindCustomerByTaxIdentifierUseCase,
     PrismaCustomerRepository,
     {
       provide: 'CustomerRepository',
@@ -31,6 +33,7 @@ import { CustomerController } from '../controllers';
   exports: [
     FindAllCustomersUseCase,
     FindCustomerByIdUseCase,
+    FindCustomerByTaxIdentifierUseCase,
     FindCustomerByEmailUseCase,
     CreateCustomerUseCase,
     UpdateCustomerUseCase,
