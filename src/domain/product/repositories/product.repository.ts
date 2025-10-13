@@ -1,7 +1,6 @@
 import { BaseRepository } from '@domain/common';
 import {
   CreateProduct,
-  CreateProductFAQ,
   CreateProductImage,
   CreateProductVariant,
   FindAllProductFilters,
@@ -25,6 +24,7 @@ export abstract class ProductRepository extends BaseRepository<
   CreateReturn
 > {
   abstract findBySlug(slug: string): Promise<Product>;
+  abstract findByName(name: string): Promise<{ name: string }>;
   abstract findToView(
     filters?: FindAllProductFilters,
   ): Promise<{ data: ListProductsToView[]; total: number }>;
@@ -36,7 +36,6 @@ export abstract class ProductRepository extends BaseRepository<
   >;
   abstract createImageVariant(dto: CreateProductImage): Promise<void>;
   abstract createVariant(dto: CreateProductVariant): Promise<CreateReturn>;
-  abstract createProductFAQ(dto: CreateProductFAQ): Promise<void>;
   abstract updateVariant(
     variantId: string,
     dto: Omit<CreateProductVariant, 'id' | 'productId'>,

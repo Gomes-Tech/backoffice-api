@@ -1,13 +1,18 @@
 import { FindAttributeValueByIdWithAttributeUseCase } from '@app/attribute-value';
+import { CreateProductFAQUseCase } from '@app/product-faq';
+import { CreateRelatedProductUseCase } from '@app/related-product';
+import { CreateSimilarProductUseCase } from '@app/similar-product';
 import { ProductRepository } from '@domain/product/repositories';
+import { BadRequestException } from '@infra/filters';
 import { StorageFile, StorageService } from '@infra/providers';
 import { CreateProductDTO } from '@interfaces/http';
 import { ProductFile } from '@interfaces/http/controllers';
 import { Inject, Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateProductFAQUseCase } from './create-product-faq.use-case';
 import { CreateProductImageUseCase } from './create-product-image.use-case';
 import { CreateProductVariantUseCase } from './create-product-variant.use-case';
+import { FindProductByNameUseCase } from './find-product-by-name.use-case';
+import { FindProductBySlugUseCase } from './find-product-by-slug.use-case';
 
 @Injectable()
 export class CreateProductUseCase {
@@ -15,10 +20,14 @@ export class CreateProductUseCase {
     @Inject('ProductRepository')
     private readonly productRepository: ProductRepository,
     private readonly storageService: StorageService,
+    private readonly findProductBySlugUseCase: FindProductBySlugUseCase,
+    private readonly findProductByNameUseCase: FindProductByNameUseCase,
     private readonly createProductImageUseCase: CreateProductImageUseCase,
     private readonly createProductVariantUseCase: CreateProductVariantUseCase,
     private readonly findAttributeValueByIdWithAttributeUseCase: FindAttributeValueByIdWithAttributeUseCase,
     private readonly createProductFAQUseCase: CreateProductFAQUseCase,
+    private readonly createRelatedProductUseCase: CreateRelatedProductUseCase,
+    private readonly createSimilarProductUseCase: CreateSimilarProductUseCase,
   ) {}
 
   async execute(
@@ -29,6 +38,22 @@ export class CreateProductUseCase {
       mobileImages?: ProductFile[];
     },
   ): Promise<void> {
+    const existingSlug = await this.findProductBySlugUseCase
+      .execute(dto.slug)
+      .catch(() => null);
+
+    if (existingSlug) {
+      throw new BadRequestException('Esse slug já está em uso');
+    }
+
+    const existingName = await this.findProductByNameUseCase
+      .execute(dto.name)
+      .catch(() => null);
+
+    if (existingName) {
+      throw new BadRequestException('Esse nome já está em uso');
+    }
+
     const { id: productId } = await this.productRepository.create(
       {
         id: uuidv4(),
@@ -63,6 +88,30 @@ export class CreateProductUseCase {
           })
           .catch(() => null),
     );
+
+    const relatedResults = await Promise.all(
+      (dto.relatedProducts || []).map(async (related) => {
+        try {
+          return await this.createRelatedProductUseCase.execute(related);
+        } catch {
+          return null;
+        }
+      }),
+    );
+
+    dto.relatedProducts = relatedResults.filter((r): r is string => r !== null);
+
+    const similarResults = await Promise.all(
+      (dto.similarProducts || []).map(async (similar) => {
+        try {
+          return await this.createSimilarProductUseCase.execute(similar);
+        } catch {
+          return null;
+        }
+      }),
+    );
+
+    dto.similarProducts = similarResults.filter((r): r is string => r !== null);
 
     const mainVariant = dto.productVariants[0];
 

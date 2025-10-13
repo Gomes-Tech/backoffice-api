@@ -1,5 +1,9 @@
-import { AuthGuard, CustomerAuthGuard, RolesGuard } from '@interfaces/http';
-import { AuthDispatchGuard } from '@interfaces/http/guards/auth.guard';
+import {
+  AuthDispatchGuard,
+  AuthGuard,
+  CustomerAuthGuard,
+  RolesGuard,
+} from '@interfaces/http';
 import {
   AttributeModule,
   AttributeValueModule,
@@ -10,13 +14,16 @@ import {
   CustomerModule,
   FooterMenuModule,
   HeaderMenuModule,
+  JwtModule,
+  ProductFAQModule,
   ProductModule,
+  RelatedProductModule,
   RoleModule,
+  SimilarProductModule,
   SocialMediaModule,
+  TokenPasswordModule,
   UserModule,
 } from '@interfaces/http/modules';
-import { JwtModule } from '@interfaces/http/modules/jwt.module';
-import { TokenPasswordModule } from '@interfaces/http/modules/token-password.module';
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
@@ -53,6 +60,9 @@ import {
     FooterMenuModule,
     RoleModule,
     ProductModule,
+    RelatedProductModule,
+    SimilarProductModule,
+    ProductFAQModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,3 +1,5 @@
+import { CreateProductFAQ, ProductFAQEntity } from '@domain/product-faq';
+
 export class ListProduct {
   constructor(
     public readonly id: string,
@@ -133,7 +135,7 @@ export class Product {
     public seoKeywords?: string,
     public seoCanonicalUrl?: string,
     public seoMetaRobots?: string,
-    public productFAQ?: ProductFAQ[],
+    public productFAQ?: ProductFAQEntity[],
   ) {}
 }
 
@@ -193,14 +195,6 @@ export class AttributeProduct {
   constructor(
     public readonly id: string,
     public name: string,
-  ) {}
-}
-
-export class ProductFAQ {
-  constructor(
-    public id: string,
-    public question: string,
-    public answer: string,
   ) {}
 }
 
@@ -266,15 +260,6 @@ export class CreateProductImage {
     public mobileImageKey: string,
     public mobileImageFirst: boolean,
     public desktopImageFirst: boolean,
-  ) {}
-}
-
-export class CreateProductFAQ {
-  constructor(
-    public id: string,
-    public question: string,
-    public answer: string,
-    public productId: string,
   ) {}
 }
 

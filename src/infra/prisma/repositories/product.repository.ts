@@ -1,7 +1,6 @@
 import { ProductMapper } from '@domain/product';
 import {
   CreateProduct,
-  CreateProductFAQ,
   CreateProductImage,
   CreateProductVariant,
   FindAllProductFilters,
@@ -240,6 +239,13 @@ export class PrismaProductRepository extends ProductRepository {
     });
 
     return ProductMapper.toAdmin(data);
+  }
+
+  async findByName(name: string): Promise<{ name: string }> {
+    return await this.prismaService.product.findUnique({
+      where: { name, isDeleted: false },
+      select: { name: true },
+    });
   }
 
   async findBySlug(slug: string): Promise<Product> {
@@ -519,42 +525,50 @@ export class PrismaProductRepository extends ProductRepository {
     }
   }
 
-  async createProductFAQ(dto: CreateProductFAQ): Promise<void> {
-    try {
-      await this.prismaService.productFAQ.create({
-        data: {
-          id: dto.id,
-          answer: dto.answer,
-          question: dto.question,
-          Product: {
-            connect: {
-              id: dto.productId,
-            },
-          },
-        },
-      });
-    } catch (error) {
-      throw new BadRequestException(
-        'Erro ao criar a faq do produto: ' + error.message,
-      );
-    }
-  }
-
   async update(id: string, dto: UpdateProduct, userId: string): Promise<void> {
+    const {
+      name,
+      slug,
+      description,
+      technicalInfo,
+      freeShipping,
+      immediateShipping,
+      inCutout,
+      isExclusive,
+      isGreenSeal,
+      isPersonalized,
+      seoTitle,
+      seoDescription,
+      seoCanonicalUrl,
+      seoKeywords,
+      seoMetaRobots,
+      videoLink,
+    } = dto;
+
+    const data: Record<string, unknown> = {
+      ...(name !== undefined && { name }),
+      ...(slug !== undefined && { slug }),
+      ...(description !== undefined && { description }),
+      ...(technicalInfo !== undefined && { technicalInfo }),
+      ...(freeShipping !== undefined && { freeShipping }),
+      ...(immediateShipping !== undefined && { immediateShipping }),
+      ...(inCutout !== undefined && { inCutout }),
+      ...(isExclusive !== undefined && { isExclusive }),
+      ...(isGreenSeal !== undefined && { isGreenSeal }),
+      ...(isPersonalized !== undefined && { isPersonalized }),
+      ...(seoTitle !== undefined && { seoTitle }),
+      ...(seoDescription !== undefined && { seoDescription }),
+      ...(seoCanonicalUrl !== undefined && { seoCanonicalUrl }),
+      ...(seoKeywords !== undefined && { seoKeywords }),
+      ...(seoMetaRobots !== undefined && { seoMetaRobots }),
+      ...(videoLink !== undefined && { videoLink }),
+    };
+
     try {
       await this.prismaService.product.update({
         where: { id, isDeleted: false },
         data: {
-          name: dto.name,
-          slug: dto.slug,
-          description: dto.description,
-          technicalInfo: dto.technicalInfo,
-          seoTitle: dto.seoTitle,
-          seoDescription: dto.seoDescription,
-          seoCanonicalUrl: dto.seoCanonicalUrl,
-          seoKeywords: dto.seoKeywords,
-          seoMetaRobots: dto.seoMetaRobots,
-          videoLink: dto.videoLink,
+          ...data,
           categories: {
             set: dto.categories.map((categoryId) => ({ id: categoryId })),
           },
@@ -627,25 +641,6 @@ export class PrismaProductRepository extends ProductRepository {
       throw new BadRequestException(
         'Erro ao atualizar a variação do produto: ' + error.message,
       );
-    }
-  }
-
-  async updateProductFAQ(dto: CreateProductFAQ): Promise<void> {
-    try {
-      await this.prismaService.productFAQ.update({
-        where: { id: dto.id },
-        data: {
-          question: dto.question,
-          answer: dto.answer,
-        },
-      });
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new NotFoundException('FAQ do produto não encontrado');
-      }
     }
   }
 

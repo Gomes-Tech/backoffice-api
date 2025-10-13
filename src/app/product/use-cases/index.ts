@@ -1,4 +1,4 @@
-export * from './create-product-faq.use-case';
+export * from '../../product-faq/use-cases/create-product-faq.use-case';
 export * from './create-product-image.use-case';
 export * from './create-product-variant.use-case';
 export * from './create-product.use-case';
@@ -6,4 +6,5 @@ export * from './delete-product.use-case';
 export * from './find-all-product-view.use-case';
 export * from './find-product-attributes.use-case';
 export * from './find-product-by-id.use-case';
+export * from './find-product-by-name.use-case';
 export * from './find-product-by-slug.use-case';
