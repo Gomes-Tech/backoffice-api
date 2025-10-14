@@ -51,16 +51,16 @@ export class AuthController {
 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
       path: '/',
       maxAge: 15 * 60 * 1000,
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
       path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
     });
@@ -94,16 +94,16 @@ export class AuthController {
     // Atualiza os cookies HttpOnly
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
       path: '/',
       maxAge: 15 * 60 * 1000, // 15 minutos
     });
 
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
       path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
     });
@@ -118,16 +118,16 @@ export class AuthController {
     // Remove os cookies
     res.cookie('accessToken', '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
       path: '/',
       maxAge: 0, // expira imediatamente
     });
 
     res.cookie('refreshToken', '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
       path: '/',
       maxAge: 0, // expira imediatamente
     });

@@ -30,7 +30,7 @@ async function bootstrap() {
     ignoreGlobalPrefix: false,
   });
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'prod') {
     SwaggerModule.setup('docs', app, document, {
       useGlobalPrefix: false, // Mostra rotas completas com /api no Swagger
     });
@@ -83,7 +83,7 @@ async function bootstrap() {
 
   await app.listen(port, () => {
     Logger.log('Application is running on: 🚀');
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'prod') {
       Logger.log(`http://localhost:${port}`);
       Logger.log(`📗 API Reference: http://localhost:${port}/reference`);
     }
