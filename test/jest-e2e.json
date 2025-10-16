@@ -5,5 +5,26 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@app/(.*)$": "<rootDir>/../src/app/$1",
+    "^@domain/(.*)$": "<rootDir>/../src/domain/$1",
+    "^@interfaces/(.*)$": "<rootDir>/../src/interfaces/$1",
+    "^@infra/(.*)$": "<rootDir>/../src/infra/$1",
+    "^@shared/(.*)$": "<rootDir>/../src/shared/$1"
+  },
+  "globals": {
+    "ts-jest": {
+      "tsconfig": {
+        "baseUrl": "./src",
+        "paths": {
+          "@app/*": ["app/*"],
+          "@domain/*": ["domain/*"],
+          "@interfaces/*": ["interfaces/*"],
+          "@infra/*": ["infra/*"],
+          "@shared/*": ["shared/*"]
+        }
+      }
+    }
   }
 }

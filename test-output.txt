@@ -1,0 +1,49 @@
+
+> backoffice-api@0.0.1 test
+> jest banner.repository.spec.ts
+
+ts-jest[ts-jest-transformer] (WARN) Define `ts-jest` config under `globals` is deprecated. Please do
+transform: {
+    <transform_regex>: ['ts-jest', { /* ts-jest config goes here in Jest */ }],
+},
+See more at https://kulshekhar.github.io/ts-jest/docs/getting-started/presets#advanced
+Deseja finalizar o arquivo em lotes (S/N)? Deseja finalizar o arquivo em lotes (S/N)?   console.log
+    [32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNest.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+      at new NR (../../../../../.vscode/extensions/wallabyjs.console-ninja-1.0.484-universal/out/buildHook/index.js:1:4283236)
+
+PASS src/infra/prisma/repositories/banner.repository.spec.ts (6.636 s)
+  PrismaBannerRepository
+    constructor
+      √ should set logger context (13 ms)
+    findAll
+      √ should return all non-deleted banners ordered by order (3 ms)
+      √ should return empty array when no banners exist (2 ms)
+      √ should log database error and rethrow when findMany fails (13 ms)
+    findList
+      √ should return only active non-deleted banners (3 ms)
+      √ should log database error and rethrow when findMany fails (2 ms)
+    findById
+      √ should return banner by id (2 ms)
+      √ should return null when banner not found (2 ms)
+      √ should log database error and rethrow when findUnique fails (3 ms)
+    create
+      √ should create a new banner (1 ms)
+      √ should log database error and rethrow when create fails (3 ms)
+    update
+      √ should update an existing banner (2 ms)
+      √ should throw NotFoundException when banner does not exist (P2025) (5 ms)
+      √ should throw BadRequestException for other database errors (2 ms)
+      √ should handle partial updates (1 ms)
+    delete
+      √ should soft delete a banner (4 ms)
+      √ should throw NotFoundException when banner does not exist (P2025) (3 ms)
+      √ should throw BadRequestException for other database errors (2 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       18 passed, 18 total
+Snapshots:   0 total
+Time:        6.884 s, estimated 7 s
+Ran all test suites matching /banner.repository.spec.ts/i.
+
+^C

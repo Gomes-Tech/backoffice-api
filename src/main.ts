@@ -1,5 +1,6 @@
 import { HttpExceptionFilter } from '@infra/filters';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { CustomLoggerService, LoggingInterceptor, initializeSentry } from '@infra/logger';
+import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -9,9 +10,22 @@ import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 
+// Inicializa o Sentry antes de tudo
+initializeSentry();
+
 // Função para inicializar a aplicação
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const logger = new CustomLoggerService();
+  logger.setContext('Bootstrap');
+
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger,
+  });
+
+  // Obtém o interceptor de logging do container de injeção de dependências
+  const loggingInterceptor = app.get(LoggingInterceptor);
+  app.useGlobalInterceptors(loggingInterceptor);
+
   app.setGlobalPrefix('api');
   app.set('query parser', 'extended');
 
@@ -26,7 +40,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config, {
     // Isso faz o Swagger usar /api como prefixo nas rotas
-    operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
+    operationIdFactory: (_controllerKey: string, methodKey: string) => methodKey,
     ignoreGlobalPrefix: false,
   });
 
@@ -82,10 +96,10 @@ async function bootstrap() {
   const port = configService.get<number>('PORT') || 3333;
 
   await app.listen(port, () => {
-    Logger.log('Application is running on: 🚀');
+    logger.log(`Application is running on port ${port} 🚀`);
     if (process.env.NODE_ENV !== 'prod') {
-      Logger.log(`http://localhost:${port}`);
-      Logger.log(`📗 API Reference: http://localhost:${port}/reference`);
+      logger.log(`📗 API Docs: http://localhost:${port}/docs`);
+      logger.log(`📗 API Reference: http://localhost:${port}/reference`);
     }
   });
 }

@@ -32,13 +32,14 @@ import {
   CacheModule,
   ConfigModule,
   CryptographyModule,
+  LoggerModule,
   MailModule,
   PrismaModule,
   StorageModule,
 } from './infra';
-
 @Module({
   imports: [
+    LoggerModule,
     JwtModule,
     CacheModule,
     MailModule,
