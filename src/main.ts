@@ -1,9 +1,9 @@
 import { HttpExceptionFilter } from '@infra/filters';
-import {
-  AdvancedLoggerService,
-  LoggingInterceptor,
-  initializeSentry,
-} from '@infra/logger';
+// import {
+//   AdvancedLoggerService,
+//   LoggingInterceptor,
+//   initializeSentry,
+// } from '@infra/logger';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -15,7 +15,7 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 
 // Inicializa o Sentry antes de tudo
-initializeSentry();
+// initializeSentry();
 
 // Função para inicializar a aplicação
 async function bootstrap() {
@@ -30,10 +30,10 @@ async function bootstrap() {
   );
 
   // Obtém o interceptor de logging do container de injeção de dependências
-  if (process.env.NODE_ENV === 'development') {
-    const logger = app.get(AdvancedLoggerService);
-    app.useGlobalInterceptors(new LoggingInterceptor(logger));
-  }
+  // if (process.env.NODE_ENV === 'development') {
+  //   const logger = app.get(AdvancedLoggerService);
+  //   app.useGlobalInterceptors(new LoggingInterceptor(logger));
+  // }
 
   app.setGlobalPrefix('api');
   app.set('query parser', 'extended');
