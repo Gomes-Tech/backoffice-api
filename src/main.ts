@@ -1,5 +1,10 @@
 import { HttpExceptionFilter } from '@infra/filters';
-import { CustomLoggerService, LoggingInterceptor, initializeSentry } from '@infra/logger';
+import {
+  AdvancedLoggerService,
+  CustomLoggerService,
+  LoggingInterceptor,
+  initializeSentry,
+} from '@infra/logger';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -23,8 +28,10 @@ async function bootstrap() {
   });
 
   // Obtém o interceptor de logging do container de injeção de dependências
-  const loggingInterceptor = app.get(LoggingInterceptor);
-  app.useGlobalInterceptors(loggingInterceptor);
+  if (process.env.NODE_ENV === 'development') {
+    const logger = app.get(AdvancedLoggerService);
+    app.useGlobalInterceptors(new LoggingInterceptor(logger));
+  }
 
   app.setGlobalPrefix('api');
   app.set('query parser', 'extended');
@@ -40,7 +47,8 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config, {
     // Isso faz o Swagger usar /api como prefixo nas rotas
-    operationIdFactory: (_controllerKey: string, methodKey: string) => methodKey,
+    operationIdFactory: (_controllerKey: string, methodKey: string) =>
+      methodKey,
     ignoreGlobalPrefix: false,
   });
 
