@@ -1,7 +1,6 @@
 import { HttpExceptionFilter } from '@infra/filters';
 import {
   AdvancedLoggerService,
-  CustomLoggerService,
   LoggingInterceptor,
   initializeSentry,
 } from '@infra/logger';
@@ -20,12 +19,15 @@ initializeSentry();
 
 // Função para inicializar a aplicação
 async function bootstrap() {
-  const logger = new CustomLoggerService();
-  logger.setContext('Bootstrap');
+  // const logger = new CustomLoggerService();
+  // logger.setContext('Bootstrap');
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger,
-  });
+  const app = await NestFactory.create<NestExpressApplication>(
+    AppModule,
+    //   {
+    //   logger,
+    // }
+  );
 
   // Obtém o interceptor de logging do container de injeção de dependências
   if (process.env.NODE_ENV === 'development') {
@@ -104,10 +106,10 @@ async function bootstrap() {
   const port = configService.get<number>('PORT') || 3333;
 
   await app.listen(port, () => {
-    logger.log(`Application is running on port ${port} 🚀`);
+    console.log(`Application is running on port ${port} 🚀`);
     if (process.env.NODE_ENV !== 'prod') {
-      logger.log(`📗 API Docs: http://localhost:${port}/docs`);
-      logger.log(`📗 API Reference: http://localhost:${port}/reference`);
+      console.log(`📗 API Docs: http://localhost:${port}/docs`);
+      console.log(`📗 API Reference: http://localhost:${port}/reference`);
     }
   });
 }
