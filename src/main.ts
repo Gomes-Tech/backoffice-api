@@ -103,7 +103,7 @@ async function bootstrap() {
   app.getHttpAdapter().getInstance().disable('x-powered-by');
 
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('PORT') || 3333;
+  const port = process.env.PORT || configService.get<number>('PORT') || 3333;
 
   await app.listen(port, () => {
     console.log(`Application is running on port ${port} 🚀`);
