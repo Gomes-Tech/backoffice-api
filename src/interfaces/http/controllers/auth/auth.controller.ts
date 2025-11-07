@@ -7,7 +7,7 @@ import {
 } from '@app/auth';
 import { VerifyTokenPasswordUseCase } from '@app/token-password';
 import { UnauthorizedException } from '@infra/filters';
-import { Public, Roles, UserId } from '@interfaces/http/decorators';
+import { AuthType, Public, Roles, UserId } from '@interfaces/http/decorators';
 import {
   CreateUserDto,
   ForgotPasswordDTO,
@@ -67,6 +67,7 @@ export class AuthController {
   }
 
   @Roles('admin')
+  @AuthType(['user', 'api'])
   @Post('/sign-up')
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.CREATED)

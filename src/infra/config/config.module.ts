@@ -43,6 +43,7 @@ import * as Joi from 'joi';
         JWT_CUSTOMER_REFRESH_EXPIRES: Joi.string().required(),
         SUPABASE_URL: Joi.string().uri().required(),
         SUPABASE_API_KEY: Joi.string().required(),
+        SERVER_AUTH_SECRET: Joi.string().required(),
       }),
     }),
   ],

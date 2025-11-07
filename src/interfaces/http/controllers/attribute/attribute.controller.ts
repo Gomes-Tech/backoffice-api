@@ -21,7 +21,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-@AuthType(['user'])
+@AuthType(['user', 'api'])
 @Controller('attributes')
 export class AttributeController {
   constructor(

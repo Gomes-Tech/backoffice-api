@@ -39,7 +39,7 @@ import {
 
 @ApiTags('categories')
 @ApiBearerAuth()
-@AuthType(['user'])
+@AuthType(['user', 'api'])
 @Controller('categories')
 export class CategoryController {
   constructor(

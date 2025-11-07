@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AUTH_TYPE_KEY } from '../decorators/auth.decorator';
+import { AuthServerGuard } from './auth-server.guard';
 import { CustomerAuthGuard } from './customer-auth.guard';
 import { AuthGuard } from './user-auth.guard';
 
@@ -15,6 +16,7 @@ export class AuthDispatchGuard {
     private reflector: Reflector,
     private customerAuth: CustomerAuthGuard,
     private userAuth: AuthGuard,
+    private apiKeyAuth: AuthServerGuard,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -40,6 +42,10 @@ export class AuthDispatchGuard {
     // checa se "user" está na lista
     if (types.includes('user')) {
       return this.userAuth.canActivate(context) as Promise<boolean>;
+    }
+
+    if (types.includes('api')) {
+      return this.apiKeyAuth.canActivate(context);
     }
 
     throw new UnauthorizedException('Auth type not specified');

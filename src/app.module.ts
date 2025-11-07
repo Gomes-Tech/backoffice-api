@@ -1,6 +1,7 @@
 import {
   AuthDispatchGuard,
   AuthGuard,
+  AuthServerGuard,
   CustomerAuthGuard,
   RolesGuard,
 } from '@interfaces/http';
@@ -71,6 +72,7 @@ import {
     CustomerAuthGuard,
     AuthGuard,
     RolesGuard,
+    AuthServerGuard,
     {
       provide: APP_GUARD,
       useClass: AuthDispatchGuard,
