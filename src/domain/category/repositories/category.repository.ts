@@ -13,6 +13,9 @@ export abstract class CategoryRepository extends BaseRepository<
   UpdateCategory,
   CategoryList
 > {
+  abstract findByShowCarousel(): Promise<
+    Pick<CategoryDetails, 'id' | 'name' | 'slug' | 'categoryImageUrl'>[]
+  >;
   abstract findCategoryTree(): Promise<CategoryTree[]>;
   abstract findBySlug(slug: string): Promise<any>;
 }

@@ -3,6 +3,7 @@ import {
   DeleteCategoryUseCase,
   FindAllCategoriesUseCase,
   FindCategoryByIdUseCase,
+  FindCategoryByShowCarouselUseCase,
   FindCategoryBySlugUseCase,
   FindCategoryTreeUseCase,
   UpdateCategoryUseCase,
@@ -49,6 +50,7 @@ export class CategoryController {
     private readonly updateCategoryUseCase: UpdateCategoryUseCase,
     private readonly deleteCategoryUseCase: DeleteCategoryUseCase,
     private readonly findCategoryBySlugUseCase: FindCategoryBySlugUseCase,
+    private readonly findCategoryByShowCarouselUseCase: FindCategoryByShowCarouselUseCase,
   ) {}
 
   @Roles('admin')
@@ -73,6 +75,18 @@ export class CategoryController {
   })
   async findTree() {
     return await this.findCategoryTreeUseCase.execute();
+  }
+
+  @Public()
+  @Get('/carousel')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Obter carrossel de categorias' })
+  @ApiResponse({
+    status: 200,
+    description: 'Carrossel de categorias retornada com sucesso.',
+  })
+  async findByCarousel() {
+    return await this.findCategoryByShowCarouselUseCase.execute();
   }
 
   @Public()

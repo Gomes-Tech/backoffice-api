@@ -97,6 +97,20 @@ export class PrismaCategoryRepository extends CategoryRepository {
     return tree;
   }
 
+  async findByShowCarousel(): Promise<
+    Pick<CategoryDetails, 'id' | 'name' | 'slug' | 'categoryImageUrl'>[]
+  > {
+    return await this.prismaService.category.findMany({
+      where: { showCarousel: true, isDeleted: false },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        categoryImageUrl: true,
+      },
+    });
+  }
+
   async findById(id: string): Promise<CategoryDetails | null> {
     return await this.prismaService.category.findUnique({
       where: { id, isDeleted: false },
@@ -106,6 +120,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
         slug: true,
         isActive: true,
         showMenu: true,
+        showCarousel: true,
         seoCanonicalUrl: true,
         seoDescription: true,
         seoKeywords: true,
@@ -177,6 +192,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
         slug,
         isActive,
         showMenu,
+        showCarousel,
         seoTitle,
         seoDescription,
         seoKeywords,
@@ -195,6 +211,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
           slug,
           isActive,
           showMenu,
+          showCarousel,
           seoTitle,
           seoDescription,
           seoKeywords,
@@ -233,6 +250,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
         slug,
         isActive,
         showMenu,
+        showCarousel,
         seoTitle,
         seoDescription,
         seoKeywords,
@@ -249,6 +267,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
         ...(slug !== undefined && { slug }),
         ...(isActive !== undefined && { isActive }),
         ...(showMenu !== undefined && { showMenu }),
+        ...(showCarousel !== undefined && { showCarousel }),
         ...(seoTitle !== undefined && { seoTitle }),
         ...(seoDescription !== undefined && { seoDescription }),
         ...(seoKeywords !== undefined && { seoKeywords }),

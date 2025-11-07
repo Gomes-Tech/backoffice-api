@@ -25,6 +25,10 @@ export class CreateCategoryDTO {
   @IsBoolean()
   showMenu: boolean;
 
+  @IsNotEmpty()
+  @IsBoolean()
+  showCarousel: boolean;
+
   @IsOptional()
   @IsString()
   parentId?: string;

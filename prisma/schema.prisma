@@ -70,6 +70,9 @@ model User {
   updatedFooterMenu     FooterMenu[]     @relation("UserUpdatedFooterMenu")
   deletedFooterMenu     FooterMenu[]     @relation("UserDeletedFooterMenu")
   deletedProductVariant ProductVariant[] @relation("UserDeletedProductVariants")
+  createBlogs           Blog[]
+  updateBlogs           Blog[]           @relation("UserUpdatedBlog")
+  DelteBlogs            Blog[]           @relation("UserDeletedBlog")
 
   @@map("users")
 }
@@ -183,6 +186,24 @@ model Banner {
   @@map("banners")
 }
 
+model Blog {
+  id           String @id @default(cuid())
+  title        String
+  blogImageUrl String @map("blog_image_url")
+  blogImageKey String @map("blog_image_key")
+  link         String
+
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdById String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  updatedBy   User?    @relation("UserUpdatedBlog", fields: [updatedById], references: [id])
+  updatedById String?  @map("updated_by")
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  deletedBy   User?    @relation("UserDeletedBlog", fields: [deletedById], references: [id])
+  deletedById String?  @map("deleted_by")
+}
+
 model HeaderMenu {
   id       String  @id @default(cuid())
   name     String  @unique
@@ -204,11 +225,14 @@ model HeaderMenu {
 }
 
 model Category {
-  id       String  @id @default(cuid())
-  name     String  @unique
-  slug     String  @unique
-  isActive Boolean @default(true) @map("is_active")
-  showMenu Boolean @default(false) @map("show_menu")
+  id               String  @id @default(cuid())
+  name             String  @unique
+  slug             String  @unique
+  isActive         Boolean @default(true) @map("is_active")
+  showMenu         Boolean @default(false) @map("show_menu")
+  showCarousel     Boolean @default(false) @map("show_carousel")
+  categoryImageUrl String? @map("category_image")
+  categoryImageKey String? @map("category_image_key")
 
   seoTitle        String?       @map("seo_title")
   seoDescription  String?       @map("seo_description")
@@ -220,9 +244,6 @@ model Category {
   children        Category[]    @relation("CategoryToParent")
   products        Product[]     @relation("ProductCategories")
   categoryFAQ     CategoryFAQ[]
-
-  categoryImageUrl String? @map("category_image")
-  categoryImageKey String? @map("category_image_key")
 
   createdBy   User     @relation(fields: [createdById], references: [id])
   createdById String   @map("created_by")

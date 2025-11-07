@@ -26,6 +26,10 @@ export class UpdateCategoryDTO {
   showMenu?: boolean;
 
   @IsOptional()
+  @IsBoolean()
+  showCarousel?: boolean;
+
+  @IsOptional()
   @IsString()
   parentId?: string;
 
