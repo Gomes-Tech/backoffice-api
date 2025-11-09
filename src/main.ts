@@ -6,6 +6,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
 import cookieParser from 'cookie-parser';
+import { RequestHandler } from 'express';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 
@@ -16,7 +17,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.set('query parser', 'extended');
 
-  app.use(cookieParser());
+  app.use((cookieParser as unknown as () => RequestHandler)());
 
   const config = new DocumentBuilder()
     .setTitle('Backoffice API')
