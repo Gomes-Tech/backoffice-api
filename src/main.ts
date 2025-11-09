@@ -1,39 +1,17 @@
 import { HttpExceptionFilter } from '@infra/filters';
-// import {
-//   AdvancedLoggerService,
-//   LoggingInterceptor,
-//   initializeSentry,
-// } from '@infra/logger';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 
-// Inicializa o Sentry antes de tudo
-// initializeSentry();
-
 // Função para inicializar a aplicação
 async function bootstrap() {
-  // const logger = new CustomLoggerService();
-  // logger.setContext('Bootstrap');
-
-  const app = await NestFactory.create<NestExpressApplication>(
-    AppModule,
-    //   {
-    //   logger,
-    // }
-  );
-
-  // Obtém o interceptor de logging do container de injeção de dependências
-  // if (process.env.NODE_ENV === 'development') {
-  //   const logger = app.get(AdvancedLoggerService);
-  //   app.useGlobalInterceptors(new LoggingInterceptor(logger));
-  // }
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.setGlobalPrefix('api');
   app.set('query parser', 'extended');

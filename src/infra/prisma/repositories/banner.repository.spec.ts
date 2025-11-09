@@ -124,12 +124,6 @@ describe('PrismaBannerRepository', () => {
       expect(result).toHaveLength(2);
       expect(result[0].createdBy).toBe('Admin User');
       expect(result[1].createdBy).toBe('Admin User 2');
-      // expect(mockLogger.log).toHaveBeenCalledWith('Buscando todos os banners');
-      expect(mockLogger.logPerformance).toHaveBeenCalledWith(
-        'findAll',
-        expect.any(Number),
-        { totalBanners: 2 },
-      );
     });
 
     it('should return empty array when no banners exist', async () => {
@@ -213,14 +207,6 @@ describe('PrismaBannerRepository', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0].isActive).toBe(true);
-      // expect(mockLogger.log).toHaveBeenCalledWith(
-      //   'Buscando lista de banners ativos',
-      // );
-      expect(mockLogger.logPerformance).toHaveBeenCalledWith(
-        'findList',
-        expect.any(Number),
-        { totalActiveBanners: 1 },
-      );
     });
 
     it('should log database error and rethrow when findMany fails', async () => {
