@@ -165,7 +165,7 @@ export class PrismaProductRepository extends ProductRepository {
   }
 
   async findById(id: string): Promise<ProductAdmin> {
-    const data = await this.prismaService.product.findUnique({
+    const product = await this.prismaService.product.findUnique({
       where: { id, isDeleted: false },
       select: {
         id: true,
@@ -177,9 +177,7 @@ export class PrismaProductRepository extends ProductRepository {
         immediateShipping: true,
         freeShipping: true,
         categories: {
-          select: {
-            id: true,
-          },
+          select: { id: true },
         },
         videoLink: true,
         seoTitle: true,
@@ -190,22 +188,27 @@ export class PrismaProductRepository extends ProductRepository {
         technicalInfo: true,
         description: true,
         inCutout: true,
+        similarProducts: { select: { id: true } },
+        relatedProducts: { select: { id: true } },
+        productFAQ: true,
         productVariants: {
           where: { isDeleted: false },
-          orderBy: {
-            createdAt: 'asc',
-          },
+          orderBy: { createdAt: 'asc' },
           take: 1,
           select: {
             id: true,
             price: true,
             barCode: true,
             length: true,
+            createdAt: true,
             productImage: {
               select: {
+                id: true,
                 desktopImageUrl: true,
+                desktopImageKey: true,
                 desktopImageFirst: true,
                 mobileImageUrl: true,
+                mobileImageKey: true,
                 mobileImageFirst: true,
               },
             },
@@ -218,9 +221,7 @@ export class PrismaProductRepository extends ProductRepository {
             isActive: true,
             height: true,
             productVariantAttributes: {
-              select: {
-                attributeValueId: true,
-              },
+              select: { attributeValueId: true },
             },
             seoCanonicalUrl: true,
             seoDescription: true,
@@ -229,14 +230,45 @@ export class PrismaProductRepository extends ProductRepository {
             seoTitle: true,
           },
         },
-        similarProducts: {
-          select: { id: true },
-        },
-        relatedProducts: {
-          select: { id: true },
-        },
       },
     });
+
+    const allVariantAttributes =
+      await this.prismaService.productVariant.findMany({
+        where: { productId: id, isDeleted: false },
+        select: {
+          productVariantAttributes: {
+            select: { attributeValueId: true },
+            distinct: ['attributeValueId'],
+          },
+        },
+      });
+
+    const uniqueAttributeIds = [
+      ...new Set(
+        allVariantAttributes.flatMap((variant) =>
+          (variant.productVariantAttributes ?? []).map(
+            (attr) => attr.attributeValueId,
+          ),
+        ),
+      ),
+    ].map((id) => ({ attributeValueId: id }));
+
+    console.log(uniqueAttributeIds);
+
+    const data = {
+      ...product,
+      productVariants: [
+        {
+          ...product.productVariants[0],
+          productVariantAttributes: uniqueAttributeIds,
+        },
+      ],
+    };
+
+    if (!data) {
+      return null;
+    }
 
     return ProductMapper.toAdmin(data);
   }
@@ -522,6 +554,16 @@ export class PrismaProductRepository extends ProductRepository {
       });
     } catch (error) {
       throw new BadRequestException('Erro ao criar a imagem: ' + error.message);
+    }
+  }
+
+  async deleteImageVariant(productImageId: string): Promise<void> {
+    try {
+      await this.prismaService.productImage.delete({
+        where: { id: productImageId },
+      });
+    } catch (error) {
+      throw new BadRequestException('Erro ao deletar image de variação');
     }
   }
 

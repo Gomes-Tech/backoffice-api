@@ -29,7 +29,7 @@ import {
 } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 
-@AuthType(['user', 'api'])
+@AuthType(['user'])
 @Controller('footer-menus')
 export class FooterMenuController {
   constructor(

@@ -23,6 +23,20 @@ export class PrismaProductFAQRepository extends ProductFAQRepository {
     return await this.prismaService.productFAQ.findUnique({ where: { id } });
   }
 
+  async findProductFAQByProductId(
+    productId: string,
+  ): Promise<ProductFAQEntity[]> {
+    try {
+      const data = await this.prismaService.productFAQ.findMany({
+        where: { productId },
+      });
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async create(dto: CreateProductFAQ, createdBy?: string): Promise<void> {
     try {
       await this.prismaService.productFAQ.create({

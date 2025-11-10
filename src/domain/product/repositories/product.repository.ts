@@ -35,6 +35,7 @@ export abstract class ProductRepository extends BaseRepository<
     }[]
   >;
   abstract createImageVariant(dto: CreateProductImage): Promise<void>;
+  abstract deleteImageVariant(productImageId: string): Promise<void>;
   abstract createVariant(dto: CreateProductVariant): Promise<CreateReturn>;
   abstract updateVariant(
     variantId: string,

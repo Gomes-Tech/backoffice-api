@@ -1,4 +1,5 @@
 import { HttpExceptionFilter } from '@infra/filters';
+import { AuthServerGuard } from '@interfaces/http';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -52,6 +53,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalGuards(new AuthServerGuard());
 
   app.enableCors({
     origin: (origin, callback) => {
@@ -73,7 +75,7 @@ async function bootstrap() {
       }
     },
     methods: ['GET', 'POST', 'PATCH', 'OPTIONS', 'DELETE'],
-    allowedHeaders: ['Content-Type'],
+    allowedHeaders: ['Content-Type', 'api_key'],
     credentials: true,
   });
 

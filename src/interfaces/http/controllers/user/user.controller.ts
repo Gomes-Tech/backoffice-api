@@ -22,7 +22,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('users')
 @ApiBearerAuth()
-@AuthType(['user', 'api'])
+@AuthType(['user'])
 @Controller('users')
 export class UserController {
   constructor(

@@ -14,7 +14,7 @@ export class FindProductByIdUseCase {
     const Product = await this.productRepository.findById(id);
 
     if (!Product) {
-      throw new NotFoundException('Menu não encontrado');
+      throw new NotFoundException('Produto não encontrado');
     }
 
     return Product;

@@ -23,6 +23,7 @@ type ProductWithRelations = Prisma.ProductGetPayload<{
     freeShipping: true;
     similarProducts: { select: { id: true } };
     relatedProducts: { select: { id: true } };
+    productFAQ: { select: { id: true; question: true; answer: true } };
     categories: { select: { id: true } };
     videoLink: true;
     seoTitle: true;
@@ -39,11 +40,15 @@ type ProductWithRelations = Prisma.ProductGetPayload<{
         price: true;
         barCode: true;
         length: true;
+        createdAt: true;
         productImage: {
           select: {
+            id: true;
             desktopImageUrl: true;
+            desktopImageKey: true;
             desktopImageFirst: true;
             mobileImageUrl: true;
+            mobileImageKey: true;
             mobileImageFirst: true;
           };
         };
@@ -186,6 +191,11 @@ export class ProductMapper {
       product.seoMetaRobots ?? undefined,
       product.similarProducts?.map((sp) => sp.id) ?? [],
       product.relatedProducts?.map((rp) => rp.id) ?? [],
+      product.productFAQ?.map((item) => ({
+        id: item.id,
+        question: item.question,
+        answer: item.answer,
+      })),
     );
   }
 
@@ -204,9 +214,13 @@ export class ProductMapper {
       variant.width,
       variant.height,
       variant.barCode ?? '',
+      variant.createdAt,
       variant.productImage.map((img) => ({
+        id: img.id,
         desktopImageUrl: img.desktopImageUrl,
+        desktopImageKey: img.desktopImageKey,
         mobileImageUrl: img.mobileImageUrl,
+        mobileImageKey: img.mobileImageKey,
         desktopImageFirst: img.desktopImageFirst,
         mobileImageFirst: img.mobileImageFirst,
       })),

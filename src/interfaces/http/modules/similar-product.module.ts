@@ -2,6 +2,7 @@ import {
   CreateSimilarProductUseCase,
   DeleteSimilarProductUseCase,
   FindSimilarProductByIdUseCase,
+  FindSimilarProductsByProductIdUseCase,
 } from '@app/similar-product';
 import { PrismaSimilarProductRepository } from '@infra/prisma';
 import { Module } from '@nestjs/common';
@@ -11,6 +12,7 @@ import { Module } from '@nestjs/common';
   controllers: [],
   providers: [
     FindSimilarProductByIdUseCase,
+    FindSimilarProductsByProductIdUseCase,
     CreateSimilarProductUseCase,
     DeleteSimilarProductUseCase,
     PrismaSimilarProductRepository,
@@ -21,6 +23,7 @@ import { Module } from '@nestjs/common';
   ],
   exports: [
     FindSimilarProductByIdUseCase,
+    FindSimilarProductsByProductIdUseCase,
     CreateSimilarProductUseCase,
     DeleteSimilarProductUseCase,
     PrismaSimilarProductRepository,

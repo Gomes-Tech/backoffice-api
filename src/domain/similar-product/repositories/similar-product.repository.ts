@@ -8,4 +8,6 @@ export abstract class SimilarProductRepository extends BaseRepository<
   SimilarProductEntity,
   SimilarProductEntity,
   string
-> {}
+> {
+  abstract findByProductId(productId: string): Promise<SimilarProductEntity[]>;
+}

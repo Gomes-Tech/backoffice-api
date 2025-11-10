@@ -116,6 +116,18 @@ export class UpdateProductDTO {
   productVariants?: ProductVariant[];
 
   @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @Transform(({ value }) => parseArray(value), { toClassOnly: true })
+  mobileImages: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @Transform(({ value }) => parseArray(value), { toClassOnly: true })
+  desktopImages: string[];
+
+  @IsOptional()
   @IsString()
   seoTitle?: string;
 

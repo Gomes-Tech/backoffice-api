@@ -9,4 +9,6 @@ export abstract class ProductFAQRepository extends BaseRepository<
   ProductFAQEntity,
   CreateProductFAQ,
   UpdateProductFAQ
-> {}
+> {
+  abstract findProductFAQByProductId(productId: string): Promise<ProductFAQEntity[]>;
+}

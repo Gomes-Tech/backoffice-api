@@ -17,6 +17,16 @@ export class PrismaSimilarProductRepository extends SimilarProductRepository {
     return null;
   }
 
+  async findByProductId(productId: string): Promise<SimilarProductEntity[]> {
+    try {
+      return await this.prismaService.similarProduct.findMany({
+        where: { productId },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async findById(id: string): Promise<SimilarProductEntity> {
     return await this.prismaService.relatedProduct.findUnique({
       where: { id },

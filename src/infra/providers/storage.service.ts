@@ -23,4 +23,8 @@ export class StorageService {
   getPublicUrl(path: string) {
     return this.supabaseService.getPublicUrl(path);
   }
+
+  async deleteFile(paths: string[]): Promise<void> {
+    return await this.supabaseService.deleteFile(paths);
+  }
 }

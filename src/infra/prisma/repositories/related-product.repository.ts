@@ -17,6 +17,18 @@ export class PrismaRelatedProductRepository extends RelatedProductRepository {
     return null;
   }
 
+  async findByProductId(productId: string): Promise<RelatedProductEntity[]> {
+    try {
+      const data = await this.prismaService.relatedProduct.findMany({
+        where: { productId },
+      });
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async findById(id: string): Promise<RelatedProductEntity> {
     return await this.prismaService.relatedProduct.findUnique({
       where: { id },

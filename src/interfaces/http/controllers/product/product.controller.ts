@@ -27,7 +27,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 export type ProductFile = Express.Multer.File & {
   isFirst?: boolean;
 };
-@AuthType(['user', 'api'])
+@AuthType(['user'])
 @Controller('products')
 export class ProductController {
   constructor(

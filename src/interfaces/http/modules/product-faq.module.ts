@@ -2,6 +2,7 @@ import { CreateProductFAQUseCase } from '@app/product';
 import {
   DeleteProductFAQUseCase,
   FindProductFAQByIdUseCase,
+  FindProductFAQByProductIdUseCase,
   UpdateProductFAQUseCase,
 } from '@app/product-faq';
 import { PrismaProductFAQRepository } from '@infra/prisma';
@@ -12,6 +13,7 @@ import { Module } from '@nestjs/common';
   controllers: [],
   providers: [
     FindProductFAQByIdUseCase,
+    FindProductFAQByProductIdUseCase,
     CreateProductFAQUseCase,
     UpdateProductFAQUseCase,
     DeleteProductFAQUseCase,
@@ -23,6 +25,7 @@ import { Module } from '@nestjs/common';
   ],
   exports: [
     FindProductFAQByIdUseCase,
+    FindProductFAQByProductIdUseCase,
     CreateProductFAQUseCase,
     UpdateProductFAQUseCase,
     DeleteProductFAQUseCase,

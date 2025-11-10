@@ -1,4 +1,4 @@
-import { UploadFileException } from '@infra/filters';
+import { BadRequestException, UploadFileException } from '@infra/filters';
 import { Injectable } from '@nestjs/common';
 import { renameFile } from '@shared/utils';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
@@ -58,5 +58,13 @@ export class SupabaseService {
       .getPublicUrl(path);
 
     return data;
+  }
+
+  async deleteFile(paths: string[]): Promise<void> {
+    try {
+      await this.supabase.storage.from('backoffice').remove(paths);
+    } catch (error) {
+      throw new BadRequestException('Ocorreu um erro ao deletar a imagem');
+    }
   }
 }

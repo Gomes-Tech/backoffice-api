@@ -26,7 +26,7 @@ import {
 } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 
-@AuthType(['user', 'api'])
+@AuthType(['user'])
 @Controller('banners')
 export class BannerController {
   constructor(

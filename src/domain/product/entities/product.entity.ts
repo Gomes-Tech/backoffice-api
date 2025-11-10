@@ -78,6 +78,7 @@ export class ProductAdmin {
     public seoMetaRobots?: string,
     public relatedProducts?: string[],
     public similarProducts?: string[],
+    public productFAQs?: ProductFAQEntity[]
   ) {}
 }
 
@@ -94,9 +95,13 @@ export class ProductVariantAdmin {
     public width: string,
     public height: string,
     public barCode: string,
+    public createdAt: Date,
     public images: {
+      id: string;
       desktopImageUrl: string;
+      desktopImageKey: string;
       mobileImageUrl: string;
+      mobileImageKey: string;
       mobileImageFirst: boolean;
       desktopImageFirst: boolean;
     }[],

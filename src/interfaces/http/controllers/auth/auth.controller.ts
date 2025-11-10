@@ -67,7 +67,7 @@ export class AuthController {
   }
 
   @Roles('admin')
-  @AuthType(['user', 'api'])
+  @AuthType(['user'])
   @Post('/sign-up')
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.CREATED)

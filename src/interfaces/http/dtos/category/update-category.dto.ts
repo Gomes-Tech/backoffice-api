@@ -31,6 +31,10 @@ export class UpdateCategoryDTO {
 
   @IsOptional()
   @IsString()
+  categoryImageUrl?: string;
+
+  @IsOptional()
+  @IsString()
   parentId?: string;
 
   @IsOptional()

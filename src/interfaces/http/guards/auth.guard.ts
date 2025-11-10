@@ -20,10 +20,13 @@ export class AuthDispatchGuard {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    this.apiKeyAuth.canActivate(context);
+
     const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
       context.getHandler(),
       context.getClass(),
     ]);
+
     if (isPublic) {
       return true;
     }
@@ -44,9 +47,9 @@ export class AuthDispatchGuard {
       return this.userAuth.canActivate(context) as Promise<boolean>;
     }
 
-    if (types.includes('api')) {
-      return this.apiKeyAuth.canActivate(context);
-    }
+    // if (types.includes('api')) {
+    //   return this.apiKeyAuth.canActivate(context);
+    // }
 
     throw new UnauthorizedException('Auth type not specified');
   }
