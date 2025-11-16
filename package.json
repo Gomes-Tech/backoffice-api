@@ -7,6 +7,10 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "npx prisma generate && npx nest build",
+    "build:prod": "NODE_OPTIONS='--max-old-space-size=384' npx prisma generate && NODE_OPTIONS='--max-old-space-size=384' npx nest build",
+    "build:render": "npm run prisma:generate:render && npm run nest:build:render",
+    "prisma:generate:render": "NODE_OPTIONS='--max-old-space-size=256' npx prisma generate",
+    "nest:build:render": "NODE_OPTIONS='--max-old-space-size=256' npx nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "seed": "ts-node prisma/seed.ts",
