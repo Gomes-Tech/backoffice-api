@@ -39,14 +39,19 @@ export class MetricsService {
   public readonly memoryUsage: Gauge<string>;
   public readonly cpuUsage: Gauge<string>;
 
+  private readonly isProduction = process.env.NODE_ENV === 'prod';
+
   constructor() {
     this.registry = new Registry();
 
-    // Coletar métricas padrão do Node.js (CPU, memória, etc.)
-    collectDefaultMetrics({
-      register: this.registry,
-      prefix: 'nodejs_',
-    });
+    // Em produção, não coleta métricas padrão
+    if (!this.isProduction) {
+      // Coletar métricas padrão do Node.js (CPU, memória, etc.)
+      collectDefaultMetrics({
+        register: this.registry,
+        prefix: 'nodejs_',
+      });
+    }
 
     // Métricas HTTP
     this.httpRequestDuration = new Histogram({
@@ -178,8 +183,11 @@ export class MetricsService {
       registers: [this.registry],
     });
 
-    // Atualizar métricas de sistema periodicamente
-    this.startSystemMetrics();
+    // Em produção, não inicia métricas de sistema
+    if (!this.isProduction) {
+      // Atualizar métricas de sistema periodicamente
+      this.startSystemMetrics();
+    }
   }
 
   private startSystemMetrics() {
@@ -201,6 +209,11 @@ export class MetricsService {
     statusCode: number,
     duration: number,
   ) {
+    // Em produção, não registra métricas
+    if (this.isProduction) {
+      return;
+    }
+
     const labels = {
       method,
       route,
@@ -224,6 +237,11 @@ export class MetricsService {
     duration: number,
     success: boolean,
   ) {
+    // Em produção, não registra métricas
+    if (this.isProduction) {
+      return;
+    }
+
     const labels = {
       operation,
       model,
@@ -244,16 +262,19 @@ export class MetricsService {
    * Registra uma operação de cache
    */
   recordCacheHit(key: string) {
+    if (this.isProduction) return;
     this.cacheHits.inc({ key });
     this.cacheOperations.inc({ operation: 'get', status: 'hit' });
   }
 
   recordCacheMiss(key: string) {
+    if (this.isProduction) return;
     this.cacheMisses.inc({ key });
     this.cacheOperations.inc({ operation: 'get', status: 'miss' });
   }
 
   recordCacheSet(key: string, success: boolean) {
+    if (this.isProduction) return;
     this.cacheOperations.inc({
       operation: 'set',
       status: success ? 'success' : 'error',
@@ -261,6 +282,7 @@ export class MetricsService {
   }
 
   recordCacheDelete(key: string, success: boolean) {
+    if (this.isProduction) return;
     this.cacheOperations.inc({
       operation: 'delete',
       status: success ? 'success' : 'error',
@@ -294,6 +316,10 @@ export class MetricsService {
    * Retorna as métricas no formato Prometheus
    */
   async getMetrics(): Promise<string> {
+    // Em produção, retorna vazio
+    if (this.isProduction) {
+      return '# Métricas desabilitadas em produção\n';
+    }
     return this.registry.metrics();
   }
 
@@ -304,4 +330,3 @@ export class MetricsService {
     return this.registry;
   }
 }
-

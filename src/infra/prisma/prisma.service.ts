@@ -1,4 +1,9 @@
-import { Injectable, OnModuleDestroy, OnModuleInit, Optional } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleDestroy,
+  OnModuleInit,
+  Optional,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { MetricsService } from '../metrics/metrics.service';
 
@@ -15,9 +20,7 @@ export class PrismaService
         },
       },
       log:
-        process.env.NODE_ENV === 'development'
-          ? ['query', 'error', 'warn']
-          : ['error'],
+        process.env.NODE_ENV === 'dev' ? ['query', 'error', 'warn'] : ['error'],
     });
   }
 

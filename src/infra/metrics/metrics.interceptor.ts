@@ -11,9 +11,16 @@ import { MetricsService } from './metrics.service';
 
 @Injectable()
 export class MetricsInterceptor implements NestInterceptor {
+  private readonly isProduction = process.env.NODE_ENV === 'prod';
+
   constructor(private readonly metricsService: MetricsService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    // Em produção, não registra métricas
+    if (this.isProduction) {
+      return next.handle();
+    }
+
     const request = context.switchToHttp().getRequest<Request>();
     const response = context.switchToHttp().getResponse<Response>();
 

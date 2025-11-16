@@ -21,6 +21,7 @@ export interface SecurityLogContext {
 @Injectable()
 export class SecurityLoggerService {
   private readonly logger = new Logger(SecurityLoggerService.name);
+  private readonly isProduction = process.env.NODE_ENV === 'prod';
 
   /**
    * Registra tentativa de login falhada
@@ -31,6 +32,11 @@ export class SecurityLoggerService {
     userAgent?: string,
     reason?: string,
   ): void {
+    // Em produção, não registra logs críticos
+    if (this.isProduction) {
+      return;
+    }
+
     const context: SecurityLogContext = {
       email,
       ip,
@@ -60,6 +66,11 @@ export class SecurityLoggerService {
     activity: string,
     context: SecurityLogContext,
   ): void {
+    // Em produção, não registra logs críticos
+    if (this.isProduction) {
+      return;
+    }
+
     const logContext = {
       ...context,
       activity,
@@ -89,6 +100,11 @@ export class SecurityLoggerService {
     level: 'info' | 'warn' | 'error',
     context: SecurityLogContext,
   ): void {
+    // Em produção, não registra logs críticos
+    if (this.isProduction) {
+      return;
+    }
+
     const logContext = {
       ...context,
       event,
@@ -133,6 +149,11 @@ export class SecurityLoggerService {
     userId?: string,
     userAgent?: string,
   ): void {
+    // Em produção, não registra logs críticos
+    if (this.isProduction) {
+      return;
+    }
+
     const context: SecurityLogContext = {
       userId,
       ip,
@@ -164,6 +185,11 @@ export class SecurityLoggerService {
     userAgent?: string,
     reason?: string,
   ): void {
+    // Em produção, não registra logs críticos
+    if (this.isProduction) {
+      return;
+    }
+
     const context: SecurityLogContext = {
       ip,
       userAgent,
@@ -194,6 +220,11 @@ export class SecurityLoggerService {
     success: boolean,
     userAgent?: string,
   ): void {
+    // Em produção, não registra logs críticos
+    if (this.isProduction) {
+      return;
+    }
+
     const context: SecurityLogContext = {
       email,
       ip,
@@ -228,6 +259,11 @@ export class SecurityLoggerService {
     ip: string,
     userAgent?: string,
   ): void {
+    // Em produção, não registra logs críticos
+    if (this.isProduction) {
+      return;
+    }
+
     const context: SecurityLogContext = {
       userId,
       email,
@@ -249,6 +285,11 @@ export class SecurityLoggerService {
     requiredRole?: string,
     userAgent?: string,
   ): void {
+    // Em produção, não registra logs críticos
+    if (this.isProduction) {
+      return;
+    }
+
     const context: SecurityLogContext = {
       userId,
       ip,
@@ -281,6 +322,11 @@ export class SecurityLoggerService {
     attemptCount: number,
     userAgent?: string,
   ): void {
+    // Em produção, não registra logs críticos
+    if (this.isProduction) {
+      return;
+    }
+
     const context: SecurityLogContext = {
       email,
       ip,
