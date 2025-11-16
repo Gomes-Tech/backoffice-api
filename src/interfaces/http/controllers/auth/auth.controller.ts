@@ -1,5 +1,6 @@
 import {
   ForgotPasswordUseCase,
+  LogoutUserUseCase,
   RefreshTokenUseCase,
   ResetPasswordUseCase,
   SignInUserUseCase,
@@ -7,7 +8,15 @@ import {
 } from '@app/auth';
 import { VerifyTokenPasswordUseCase } from '@app/token-password';
 import { UnauthorizedException } from '@infra/filters';
-import { AuthType, Public, Roles, UserId } from '@interfaces/http/decorators';
+import {
+  AuthType,
+  Public,
+  Roles,
+  ThrottleLogin,
+  ThrottlePasswordReset,
+  ThrottleTokenGeneration,
+  UserId,
+} from '@interfaces/http/decorators';
 import {
   CreateUserDto,
   ForgotPasswordDTO,
@@ -34,20 +43,29 @@ export class AuthController {
     private readonly signInUser: SignInUserUseCase,
     private readonly signUpUser: SignUpUseCase,
     private readonly refreshTokenUseCase: RefreshTokenUseCase,
+    private readonly logoutUserUseCase: LogoutUserUseCase,
     private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
     private readonly resetPasswordUseCase: ResetPasswordUseCase,
     private readonly verifyTokenPasswordUseCase: VerifyTokenPasswordUseCase,
   ) {}
 
   @Public()
+  @ThrottleLogin()
   @UsePipes(ValidationPipe)
   @Post('/sign-in')
   @HttpCode(HttpStatus.OK)
   async signIn(
     @Body() dto: LoginDTO,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { accessToken, refreshToken } = await this.signInUser.execute(dto);
+    const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+    const userAgent = req.get('user-agent') || 'unknown';
+    const { accessToken, refreshToken } = await this.signInUser.execute(
+      dto,
+      ip,
+      userAgent,
+    );
 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
@@ -115,7 +133,17 @@ export class AuthController {
   @Public()
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Res({ passthrough: true }) res: Response) {
+  async logout(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    // Obtém os tokens dos cookies antes de removê-los
+    const accessToken = req.cookies?.['accessToken'];
+    const refreshToken = req.cookies?.['refreshToken'];
+
+    // Blacklista os tokens
+    await this.logoutUserUseCase.execute(accessToken, refreshToken);
+
     // Remove os cookies
     res.cookie('accessToken', '', {
       httpOnly: true,
@@ -137,6 +165,7 @@ export class AuthController {
   }
 
   @Public()
+  @ThrottleTokenGeneration()
   @Post('/forgot-password')
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.OK)
@@ -145,6 +174,7 @@ export class AuthController {
   }
 
   @Public()
+  @ThrottleTokenGeneration()
   @Post('/verify-token')
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.OK)
@@ -153,10 +183,18 @@ export class AuthController {
   }
 
   @Public()
+  @ThrottlePasswordReset()
   @Post('/reset-password')
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.OK)
-  async resetPassword(@Body() dto: ResetPasswordDTO) {
-    await this.resetPasswordUseCase.execute(dto.email, dto.password);
+  async resetPassword(@Body() dto: ResetPasswordDTO, @Req() req: Request) {
+    const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+    const userAgent = req.get('user-agent') || 'unknown';
+    await this.resetPasswordUseCase.execute(
+      dto.email,
+      dto.password,
+      ip,
+      userAgent,
+    );
   }
 }

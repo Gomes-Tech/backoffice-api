@@ -4,11 +4,14 @@ import {
   CreateProductUseCase,
   CreateProductVariantUseCase,
   DeleteProductUseCase,
+  DeleteProductVariantUseCase,
   FindAllProductViewUseCase,
   FindProductAttributesUseCase,
   FindProductByIdUseCase,
   FindProductByNameUseCase,
   FindProductBySlugUseCase,
+  UpdateProductUseCase,
+  UpdateProductVariantUseCase,
 } from '@app/product';
 import { PrismaProductRepository } from '@infra/prisma';
 import { Module } from '@nestjs/common';
@@ -36,7 +39,10 @@ import { SimilarProductModule } from './similar-product.module';
     CreateProductFAQUseCase,
     CreateProductUseCase,
     CreateProductVariantUseCase,
+    UpdateProductUseCase,
+    UpdateProductVariantUseCase,
     DeleteProductUseCase,
+    DeleteProductVariantUseCase,
     PrismaProductRepository,
     {
       provide: 'ProductRepository',

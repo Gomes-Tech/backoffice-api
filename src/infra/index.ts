@@ -1,7 +1,12 @@
 export * from './cache';
+export * from './circuit-breaker';
 export * from './config';
 export * from './criptography';
 export * from './filters';
+export * from './health';
 // export * from './logger';
+export * from './metrics';
 export * from './prisma';
 export * from './providers';
+export * from './security';
+export * from './throttler';

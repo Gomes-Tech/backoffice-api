@@ -5,9 +5,17 @@ import {
   FindProductAttributesUseCase,
   FindProductByIdUseCase,
   FindProductBySlugUseCase,
+  UpdateProductUseCase,
 } from '@app/product';
-import { AuthType, Public, Roles, UserId } from '@interfaces/http/decorators';
-import { CreateProductDTO } from '@interfaces/http/dtos';
+import {
+  AuthType,
+  Public,
+  Roles,
+  ThrottleUpload,
+  UserId,
+} from '@interfaces/http/decorators';
+import { MaxFileSize } from '@shared/decorators';
+import { CreateProductDTO, UpdateProductDTO } from '@interfaces/http/dtos';
 import { FindProductsFilterDto } from '@interfaces/http/dtos/product/find-all-query.dto';
 import {
   Body,
@@ -17,6 +25,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   UploadedFiles,
@@ -34,6 +43,7 @@ export class ProductController {
     private readonly findProductByIdUseCase: FindProductByIdUseCase,
     private readonly findProductByIdSlugUseCase: FindProductBySlugUseCase,
     private readonly createProductUseCase: CreateProductUseCase,
+    private readonly updateProductUseCase: UpdateProductUseCase,
     private readonly deleteProductUseCase: DeleteProductUseCase,
     private readonly findAllProductViewUseCase: FindAllProductViewUseCase,
     private readonly findProductAttributesUseCase: FindProductAttributesUseCase,
@@ -63,6 +73,8 @@ export class ProductController {
     return this.findProductByIdUseCase.execute(id);
   }
 
+  @ThrottleUpload()
+  @MaxFileSize(undefined, 10) // 10MB por arquivo
   @Post()
   @UseInterceptors(
     FileFieldsInterceptor([
@@ -80,6 +92,28 @@ export class ProductController {
     },
   ) {
     await this.createProductUseCase.execute(dto, userId, files || {});
+  }
+
+  @ThrottleUpload()
+  @MaxFileSize(undefined, 10) // 10MB por arquivo
+  @Patch('/:id')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'desktopImages' },
+      { name: 'mobileImages' },
+    ]),
+  )
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateProductDTO,
+    @UserId() userId: string,
+    @UploadedFiles()
+    files?: {
+      desktopImages?: ProductFile[];
+      mobileImages?: ProductFile[];
+    },
+  ) {
+    await this.updateProductUseCase.execute(id, dto, userId, files || {});
   }
 
   @Roles('admin')

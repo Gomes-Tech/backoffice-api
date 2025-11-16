@@ -1,5 +1,9 @@
 import { UnauthorizedException } from '@infra/filters';
 import {
+  SecurityLoggerService,
+  TokenBlacklistService,
+} from '@infra/security';
+import {
   CanActivate,
   ExecutionContext,
   Inject,
@@ -16,6 +20,8 @@ export class AuthGuard implements CanActivate {
     @Inject(ADMIN_JWT)
     private jwtService: JwtService,
     private reflector: Reflector,
+    private securityLogger: SecurityLoggerService,
+    private tokenBlacklistService: TokenBlacklistService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -29,15 +35,50 @@ export class AuthGuard implements CanActivate {
     }
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+    const ip = request.ip || request.connection?.remoteAddress || 'unknown';
+    const userAgent = request.get('user-agent') || 'unknown';
+    const endpoint = request.url;
+    const method = request.method;
 
     if (!token) {
+      this.securityLogger.logUnauthorizedAccess(
+        endpoint,
+        method,
+        ip,
+        undefined,
+        userAgent,
+      );
       throw new UnauthorizedException();
     }
     try {
       const payload = await this.jwtService.verifyAsync(token);
 
+      // Verifica se o token está na blacklist
+      if (payload.jti) {
+        const isBlacklisted =
+          await this.tokenBlacklistService.isTokenBlacklisted(payload.jti);
+        if (isBlacklisted) {
+          this.securityLogger.logInvalidToken(
+            ip,
+            endpoint,
+            userAgent,
+            'Token foi revogado (blacklist)',
+          );
+          throw new UnauthorizedException('Token foi revogado!');
+        }
+      }
+
       request['user'] = payload;
-    } catch {
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      this.securityLogger.logInvalidToken(
+        ip,
+        endpoint,
+        userAgent,
+        error instanceof Error ? error.message : 'Token inválido ou expirado',
+      );
       throw new UnauthorizedException('Token inválido ou expirado!');
     }
     return true;

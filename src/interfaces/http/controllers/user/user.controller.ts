@@ -5,7 +5,13 @@ import {
   UpdateUserUseCase,
 } from '@app/user';
 import { ListUser } from '@domain/user';
-import { AuthType, Roles, UserId } from '@interfaces/http/decorators';
+import {
+  AuthType,
+  Roles,
+  ThrottleUpload,
+  UserId,
+} from '@interfaces/http/decorators';
+import { MaxFileSize } from '@shared/decorators';
 import { UpdateUserDto } from '@interfaces/http/dtos';
 import {
   Body,
@@ -14,6 +20,7 @@ import {
   Get,
   Param,
   Patch,
+  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -44,18 +51,30 @@ export class UserController {
   }
 
   @Get('/:id')
-  async findById(@Param('id') id: string) {
-    return await this.findUserByIdUseCase.execute(id);
+  async findById(
+    @Param('id') id: string,
+    @UserId() userId: string,
+    @Req() req: any,
+  ) {
+    // Proteção contra IDOR: Passa informações do usuário autenticado
+    const userRole = req.user?.role;
+    return await this.findUserByIdUseCase.execute(id, userId, userRole);
   }
 
+  @ThrottleUpload()
+  @MaxFileSize(undefined, 2) // 2MB para foto de perfil
   @Patch('/:id')
   @UseInterceptors(FileInterceptor('photo'))
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateUserDto,
     @UploadedFile() photo: Express.Multer.File,
+    @UserId() userId: string,
+    @Req() req: any,
   ) {
-    await this.updateUserUseCase.execute(id, dto, photo);
+    // Proteção contra IDOR: Passa informações do usuário autenticado
+    const userRole = req.user?.role;
+    await this.updateUserUseCase.execute(id, dto, photo, userId, userRole);
   }
 
   @Roles('admin')

@@ -1,16 +1,12 @@
 import { FindAttributeValueByIdWithAttributeUseCase } from '@app/attribute-value';
-import { CreateProductFAQUseCase } from '@app/product-faq';
-import { CreateRelatedProductUseCase } from '@app/related-product';
-import { CreateSimilarProductUseCase } from '@app/similar-product';
 import { ProductRepository } from '@domain/product/repositories';
 import { BadRequestException } from '@infra/filters';
+import { PrismaService } from '@infra/prisma';
 import { StorageFile, StorageService } from '@infra/providers';
 import { CreateProductDTO } from '@interfaces/http';
 import { ProductFile } from '@interfaces/http/controllers';
 import { Inject, Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateProductImageUseCase } from './create-product-image.use-case';
-import { CreateProductVariantUseCase } from './create-product-variant.use-case';
 import { FindProductByNameUseCase } from './find-product-by-name.use-case';
 import { FindProductBySlugUseCase } from './find-product-by-slug.use-case';
 
@@ -19,15 +15,11 @@ export class CreateProductUseCase {
   constructor(
     @Inject('ProductRepository')
     private readonly productRepository: ProductRepository,
+    private readonly prismaService: PrismaService,
     private readonly storageService: StorageService,
     private readonly findProductBySlugUseCase: FindProductBySlugUseCase,
     private readonly findProductByNameUseCase: FindProductByNameUseCase,
-    private readonly createProductImageUseCase: CreateProductImageUseCase,
-    private readonly createProductVariantUseCase: CreateProductVariantUseCase,
     private readonly findAttributeValueByIdWithAttributeUseCase: FindAttributeValueByIdWithAttributeUseCase,
-    private readonly createProductFAQUseCase: CreateProductFAQUseCase,
-    private readonly createRelatedProductUseCase: CreateRelatedProductUseCase,
-    private readonly createSimilarProductUseCase: CreateSimilarProductUseCase,
   ) {}
 
   async execute(
@@ -38,6 +30,7 @@ export class CreateProductUseCase {
       mobileImages?: ProductFile[];
     },
   ): Promise<void> {
+    // Validações antes da transação (operações de leitura)
     const existingSlug = await this.findProductBySlugUseCase
       .execute(dto.slug)
       .catch(() => null);
@@ -54,163 +47,10 @@ export class CreateProductUseCase {
       throw new BadRequestException('Esse nome já está em uso');
     }
 
-    const { id: productId } = await this.productRepository.create(
-      {
-        id: uuidv4(),
-        name: dto.name,
-        slug: dto.slug,
-        categories: dto.categories,
-        description: dto.description,
-        technicalInfo: dto.technicalInfo,
-        isGreenSeal: dto.isGreenSeal,
-        freeShipping: dto.freeShipping,
-        immediateShipping: dto.immediateShipping,
-        isPersonalized: dto.isPersonalized,
-        isExclusive: dto.isExclusive,
-        inCutout: dto.inCutout,
-        seoTitle: dto.seoTitle,
-        seoDescription: dto.seoDescription,
-        seoCanonicalUrl: dto.seoCanonicalUrl,
-        seoKeywords: dto.seoKeywords,
-        seoMetaRobots: dto.seoMetaRobots,
-        videoLink: dto.videoLink,
-      },
-      userId,
-    );
+    // Preparar uploads de arquivos antes da transação (operações externas)
+    let desktopUrls: (StorageFile & { isFirst: boolean; alt: string })[] = [];
+    let mobileUrls: (StorageFile & { isFirst: boolean; alt: string })[] = [];
 
-    dto.productFAQ.map(
-      async (faq) =>
-        await this.createProductFAQUseCase
-          .execute({
-            ...faq,
-            id: '',
-            productId: productId,
-          })
-          .catch(() => null),
-    );
-
-    const relatedResults = await Promise.all(
-      (dto.relatedProducts || []).map(async (related) => {
-        try {
-          return await this.createRelatedProductUseCase.execute(related);
-        } catch {
-          return null;
-        }
-      }),
-    );
-
-    dto.relatedProducts = relatedResults.filter((r): r is string => r !== null);
-
-    const similarResults = await Promise.all(
-      (dto.similarProducts || []).map(async (similar) => {
-        try {
-          return await this.createSimilarProductUseCase.execute(similar);
-        } catch {
-          return null;
-        }
-      }),
-    );
-
-    dto.similarProducts = similarResults.filter((r): r is string => r !== null);
-
-    const mainVariant = dto.productVariants[0];
-
-    let createdVariantIds: string[] = [];
-
-    if (
-      mainVariant.productVariantAttributes &&
-      mainVariant.productVariantAttributes.length > 0
-    ) {
-      // Se houver atributos -> gerar combinações
-      const attributeResults = await Promise.allSettled(
-        mainVariant.productVariantAttributes.map(async (valueId) => {
-          const value =
-            await this.findAttributeValueByIdWithAttributeUseCase.execute(
-              valueId,
-            );
-          return { id: value.id, attributeId: value.attributeId };
-        }),
-      );
-
-      const attributeValues = attributeResults
-        .filter(
-          (
-            res,
-          ): res is PromiseFulfilledResult<{
-            id: string;
-            attributeId: string;
-          }> => res.status === 'fulfilled',
-        )
-        .map((res) => res.value);
-
-      // Agrupa por attributeId
-      const grouped: Record<string, string[]> = {};
-      for (const val of attributeValues) {
-        if (!grouped[val.attributeId]) grouped[val.attributeId] = [];
-        grouped[val.attributeId].push(val.id);
-      }
-
-      // Gera combinações
-      const combinations = this.cartesian(Object.values(grouped));
-
-      let addMore = 0;
-
-      for (const combo of combinations) {
-        const variant = await this.createProductVariantUseCase.execute({
-          id: uuidv4(),
-          productId,
-          barCode: mainVariant.barCode,
-          discountPix: mainVariant.discountPix,
-          discountPrice: mainVariant.discountPrice,
-          height: mainVariant.height,
-          isActive: mainVariant.isActive,
-          length: mainVariant.length,
-          price: mainVariant.price,
-          sku: mainVariant.sku + addMore,
-          weight: mainVariant.weight,
-          width: mainVariant.width,
-          productVariantAttributes: combo,
-          seoCanonicalUrl: mainVariant.seoCanonicalUrl,
-          seoDescription: mainVariant.seoDescription,
-          seoKeywords: mainVariant.seoKeywords,
-          seoMetaRobots: mainVariant.seoMetaRobots,
-          seoTitle: mainVariant.seoTitle,
-          stock: mainVariant.stock,
-        });
-        createdVariantIds.push(variant.id);
-
-        addMore++;
-      }
-    } else {
-      // Se não houver atributos -> cria só 1 variação
-      const variant = await this.createProductVariantUseCase.execute({
-        id: uuidv4(),
-        productId,
-        barCode: mainVariant.barCode,
-        discountPix: mainVariant.discountPix,
-        discountPrice: mainVariant.discountPrice,
-        height: mainVariant.height,
-        isActive: mainVariant.isActive,
-        length: mainVariant.length,
-        price: mainVariant.price,
-        sku: mainVariant.sku,
-        weight: mainVariant.weight,
-        width: mainVariant.width,
-        productVariantAttributes: [],
-        seoCanonicalUrl: mainVariant.seoCanonicalUrl,
-        seoDescription: mainVariant.seoDescription,
-        seoKeywords: mainVariant.seoKeywords,
-        seoMetaRobots: mainVariant.seoMetaRobots,
-        seoTitle: mainVariant.seoTitle,
-        stock: mainVariant.stock,
-      });
-      createdVariantIds.push(variant.id);
-    }
-
-    // Agora createdVariantIds[0] é a "main variant" para imagens
-    const mainVariantId = createdVariantIds[0];
-
-    // Só cria imagens se houver arquivos
     if (files?.desktopImages?.length && files?.mobileImages?.length) {
       const desktopResults = await Promise.allSettled(
         files.desktopImages.map((file, index) =>
@@ -236,7 +76,7 @@ export class CreateProductUseCase {
         ),
       );
 
-      const desktopUrls = desktopResults
+      desktopUrls = desktopResults
         .filter(
           (
             res,
@@ -246,7 +86,7 @@ export class CreateProductUseCase {
         )
         .map((res) => res.value);
 
-      const mobileUrls = mobileResults
+      mobileUrls = mobileResults
         .filter(
           (
             res,
@@ -255,32 +95,232 @@ export class CreateProductUseCase {
           > => res.status === 'fulfilled',
         )
         .map((res) => res.value);
-
-      const maxLength = Math.max(desktopUrls.length, mobileUrls.length);
-
-      const images = Array.from({ length: maxLength }, (_, i) => ({
-        desktopImageUrl: desktopUrls[i].publicUrl,
-        desktopImageAlt: desktopUrls[i].alt,
-        desktopImageKey: desktopUrls[i].path,
-        mobileImageUrl: mobileUrls[i].publicUrl,
-        mobileImageKey: mobileUrls[i].path,
-        mobileImageAlt: mobileUrls[i].alt,
-        desktopImageFirst: desktopUrls[i].isFirst,
-        mobileImageFirst: mobileUrls[i].isFirst,
-      }));
-
-      for (const image of images) {
-        try {
-          await this.createProductImageUseCase.execute({
-            id: uuidv4(),
-            ...image,
-            productVariant: mainVariantId, // agora vincula à primeira variação criada
-          });
-        } catch (error) {
-          continue;
-        }
-      }
     }
+
+    // Preparar dados de atributos antes da transação (operações de leitura)
+    const mainVariant = dto.productVariants[0];
+    let attributeValues: { id: string; attributeId: string }[] = [];
+    let combinations: string[][] = [];
+
+    if (
+      mainVariant.productVariantAttributes &&
+      mainVariant.productVariantAttributes.length > 0
+    ) {
+      const attributeResults = await Promise.allSettled(
+        mainVariant.productVariantAttributes.map(async (valueId) => {
+          const value =
+            await this.findAttributeValueByIdWithAttributeUseCase.execute(
+              valueId,
+            );
+          return { id: value.id, attributeId: value.attributeId };
+        }),
+      );
+
+      attributeValues = attributeResults
+        .filter(
+          (
+            res,
+          ): res is PromiseFulfilledResult<{
+            id: string;
+            attributeId: string;
+          }> => res.status === 'fulfilled',
+        )
+        .map((res) => res.value);
+
+      // Agrupa por attributeId
+      const grouped: Record<string, string[]> = {};
+      for (const val of attributeValues) {
+        if (!grouped[val.attributeId]) grouped[val.attributeId] = [];
+        grouped[val.attributeId].push(val.id);
+      }
+
+      // Gera combinações
+      combinations = this.cartesian(Object.values(grouped));
+    }
+
+    // Executar todas as operações de escrita dentro de uma transação
+    await this.prismaService.$transaction(
+      async (tx) => {
+        const productId = uuidv4();
+
+        // 1. Criar produto
+        await tx.product.create({
+          data: {
+            id: productId,
+            name: dto.name,
+            slug: dto.slug,
+            description: dto.description,
+            technicalInfo: dto.technicalInfo,
+            isGreenSeal: dto.isGreenSeal,
+            freeShipping: dto.freeShipping,
+            immediateShipping: dto.immediateShipping,
+            isPersonalized: dto.isPersonalized,
+            isExclusive: dto.isExclusive,
+            inCutout: dto.inCutout,
+            seoTitle: dto.seoTitle,
+            seoDescription: dto.seoDescription,
+            seoCanonicalUrl: dto.seoCanonicalUrl,
+            seoKeywords: dto.seoKeywords,
+            seoMetaRobots: dto.seoMetaRobots,
+            videoLink: dto.videoLink,
+            createdBy: { connect: { id: userId } },
+            categories: {
+              connect: dto.categories?.map((catId) => ({ id: catId })) || [],
+            },
+          },
+        });
+
+        // 2. Criar FAQs do produto
+        if (dto.productFAQ && dto.productFAQ.length > 0) {
+          await Promise.all(
+            dto.productFAQ.map((faq) =>
+              tx.productFAQ.create({
+                data: {
+                  id: uuidv4(),
+                  question: faq.question,
+                  answer: faq.answer,
+                  Product: { connect: { id: productId } },
+                },
+              }),
+            ),
+          );
+        }
+
+        // 3. Criar variantes do produto
+        let createdVariantIds: string[] = [];
+
+        if (combinations.length > 0) {
+          // Se houver atributos -> gerar combinações
+          let addMore = 0;
+
+          for (const combo of combinations) {
+            const variantId = uuidv4();
+            await tx.productVariant.create({
+              data: {
+                id: variantId,
+                barCode: mainVariant.barCode,
+                discountPix: mainVariant.discountPix,
+                price: mainVariant.price,
+                stock: mainVariant.stock,
+                sku: mainVariant.sku + addMore,
+                discountPrice: mainVariant.discountPrice,
+                height: mainVariant.height,
+                length: mainVariant.length,
+                weight: mainVariant.weight,
+                width: mainVariant.width,
+                isActive: mainVariant.isActive,
+                seoCanonicalUrl: mainVariant.seoCanonicalUrl,
+                seoTitle: mainVariant.seoTitle,
+                seoKeywords: mainVariant.seoKeywords,
+                seoDescription: mainVariant.seoDescription,
+                seoMetaRobots: mainVariant.seoMetaRobots,
+                product: { connect: { id: productId } },
+                productVariantAttributes: {
+                  createMany: {
+                    data: combo.map((attributeValueId) => ({
+                      id: uuidv4(),
+                      attributeValueId,
+                    })),
+                  },
+                },
+              },
+            });
+            createdVariantIds.push(variantId);
+            addMore++;
+          }
+        } else {
+          // Se não houver atributos -> cria só 1 variação
+          const variantId = uuidv4();
+          await tx.productVariant.create({
+            data: {
+              id: variantId,
+              barCode: mainVariant.barCode,
+              discountPix: mainVariant.discountPix,
+              price: mainVariant.price,
+              stock: mainVariant.stock,
+              sku: mainVariant.sku,
+              discountPrice: mainVariant.discountPrice,
+              height: mainVariant.height,
+              length: mainVariant.length,
+              weight: mainVariant.weight,
+              width: mainVariant.width,
+              isActive: mainVariant.isActive,
+              seoCanonicalUrl: mainVariant.seoCanonicalUrl,
+              seoTitle: mainVariant.seoTitle,
+              seoKeywords: mainVariant.seoKeywords,
+              seoDescription: mainVariant.seoDescription,
+              seoMetaRobots: mainVariant.seoMetaRobots,
+              product: { connect: { id: productId } },
+            },
+          });
+          createdVariantIds.push(variantId);
+        }
+
+        // 4. Criar imagens do produto (vinculadas à primeira variante)
+        const mainVariantId = createdVariantIds[0];
+
+        if (desktopUrls.length > 0 && mobileUrls.length > 0) {
+          const maxLength = Math.max(desktopUrls.length, mobileUrls.length);
+
+          const images = Array.from({ length: maxLength }, (_, i) => ({
+            id: uuidv4(),
+            desktopImageUrl: desktopUrls[i]?.publicUrl || '',
+            desktopImageAlt: desktopUrls[i]?.alt || dto.name,
+            desktopImageKey: desktopUrls[i]?.path || '',
+            mobileImageUrl: mobileUrls[i]?.publicUrl || '',
+            mobileImageKey: mobileUrls[i]?.path || '',
+            mobileImageAlt: mobileUrls[i]?.alt || dto.name,
+            desktopImageFirst: desktopUrls[i]?.isFirst || false,
+            mobileImageFirst: mobileUrls[i]?.isFirst || false,
+            variant: { connect: { id: mainVariantId } },
+          }));
+
+          await Promise.all(
+            images.map((image) =>
+              tx.productImage.create({
+                data: image,
+              }),
+            ),
+          );
+        }
+
+        // 5. Criar produtos relacionados
+        // Nota: O schema atual de RelatedProduct só tem productId.
+        // Assumindo que relatedProducts são IDs de produtos relacionados
+        // e que cada um cria um RelatedProduct vinculado ao produto atual
+        if (dto.relatedProducts && dto.relatedProducts.length > 0) {
+          await Promise.all(
+            dto.relatedProducts.map((relatedProductId) =>
+              tx.relatedProduct.create({
+                data: {
+                  id: uuidv4(),
+                  product: { connect: { id: productId } },
+                },
+              }),
+            ),
+          );
+        }
+
+        // 6. Criar produtos similares
+        // Nota: Similar ao RelatedProduct, o schema só tem productId
+        if (dto.similarProducts && dto.similarProducts.length > 0) {
+          await Promise.all(
+            dto.similarProducts.map((similarProductId) =>
+              tx.similarProduct.create({
+                data: {
+                  id: uuidv4(),
+                  product: { connect: { id: productId } },
+                },
+              }),
+            ),
+          );
+        }
+      },
+      {
+        maxWait: 10000, // Tempo máximo de espera para iniciar a transação (10s)
+        timeout: 30000, // Timeout da transação (30s)
+      },
+    );
   }
 
   private cartesian(arrays: string[][]): string[][] {

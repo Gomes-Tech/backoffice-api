@@ -9,22 +9,27 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { Sanitize } from '@shared/decorators';
 
 export class CreateProductDTO {
   @IsNotEmpty()
   @IsString()
+  @Sanitize()
   name: string;
 
   @IsNotEmpty()
   @IsString()
+  @Sanitize()
   slug: string;
 
   @IsOptional()
   @IsString()
+  @Sanitize(true)
   description?: string;
 
   @IsOptional()
   @IsString()
+  @Sanitize(true)
   technicalInfo?: string;
 
   @IsOptional()
@@ -241,22 +246,27 @@ export class CreateProductDTO {
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   seoTitle?: string;
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   seoDescription?: string;
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   seoKeywords?: string;
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   seoCanonicalUrl?: string;
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   seoMetaRobots?: string;
 }
 
@@ -339,22 +349,27 @@ class ProductVariant {
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   seoTitle?: string;
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   seoDescription?: string;
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   seoKeywords?: string;
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   seoCanonicalUrl?: string;
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   seoMetaRobots?: string;
 }
 
@@ -365,9 +380,11 @@ export class ProductFAQItem {
 
   @IsNotEmpty()
   @IsString()
+  @Sanitize()
   question: string;
 
   @IsNotEmpty()
   @IsString()
+  @Sanitize(true)
   answer: string;
 }

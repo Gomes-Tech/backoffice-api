@@ -7,14 +7,17 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { Sanitize } from '@shared/decorators';
 
 export class CreateCategoryDTO {
   @IsNotEmpty()
   @IsString()
+  @Sanitize()
   name: string;
 
   @IsNotEmpty()
   @IsString()
+  @Sanitize()
   slug: string;
 
   @IsNotEmpty()
@@ -35,22 +38,27 @@ export class CreateCategoryDTO {
 
   @IsNotEmpty()
   @IsString()
+  @Sanitize()
   seoTitle: string;
 
   @IsNotEmpty()
   @IsString()
+  @Sanitize()
   seoDescription: string;
 
   @IsNotEmpty()
   @IsString()
+  @Sanitize()
   seoKeywords: string;
 
   @IsNotEmpty()
   @IsString()
+  @Sanitize()
   seoCanonicalUrl: string;
 
   @IsNotEmpty()
   @IsString()
+  @Sanitize()
   seoMetaRobots: string;
 
   @IsOptional()
@@ -86,9 +94,11 @@ export class CategoryFAQItem {
 
   @IsNotEmpty()
   @IsString()
+  @Sanitize()
   question: string;
 
   @IsNotEmpty()
   @IsString()
+  @Sanitize(true)
   answer: string;
 }

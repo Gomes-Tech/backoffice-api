@@ -19,9 +19,12 @@ model Customer {
   password      String
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
-  isDeleted     Boolean   @default(false)
+  isDeleted     Boolean   @default(false) @map("isDeleted")
   deletedAt     DateTime? @map("deleted_at")
 
+  @@index([email])
+  @@index([taxIdentifier])
+  @@index([isDeleted])
   @@map("customers")
 }
 
@@ -74,6 +77,8 @@ model User {
   updateBlogs           Blog[]           @relation("UserUpdatedBlog")
   DelteBlogs            Blog[]           @relation("UserDeletedBlog")
 
+  @@index([email])
+  @@index([isDeleted, isActive])
   @@map("users")
 }
 
@@ -255,6 +260,8 @@ model Category {
   deletedBy   User?    @relation("UserDeletedCategories", fields: [deletedById], references: [id])
   deletedById String?  @map("deleted_by")
 
+  @@index([slug])
+  @@index([isDeleted, isActive])
   @@map("categories")
 }
 
@@ -308,6 +315,9 @@ model Product {
   deletedBy   User?    @relation("UserDeletedProducts", fields: [deletedById], references: [id])
   deletedById String?  @map("deleted_by")
 
+  @@index([slug])
+  @@index([isDeleted])
+  @@index([createdAt])
   @@map("products")
 }
 
@@ -364,6 +374,8 @@ model ProductVariantAttributeValue {
 
   attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id])
   attributeValueId String         @map("attribute_value_id")
+
+  isDeleted Boolean? @default(false) @map("is_deleted")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")

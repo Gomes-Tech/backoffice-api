@@ -1,0 +1,26 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'backoffice-api'
+
+scrape_configs:
+  - job_name: 'backoffice-api'
+    metrics_path: '/api/metrics'
+    scrape_interval: 15s
+    static_configs:
+      # Para aplicação rodando localmente (fora do Docker)
+      - targets: ['host.docker.internal:3333']
+        labels:
+          environment: 'development'
+          service: 'backoffice-api'
+      # Para aplicação rodando no Docker (descomente se necessário)
+      # - targets: ['app-dev:3333']
+      #   labels:
+      #     environment: 'development'
+      #     service: 'backoffice-api'
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+

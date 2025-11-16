@@ -7,7 +7,14 @@ import {
 } from '@app/social-media';
 import { ListAllSocialMediaUseCase } from '@app/social-media/use-cases/list-all-social-media.use-case';
 import { ListSocialMedia, SocialMedia } from '@domain/social-media';
-import { AuthType, Public, Roles, UserId } from '@interfaces/http/decorators';
+import {
+  AuthType,
+  Public,
+  Roles,
+  ThrottleUpload,
+  UserId,
+} from '@interfaces/http/decorators';
+import { MaxFileSize } from '@shared/decorators';
 import {
   CreateSocialMediaDTO,
   UpdateSocialMediaDTO,
@@ -76,6 +83,8 @@ export class SocialMediaController {
   }
 
   @Roles('admin')
+  @ThrottleUpload()
+  @MaxFileSize(undefined, 2) // 2MB para ícones de redes sociais
   @Post()
   @UsePipes(ValidationPipe)
   @UseInterceptors(

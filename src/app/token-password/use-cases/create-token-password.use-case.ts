@@ -26,6 +26,7 @@ export class CreateTokenPasswordUseCase {
       expiresAt,
     });
 
+    // Enviar email
     await this.mailService.sendMail({
       to: email,
       subject: 'Recuperação de senha',

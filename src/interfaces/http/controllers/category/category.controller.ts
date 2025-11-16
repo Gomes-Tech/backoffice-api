@@ -10,6 +10,7 @@ import {
 } from '@app/category';
 import { Public, Roles, UserId } from '@interfaces/http/decorators';
 import { AuthType } from '@interfaces/http/decorators/auth.decorator';
+import { MaxFileSize } from '@shared/decorators';
 import { CreateCategoryDTO, UpdateCategoryDTO } from '@interfaces/http/dtos';
 import {
   Body,
@@ -110,6 +111,7 @@ export class CategoryController {
   }
 
   @Roles('admin')
+  @MaxFileSize(undefined, 5) // 5MB para imagem de categoria
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileInterceptor('image'))
@@ -126,6 +128,7 @@ export class CategoryController {
   }
 
   @Roles('admin')
+  @MaxFileSize(undefined, 5) // 5MB para imagem de categoria
   @Patch('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseInterceptors(FileInterceptor('image'))

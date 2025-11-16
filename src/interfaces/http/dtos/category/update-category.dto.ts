@@ -6,15 +6,18 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { Sanitize } from '@shared/decorators';
 import { CategoryFAQItem } from './create-category.dto';
 
 export class UpdateCategoryDTO {
   @IsOptional()
   @IsString()
+  @Sanitize()
   name?: string;
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   slug?: string;
 
   @IsOptional()
@@ -39,22 +42,27 @@ export class UpdateCategoryDTO {
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   seoTitle?: string;
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   seoDescription?: string;
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   seoKeywords?: string;
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   seoCanonicalUrl?: string;
 
   @IsOptional()
   @IsString()
+  @Sanitize()
   seoMetaRobots?: string;
 
   @IsOptional()

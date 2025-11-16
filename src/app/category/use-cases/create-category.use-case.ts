@@ -1,6 +1,6 @@
-import { CreateCategoryFAQUseCase } from '@app/category-faq';
 import { CategoryRepository } from '@domain/category';
 import { CacheService } from '@infra/cache';
+import { PrismaService } from '@infra/prisma';
 import { StorageService } from '@infra/providers';
 import { CreateCategoryDTO } from '@interfaces/http';
 import { Inject, Injectable } from '@nestjs/common';
@@ -11,7 +11,7 @@ export class CreateCategoryUseCase {
   constructor(
     @Inject('CategoryRepository')
     private readonly categoryRepository: CategoryRepository,
-    private readonly createCategoryFAQUseCase: CreateCategoryFAQUseCase,
+    private readonly prismaService: PrismaService,
     private readonly cacheService: CacheService,
     private readonly storageService: StorageService,
   ) {}
@@ -21,7 +21,8 @@ export class CreateCategoryUseCase {
     image: Express.Multer.File,
     userId: string,
   ): Promise<void> {
-    let data = null;
+    // Upload de imagem antes da transação (operação externa)
+    let imageData = null;
 
     if (image) {
       const imageUrl = await this.storageService.uploadFile(
@@ -30,7 +31,7 @@ export class CreateCategoryUseCase {
         image.buffer,
       );
 
-      data = {
+      imageData = {
         categoryImageUrl: imageUrl.publicUrl,
         categoryImageKey: imageUrl.path,
       };
@@ -38,25 +39,53 @@ export class CreateCategoryUseCase {
 
     const categoryId = uuidv4();
 
-    await this.categoryRepository.create({
-      id: categoryId,
-      ...dto,
-      categoryImageUrl: data.categoryImageUrl,
-      categoryImageKey: data.categoryImageKey,
-      createdBy: userId,
-    });
+    // Executar todas as operações de escrita dentro de uma transação
+    await this.prismaService.$transaction(
+      async (tx) => {
+        // 1. Criar categoria
+        await tx.category.create({
+          data: {
+            id: categoryId,
+            name: dto.name,
+            slug: dto.slug,
+            isActive: dto.isActive ?? true,
+            showMenu: dto.showMenu ?? false,
+            showCarousel: dto.showCarousel ?? false,
+            categoryImageUrl: imageData?.categoryImageUrl,
+            categoryImageKey: imageData?.categoryImageKey,
+            seoTitle: dto.seoTitle,
+            seoDescription: dto.seoDescription,
+            seoKeywords: dto.seoKeywords,
+            seoCanonicalUrl: dto.seoCanonicalUrl,
+            seoMetaRobots: dto.seoMetaRobots,
+            ...(dto.parentId && { parent: { connect: { id: dto.parentId } } }),
+            createdBy: { connect: { id: userId } },
+          },
+        });
 
-    dto.categoryFAQ?.map(
-      async (faq) =>
-        await this.createCategoryFAQUseCase
-          .execute({
-            id: '',
-            ...faq,
-            categoryId,
-          })
-          .catch(() => null),
+        // 2. Criar FAQs da categoria
+        if (dto.categoryFAQ && dto.categoryFAQ.length > 0) {
+          await Promise.all(
+            dto.categoryFAQ.map((faq) =>
+              tx.categoryFAQ.create({
+                data: {
+                  id: uuidv4(),
+                  question: faq.question,
+                  answer: faq.answer,
+                  category: { connect: { id: categoryId } },
+                },
+              }),
+            ),
+          );
+        }
+      },
+      {
+        maxWait: 10000,
+        timeout: 30000,
+      },
     );
 
+    // Invalidar cache após a transação (operação externa)
     await this.cacheService.del('categories:tree');
     await this.cacheService.del('categories');
   }

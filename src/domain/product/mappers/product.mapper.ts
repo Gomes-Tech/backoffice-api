@@ -215,7 +215,7 @@ export class ProductMapper {
       variant.height,
       variant.barCode ?? '',
       variant.createdAt,
-      variant.productImage.map((img) => ({
+      variant.productImage?.map((img) => ({
         id: img.id,
         desktopImageUrl: img.desktopImageUrl,
         desktopImageKey: img.desktopImageKey,

@@ -1,3 +1,4 @@
+import { SecurityLoggerService } from '@infra/security';
 import {
   CanActivate,
   ExecutionContext,
@@ -9,7 +10,10 @@ import { ROLES_KEY } from '../decorators';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(
+    private reflector: Reflector,
+    private securityLogger: SecurityLoggerService,
+  ) {}
 
   canActivate(context: ExecutionContext): boolean {
     const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
@@ -28,9 +32,22 @@ export class RolesGuard implements CanActivate {
 
     if (!requiredRoles || requiredRoles.length === 0) return true;
 
-    const { user } = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest();
+    const { user } = request;
+    const ip = request.ip || request.connection?.remoteAddress || 'unknown';
+    const userAgent = request.get('user-agent') || 'unknown';
+    const endpoint = request.url;
+    const method = request.method;
 
     if (!user || !requiredRoles.includes(user.role)) {
+      this.securityLogger.logForbiddenAccess(
+        user?.id || 'unknown',
+        endpoint,
+        method,
+        ip,
+        requiredRoles.join(', '),
+        userAgent,
+      );
       throw new ForbiddenException('Acesso negado: Permissão insuficiente.');
     }
 

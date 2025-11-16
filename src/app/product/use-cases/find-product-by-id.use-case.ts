@@ -11,12 +11,12 @@ export class FindProductByIdUseCase {
   ) {}
 
   async execute(id: string): Promise<ProductAdmin> {
-    const Product = await this.productRepository.findById(id);
+    const product = await this.productRepository.findById(id);
 
-    if (!Product) {
+    if (!product) {
       throw new NotFoundException('Produto não encontrado');
     }
 
-    return Product;
+    return product;
   }
 }

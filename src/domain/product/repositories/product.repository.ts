@@ -25,6 +25,7 @@ export abstract class ProductRepository extends BaseRepository<
 > {
   abstract findBySlug(slug: string): Promise<Product>;
   abstract findByName(name: string): Promise<{ name: string }>;
+  abstract findVariants(productId: string): Promise<any[]>;
   abstract findToView(
     filters?: FindAllProductFilters,
   ): Promise<{ data: ListProductsToView[]; total: number }>;
@@ -42,4 +43,41 @@ export abstract class ProductRepository extends BaseRepository<
     dto: Omit<CreateProductVariant, 'id' | 'productId'>,
   ): Promise<void>;
   abstract deleteVariant(variantId: string, userId: string): Promise<void>;
+  abstract deleteAttributeValue(
+    id: string,
+    attributeValueId: string,
+  ): Promise<void>;
+  abstract deleteAttributeValuesVariant(
+    productId: string,
+    keepAtrtributes: string[],
+    userId: string,
+  ): Promise<void>;
+  abstract findVariantsWithDetails(
+    productId: string,
+  ): Promise<
+    Array<{
+      id: string;
+      price: number;
+      sku: number;
+      stock: number | null;
+      weight: string;
+      length: string;
+      width: string;
+      height: string;
+      barCode: string | null;
+      discountPix: string | null;
+      discountPrice: string | null;
+      isActive: boolean;
+      seoTitle: string | null;
+      seoDescription: string | null;
+      seoKeywords: string | null;
+      seoCanonicalUrl: string | null;
+      seoMetaRobots: string | null;
+      productVariantAttributes: Array<{ attributeValueId: string }>;
+    }>
+  >;
+  abstract addAttributesToVariant(
+    variantId: string,
+    attributeValueIds: string[],
+  ): Promise<void>;
 }

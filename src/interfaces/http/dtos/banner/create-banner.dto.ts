@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { Sanitize } from '@shared/decorators';
 
 export class CreateBannerDTO {
   @IsOptional()
@@ -14,6 +15,7 @@ export class CreateBannerDTO {
 
   @IsNotEmpty()
   @IsString()
+  @Sanitize()
   name: string;
 
   @IsNotEmpty()

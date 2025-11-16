@@ -1,4 +1,5 @@
 import { IsOptional, IsString } from 'class-validator';
+import { IsStrongPassword } from '@shared/decorators/strong-password.decorator';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -7,6 +8,10 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
+  @IsStrongPassword({
+    message:
+      'A senha deve ter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas e números',
+  })
   password?: string;
 
   @IsOptional()

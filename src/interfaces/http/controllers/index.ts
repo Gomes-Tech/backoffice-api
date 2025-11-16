@@ -6,6 +6,7 @@ export * from './category';
 export * from './customer';
 export * from './footer-menu';
 export * from './header-menu';
+export * from './health';
 export * from './product';
 export * from './role';
 export * from './social-media';

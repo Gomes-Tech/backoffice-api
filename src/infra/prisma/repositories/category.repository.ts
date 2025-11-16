@@ -140,7 +140,8 @@ export class PrismaCategoryRepository extends CategoryRepository {
   }
 
   async findBySlug(slug: string): Promise<any> {
-    let category = await this.prismaService.category.findFirst({
+    // Busca a categoria inicial
+    const initialCategory = await this.prismaService.category.findFirst({
       where: {
         slug,
         isDeleted: false,
@@ -154,24 +155,46 @@ export class PrismaCategoryRepository extends CategoryRepository {
       },
     });
 
-    if (!category) {
+    if (!initialCategory) {
       throw new BadRequestException('Categoria não encontrada');
     }
 
-    // 2. Sobe a árvore coletando os pais
-    const path: { id: string; name: string; slug: string }[] = [];
+    // Se não tem parent, retorna apenas a categoria
+    if (!initialCategory.parentId) {
+      return [
+        {
+          id: initialCategory.id,
+          name: initialCategory.name,
+          slug: initialCategory.slug,
+        },
+      ];
+    }
 
-    while (category) {
-      path.unshift({
-        id: category.id,
-        name: category.name,
-        slug: category.slug,
+    // Otimização: Busca todos os pais em uma única query
+    // Primeiro, descobrimos todos os parentIds que precisamos
+    const parentIdsToFetch = new Set<string>();
+    let currentParentId: string | null = initialCategory.parentId;
+    const maxDepth = 10; // Proteção contra loops infinitos
+
+    // Coleta todos os parentIds (fazemos queries mínimas apenas para descobrir a hierarquia)
+    const parentIdChain: string[] = [];
+    for (let i = 0; i < maxDepth && currentParentId; i++) {
+      parentIdChain.push(currentParentId);
+      const parent = await this.prismaService.category.findFirst({
+        where: { id: currentParentId, isDeleted: false },
+        select: { parentId: true },
       });
+      if (!parent || !parent.parentId) break;
+      currentParentId = parent.parentId;
+    }
 
-      if (!category.parentId) break;
-
-      category = await this.prismaService.category.findFirst({
-        where: { id: category.parentId },
+    // Agora busca todos os pais de uma vez
+    if (parentIdChain.length > 0) {
+      const parents = await this.prismaService.category.findMany({
+        where: {
+          id: { in: parentIdChain },
+          isDeleted: false,
+        },
         select: {
           id: true,
           name: true,
@@ -179,9 +202,43 @@ export class PrismaCategoryRepository extends CategoryRepository {
           parentId: true,
         },
       });
+
+      // Cria um mapa para lookup O(1)
+      const parentMap = new Map(parents.map((p) => [p.id, p]));
+
+      // Reconstrói o caminho completo
+      const path: { id: string; name: string; slug: string }[] = [];
+      
+      // Adiciona a categoria inicial
+      path.unshift({
+        id: initialCategory.id,
+        name: initialCategory.name,
+        slug: initialCategory.slug,
+      });
+
+      // Reconstrói a hierarquia usando o mapa
+      let currentId: string | null = initialCategory.parentId;
+      while (currentId && parentMap.has(currentId)) {
+        const parent = parentMap.get(currentId)!;
+        path.unshift({
+          id: parent.id,
+          name: parent.name,
+          slug: parent.slug,
+        });
+        currentId = parent.parentId;
+      }
+
+      return path;
     }
 
-    return path;
+    // Fallback: retorna apenas a categoria inicial
+    return [
+      {
+        id: initialCategory.id,
+        name: initialCategory.name,
+        slug: initialCategory.slug,
+      },
+    ];
   }
 
   async create(category: CreateCategory): Promise<void> {

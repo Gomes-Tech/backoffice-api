@@ -7,6 +7,7 @@ export * from './category.module';
 export * from './customer.module';
 export * from './footer-menu.module';
 export * from './header-menu.module';
+export * from './health.module';
 export * from './jwt.module';
 export * from './product-faq.module';
 export * from './product.module';

@@ -164,113 +164,137 @@ export class PrismaProductRepository extends ProductRepository {
     return [];
   }
 
-  async findById(id: string): Promise<ProductAdmin> {
-    const product = await this.prismaService.product.findUnique({
-      where: { id, isDeleted: false },
+  async findVariants(productId: string) {
+    return await this.prismaService.productVariant.findMany({
+      where: {
+        productId,
+        isDeleted: false,
+        isActive: true,
+      },
       select: {
         id: true,
-        name: true,
-        slug: true,
-        isExclusive: true,
-        isGreenSeal: true,
-        isPersonalized: true,
-        immediateShipping: true,
-        freeShipping: true,
-        categories: {
-          select: { id: true },
-        },
-        videoLink: true,
-        seoTitle: true,
-        seoCanonicalUrl: true,
-        seoDescription: true,
-        seoKeywords: true,
-        seoMetaRobots: true,
-        technicalInfo: true,
-        description: true,
-        inCutout: true,
-        similarProducts: { select: { id: true } },
-        relatedProducts: { select: { id: true } },
-        productFAQ: true,
-        productVariants: {
-          where: { isDeleted: false },
-          orderBy: { createdAt: 'asc' },
-          take: 1,
+        productVariantAttributes: {
+          where: {
+            isDeleted: false,
+          },
           select: {
-            id: true,
-            price: true,
-            barCode: true,
-            length: true,
-            createdAt: true,
-            productImage: {
-              select: {
-                id: true,
-                desktopImageUrl: true,
-                desktopImageKey: true,
-                desktopImageFirst: true,
-                mobileImageUrl: true,
-                mobileImageKey: true,
-                mobileImageFirst: true,
-              },
-            },
-            discountPix: true,
-            discountPrice: true,
-            weight: true,
-            sku: true,
-            stock: true,
-            width: true,
-            isActive: true,
-            height: true,
-            productVariantAttributes: {
-              select: { attributeValueId: true },
-            },
-            seoCanonicalUrl: true,
-            seoDescription: true,
-            seoKeywords: true,
-            seoMetaRobots: true,
-            seoTitle: true,
+            attributeValueId: true,
           },
         },
       },
     });
+  }
 
-    const allVariantAttributes =
-      await this.prismaService.productVariant.findMany({
-        where: { productId: id, isDeleted: false },
+  async findById(id: string): Promise<ProductAdmin> {
+    try {
+      const product = await this.prismaService.product.findUnique({
+        where: { id, isDeleted: false },
         select: {
-          productVariantAttributes: {
-            select: { attributeValueId: true },
-            distinct: ['attributeValueId'],
+          id: true,
+          name: true,
+          slug: true,
+          isExclusive: true,
+          isGreenSeal: true,
+          isPersonalized: true,
+          immediateShipping: true,
+          freeShipping: true,
+          categories: {
+            select: { id: true },
+          },
+          videoLink: true,
+          seoTitle: true,
+          seoCanonicalUrl: true,
+          seoDescription: true,
+          seoKeywords: true,
+          seoMetaRobots: true,
+          technicalInfo: true,
+          description: true,
+          inCutout: true,
+          similarProducts: { select: { id: true } },
+          relatedProducts: { select: { id: true } },
+          productFAQ: true,
+          productVariants: {
+            where: { isDeleted: false, isActive: true },
+            orderBy: { createdAt: 'asc' },
+            take: 1,
+            select: {
+              id: true,
+              price: true,
+              barCode: true,
+              length: true,
+              createdAt: true,
+              productImage: {
+                select: {
+                  id: true,
+                  desktopImageUrl: true,
+                  desktopImageKey: true,
+                  desktopImageFirst: true,
+                  mobileImageUrl: true,
+                  mobileImageKey: true,
+                  mobileImageFirst: true,
+                },
+              },
+              discountPix: true,
+              discountPrice: true,
+              weight: true,
+              sku: true,
+              stock: true,
+              width: true,
+              isActive: true,
+              height: true,
+              seoCanonicalUrl: true,
+              seoDescription: true,
+              seoKeywords: true,
+              seoMetaRobots: true,
+              seoTitle: true,
+            },
           },
         },
       });
 
-    const uniqueAttributeIds = [
-      ...new Set(
-        allVariantAttributes.flatMap((variant) =>
-          (variant.productVariantAttributes ?? []).map(
-            (attr) => attr.attributeValueId,
+      const allVariantAttributes =
+        await this.prismaService.productVariant.findMany({
+          where: {
+            productId: id,
+            isDeleted: false,
+            isActive: true,
+          },
+          select: {
+            productVariantAttributes: {
+              where: {
+                isDeleted: false,
+              },
+              select: {
+                attributeValueId: true,
+              },
+            },
+          },
+        });
+
+      const uniqueAttributeIds = [
+        ...new Set(
+          allVariantAttributes.flatMap((variant) =>
+            (variant.productVariantAttributes ?? []).map(
+              (attr) => attr.attributeValueId,
+            ),
           ),
         ),
-      ),
-    ].map((id) => ({ attributeValueId: id }));
+      ].map((id) => ({ attributeValueId: id }));
 
-    console.log(uniqueAttributeIds);
+      const data = {
+        ...product,
+        productVariants: [
+          {
+            ...product.productVariants[0],
+            productVariantAttributes: uniqueAttributeIds,
+          },
+        ],
+      };
 
-    const data = {
-      ...product,
-      productVariants: [
-        {
-          ...product.productVariants[0],
-          productVariantAttributes: uniqueAttributeIds,
-        },
-      ],
-    };
-
-    if (!data) {
-      return null;
+      return ProductMapper.toAdmin(data);
+    } catch (error) {
+      throw new NotFoundException('Produto não encontrado');
     }
-
-    return ProductMapper.toAdmin(data);
   }
 
   async findByName(name: string): Promise<{ name: string }> {
@@ -318,6 +342,7 @@ export class PrismaProductRepository extends ProductRepository {
         productVariants: {
           where: {
             isActive: true,
+            isDeleted: false,
           },
           select: {
             id: true,
@@ -343,6 +368,9 @@ export class PrismaProductRepository extends ProductRepository {
             isActive: true,
             height: true,
             productVariantAttributes: {
+              where: {
+                isDeleted: false,
+              },
               select: {
                 id: true,
                 attributeValue: {
@@ -614,12 +642,6 @@ export class PrismaProductRepository extends ProductRepository {
           categories: {
             set: dto.categories.map((categoryId) => ({ id: categoryId })),
           },
-          similarProducts: {
-            set: dto.similarProducts.map((productId) => ({ id: productId })),
-          },
-          relatedProducts: {
-            set: dto.relatedProducts.map((productId) => ({ id: productId })),
-          },
           updatedBy: {
             connect: { id: userId },
           },
@@ -647,29 +669,21 @@ export class PrismaProductRepository extends ProductRepository {
       await this.prismaService.productVariant.update({
         where: { id: variantId, isDeleted: false },
         data: {
-          ...dto,
-          productVariantAttributes: {
-            deleteMany: {
-              productVariantId: variantId,
-              attributeValueId: { notIn: dto.productVariantAttributes },
-            },
-            upsert: dto.productVariantAttributes.map((attributeValueId) => ({
-              where: {
-                productVariantId_attributeValueId: {
-                  productVariantId: variantId,
-                  attributeValueId,
-                },
-              },
-              update: {
-                attributeValueId,
-              },
-              create: {
-                id: uuidv4(),
-                productVariantId: variantId,
-                attributeValueId,
-              },
-            })),
-          },
+          barCode: dto.barCode,
+          discountPix: dto.discountPix,
+          discountPrice: dto.discountPrice,
+          height: dto.height,
+          length: dto.length,
+          price: dto.price,
+          seoCanonicalUrl: dto.seoCanonicalUrl,
+          seoDescription: dto.seoDescription,
+          seoKeywords: dto.seoKeywords,
+          seoMetaRobots: dto.seoMetaRobots,
+          seoTitle: dto.seoTitle,
+          sku: dto.sku,
+          weight: dto.weight,
+          width: dto.width,
+          stock: dto.stock,
         },
       });
     } catch (error) {
@@ -714,9 +728,12 @@ export class PrismaProductRepository extends ProductRepository {
   async deleteVariant(variantId: string, userId: string): Promise<void> {
     try {
       await this.prismaService.productVariant.update({
-        where: { id: variantId, isDeleted: false },
+        where: {
+          id: variantId,
+        },
         data: {
           isDeleted: true,
+          isActive: false,
           deletedBy: {
             connect: { id: userId },
           },
@@ -733,6 +750,186 @@ export class PrismaProductRepository extends ProductRepository {
       throw new BadRequestException(
         'Erro ao excluir a variação: ' + error.message,
       );
+    }
+  }
+
+  async deleteAttributeValue(
+    id: string,
+    attributeValueId: string,
+  ): Promise<void> {
+    await this.prismaService.productVariantAttributeValue.updateMany({
+      where: {
+        productVariant: {
+          productId: id,
+        },
+        attributeValueId,
+      },
+      data: {
+        isDeleted: true,
+      },
+    });
+  }
+
+  async findVariantsWithDetails(productId: string) {
+    const variants = await this.prismaService.productVariant.findMany({
+      where: {
+        productId,
+        isDeleted: false,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        price: true,
+        sku: true,
+        stock: true,
+        weight: true,
+        length: true,
+        width: true,
+        height: true,
+        barCode: true,
+        discountPix: true,
+        discountPrice: true,
+        isActive: true,
+        seoTitle: true,
+        seoDescription: true,
+        seoKeywords: true,
+        seoCanonicalUrl: true,
+        seoMetaRobots: true,
+        productVariantAttributes: {
+          where: {
+            isDeleted: false,
+          },
+          select: {
+            attributeValueId: true,
+          },
+        },
+      },
+    });
+
+    return variants;
+  }
+
+  async addAttributesToVariant(
+    variantId: string,
+    attributeValueIds: string[],
+  ): Promise<void> {
+    try {
+      await this.prismaService.productVariantAttributeValue.createMany({
+        data: attributeValueIds.map((attributeValueId) => ({
+          id: uuidv4(),
+          productVariantId: variantId,
+          attributeValueId,
+        })),
+        skipDuplicates: true, // Evita erro se o atributo já existir
+      });
+    } catch (error) {
+      throw new BadRequestException(
+        'Erro ao adicionar atributos à variante: ' + error.message,
+      );
+    }
+  }
+
+  async deleteAttributeValuesVariant(
+    productId: string,
+    keepAttributes: string[],
+    userId: string,
+  ): Promise<void> {
+    try {
+      // 1️⃣ Busca todas as variações do produto com imagens e data de criação
+      const variants = await this.prismaService.productVariant.findMany({
+        where: { productId, isDeleted: false },
+        include: {
+          productVariantAttributes: {
+            include: { attributeValue: true },
+          },
+          productImage: true,
+        },
+        orderBy: { createdAt: 'asc' },
+      });
+
+      // 2️⃣ Filtra variações que contêm ALGUM atributo fora da lista de keepAttributes
+      const variantsToDelete = variants.filter((variant) =>
+        variant.productVariantAttributes.some(
+          (attr) => !keepAttributes.includes(attr.attributeValueId),
+        ),
+      );
+
+      // 3️⃣ Variantes que NÃO serão deletadas
+      const variantsToKeep = variants.filter(
+        (variant) => !variantsToDelete.includes(variant),
+      );
+
+      // 4️⃣ Para cada variante que será deletada, verifica se precisa transferir imagens
+      for (const variantToDelete of variantsToDelete) {
+        // Verifica se é a variante mais antiga entre TODAS as variantes (incluindo as que serão mantidas)
+        const allVariantsSorted = [...variants].sort(
+          (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+        );
+        const isOldestVariant = allVariantsSorted[0]?.id === variantToDelete.id;
+
+        // Verifica se tem imagens
+        const hasImages = variantToDelete.productImage.length > 0;
+
+        if (isOldestVariant && hasImages) {
+          // Verifica se as outras variantes (que não serão deletadas) têm imagens
+          const otherVariantsHaveImages = variantsToKeep.some(
+            (variant) => variant.productImage.length > 0,
+          );
+
+          // Se nenhuma outra variante tiver imagens, transfere para a mais antiga (excluindo a que será deletada)
+          if (!otherVariantsHaveImages && variantsToKeep.length > 0) {
+            // Encontra a variante mais antiga que não será deletada
+            const oldestVariantToKeep = variantsToKeep.sort(
+              (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+            )[0];
+
+            // Transfere todas as imagens da variante que será deletada para a mais antiga que será mantida
+            if (oldestVariantToKeep) {
+              await this.prismaService.productImage.updateMany({
+                where: {
+                  productVariantId: variantToDelete.id,
+                },
+                data: {
+                  productVariantId: oldestVariantToKeep.id,
+                },
+              });
+            }
+          }
+        }
+      }
+
+      // 5️⃣ Marca como deletadas as variações encontradas
+      if (variantsToDelete.length > 0) {
+        await this.prismaService.productVariant.updateMany({
+          where: {
+            id: { in: variantsToDelete.map((v) => v.id) },
+          },
+          data: {
+            isDeleted: true,
+            isActive: false,
+            deletedById: userId,
+          },
+        });
+
+        // 5.2️⃣ Atualiza também os atributos dessas variantes
+        const allAttributeIds = variantsToDelete.flatMap((v) =>
+          v.productVariantAttributes.map((a) => a.id),
+        );
+
+        if (allAttributeIds.length > 0) {
+          await this.prismaService.productVariantAttributeValue.updateMany({
+            where: {
+              id: { in: allAttributeIds },
+            },
+            data: {
+              isDeleted: true,
+            },
+          });
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException('Não foi possível deletar as variações');
     }
   }
 }

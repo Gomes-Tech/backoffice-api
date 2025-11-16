@@ -3,7 +3,7 @@ import { CryptographyService } from '@infra/criptography';
 import { BadRequestException } from '@infra/filters';
 import { StorageService } from '@infra/providers';
 import { UpdateUserDto } from '@interfaces/http';
-import { Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { FindUserByIdUseCase } from './find-by-id.use-case';
 
 @Injectable()
@@ -20,8 +20,22 @@ export class UpdateUserUseCase {
     id: string,
     data: UpdateUserDto,
     file?: Express.Multer.File,
+    requesterId?: string,
+    requesterRole?: string,
   ): Promise<void> {
-    const user = await this.FindUserByIdUseCase.execute(id);
+    // Proteção contra IDOR: Verificar se o usuário autenticado tem permissão
+    // Só permite se for o próprio usuário ou se for admin
+    if (requesterId && requesterId !== id && requesterRole !== 'admin') {
+      throw new ForbiddenException(
+        'Você não tem permissão para modificar este recurso',
+      );
+    }
+
+    const user = await this.FindUserByIdUseCase.execute(
+      id,
+      requesterId,
+      requesterRole,
+    );
 
     if (data.password) {
       const samePassword = await this.cryptographyService.compare(

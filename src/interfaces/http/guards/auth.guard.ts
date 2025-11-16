@@ -20,8 +20,6 @@ export class AuthDispatchGuard {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    this.apiKeyAuth.canActivate(context);
-
     const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
       context.getHandler(),
       context.getClass(),
@@ -30,6 +28,8 @@ export class AuthDispatchGuard {
     if (isPublic) {
       return true;
     }
+
+    this.apiKeyAuth.canActivate(context);
 
     const types = this.reflector.getAllAndOverride<string[]>(AUTH_TYPE_KEY, [
       context.getHandler(),

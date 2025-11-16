@@ -7,7 +7,14 @@ import {
   UpdateBannerUseCase,
 } from '@app/banner';
 import { BadRequestException } from '@infra/filters';
-import { AuthType, Public, Roles, UserId } from '@interfaces/http/decorators';
+import {
+  AuthType,
+  Public,
+  Roles,
+  ThrottleUpload,
+  UserId,
+} from '@interfaces/http/decorators';
+import { MaxFileSize } from '@shared/decorators';
 import { CreateBannerDTO, UpdateBannerDTO } from '@interfaces/http/dtos';
 import {
   Body,
@@ -57,6 +64,8 @@ export class BannerController {
   }
 
   @Roles('admin')
+  @ThrottleUpload()
+  @MaxFileSize(undefined, 5) // 5MB por arquivo
   @Post()
   @UsePipes(ValidationPipe)
   @UseInterceptors(AnyFilesInterceptor())
@@ -79,6 +88,8 @@ export class BannerController {
   }
 
   @Roles('admin')
+  @ThrottleUpload()
+  @MaxFileSize(undefined, 5) // 5MB por arquivo
   @Patch('/:id')
   @UsePipes(ValidationPipe)
   @UseInterceptors(AnyFilesInterceptor())

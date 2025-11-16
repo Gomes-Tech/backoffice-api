@@ -10,12 +10,23 @@ export class ForgotPasswordUseCase {
   ) {}
 
   async execute(email: string) {
-    const user = await this.findUserByEmailUseCase.execute(email);
+    // Proteção contra Enumeration Attack:
+    // Sempre retornar sucesso, mesmo se email não existir
+    // Não revelar se o email está cadastrado no sistema
+    const user = await this.findUserByEmailUseCase
+      .execute(email)
+      .catch(() => null);
 
-    await this.createTokenPasswordUseCase.execute(user.email);
+    // Só criar token e enviar email se o usuário existir
+    if (user) {
+      await this.createTokenPasswordUseCase.execute(user.email);
+    }
 
+    // SEMPRE retornar a mesma mensagem, independente se email existe ou não
+    // Isso previne enumeration attacks e protege privacidade (LGPD)
     return {
-      message: 'Foi enviado um código de recuperação para o seu email!',
+      message:
+        'Se o email estiver cadastrado, você receberá um código de recuperação!',
     };
   }
 }

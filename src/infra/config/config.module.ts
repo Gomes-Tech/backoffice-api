@@ -28,6 +28,19 @@ import * as Joi from 'joi';
             url: process.env.SUPABASE_URL,
             apiKey: process.env.SUPABASE_API_KEY,
           },
+          redis: {
+            host: process.env.REDIS_HOST || 'localhost',
+            port: Number(process.env.REDIS_PORT || '6379'),
+            password: process.env.REDIS_PASSWORD,
+            db: Number(process.env.REDIS_DB || '0'),
+            ttl: Number(process.env.REDIS_TTL || '3600'),
+          },
+          useRedis: process.env.USE_REDIS || 'true',
+          cors: {
+            allowedOrigins: process.env.ALLOWED_ORIGINS
+              ? process.env.ALLOWED_ORIGINS.split(',').map((origin) => origin.trim())
+              : [],
+          },
         }),
       ],
       validationSchema: Joi.object({
@@ -44,6 +57,13 @@ import * as Joi from 'joi';
         SUPABASE_URL: Joi.string().uri().required(),
         SUPABASE_API_KEY: Joi.string().required(),
         SERVER_AUTH_SECRET: Joi.string().required(),
+        REDIS_HOST: Joi.string().default('localhost'),
+        REDIS_PORT: Joi.number().default(6379),
+        REDIS_PASSWORD: Joi.string().allow('').optional(),
+        REDIS_DB: Joi.number().default(0),
+        REDIS_TTL: Joi.number().default(3600),
+        USE_REDIS: Joi.string().valid('true', 'false').default('true'),
+        ALLOWED_ORIGINS: Joi.string().optional(),
       }),
     }),
   ],
