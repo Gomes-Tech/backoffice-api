@@ -17,7 +17,7 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 WORKDIR /var/app
 ARG YARN_TIMEOUT=60000
 COPY package.json yarn.lock ./
-RUN yarn --frozen-lockfile --network-timeout $YARN_TIMEOUT --legacy-peer-deps
+RUN yarn --frozen-lockfile --network-timeout $YARN_TIMEOUT
 COPY . .
 RUN yarn prisma:generate && yarn build
 RUN npm prune --production

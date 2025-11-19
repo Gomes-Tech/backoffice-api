@@ -10,6 +10,7 @@ import cookieParser from 'cookie-parser';
 import { json, RequestHandler } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import { join } from 'path';
 import { AppModule } from './app.module';
 
 // Função para inicializar a aplicação
@@ -17,6 +18,9 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: true
   });
+
+  app.setViewEngine('pug');
+  app.setBaseViewsDir(join(__dirname, '..', '..', 'templates'));
 
   app.setGlobalPrefix('api');
   app.set('query parser', 'extended');
