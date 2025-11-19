@@ -1,6 +1,10 @@
 FROM node:22-alpine AS build
 
-RUN apk update && apk add curl bash && curl -sfL https://install.goreleaser.com/github.com/tj/node-prune.sh | bash -s -- -b /usr/local/bin
+RUN apk update && apk add --no-cache curl bash
+
+# Install node-prune with explicit error checking
+RUN curl -sfL https://install.goreleaser.com/github.com/tj/node-prune.sh | bash -s -- -b /usr/local/bin && \
+    node-prune --version
 
 RUN apk add --no-cache \
     chromium \
@@ -20,15 +24,15 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 WORKDIR /var/app
 ARG YARN_TIMEOUT=60000
 COPY package.json yarn.lock ./
-RUN yarn --frozen-lockfile --network-timeout $YARN_TIMEOUT
+RUN yarn install --frozen-lockfile --network-timeout $YARN_TIMEOUT
 
 COPY . .
 RUN yarn prisma:generate && yarn build
 
-# Remover devDependencies com yarn
+# Remove devDependencies
 RUN yarn install --frozen-lockfile --production --network-timeout $YARN_TIMEOUT
 
-# Usar node-prune para limpar ainda mais
+# Use node-prune to clean up further
 RUN node-prune
 
 RUN find . -type f -name "*.sh" -exec sed -i 's/\r$//' {} +
@@ -36,9 +40,9 @@ RUN find . -type f -name "*.sh" -exec sed -i 's/\r$//' {} +
 FROM node:22-alpine AS runtime
 ARG VERSION="1.0.0"
 ENV VERSION $VERSION
-ENV NODE_ENV production
+ENV NODE_ENV prod
 WORKDIR /home/node/app
-RUN apk add dumb-init openssl
+RUN apk add --no-cache dumb-init openssl
 
 # Add Puppeteer dependencies
 RUN apk add --no-cache \
