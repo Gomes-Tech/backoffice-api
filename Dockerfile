@@ -1,6 +1,6 @@
 FROM node:22-alpine AS build
 
-RUN apk update && apk add curl bash && curl -sfL https://gobinaries.com/tj/node-prune | sh | bash -s -- -b /usr/local/bin
+RUN apk update && apk add curl bash && curl -sfL https://gobinaries.com/tj/node-prune | sh -s -- -b /usr/local/bin
 
 RUN apk add --no-cache \
     chromium \
