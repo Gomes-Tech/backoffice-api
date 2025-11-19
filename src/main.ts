@@ -1,3 +1,4 @@
+import { getEnv } from '@infra/config';
 import { HttpExceptionFilter } from '@infra/filters';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -50,6 +51,7 @@ async function bootstrap() {
     app.use('/reference', apiReference({ content: document }));
   }
 
+  const PORT = getEnv().api.env
   if (process.env.NODE_ENV === 'prod') {
     app.use(csurf({ cookie: true }));
   }
@@ -186,13 +188,11 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const port = process.env.PORT || configService.get<number>('PORT') || 3333;
-
-  await app.listen(port, () => {
-    console.log(`Application is running on port ${port} 🚀`);
+  await app.listen(PORT, () => {
+    console.log(`Application is running on port ${PORT} 🚀`);
     if (process.env.NODE_ENV !== 'prod') {
-      console.log(`📗 API Docs: http://localhost:${port}/docs`);
-      console.log(`📗 API Reference: http://localhost:${port}/reference`);
+      console.log(`📗 API Docs: http://localhost:${PORT}/docs`);
+      console.log(`📗 API Reference: http://localhost:${PORT}/reference`);
     }
   });
 
