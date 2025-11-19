@@ -1,10 +1,14 @@
 import { CategoryRepository } from '@domain/category';
 import { CacheService } from '@infra/cache';
+import { BadRequestException } from '@infra/filters';
 import { PrismaService } from '@infra/prisma';
 import { StorageService } from '@infra/providers';
 import { UpdateCategoryDTO } from '@interfaces/http';
 import { Inject, Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
+import { FindCategoryByIdUseCase } from './find-category-by-id.use-case';
+import { FindCategoryByNameUseCase } from './find-category-by-name.use-case';
+import { FindCategoryBySlugUseCase } from './find-category-by-slug.use-case';
 
 @Injectable()
 export class UpdateCategoryUseCase {
@@ -14,6 +18,9 @@ export class UpdateCategoryUseCase {
     private readonly prismaService: PrismaService,
     private readonly cacheService: CacheService,
     private readonly storageService: StorageService,
+    private readonly findCastegoryByIdUseCase: FindCategoryByIdUseCase,
+    private readonly findCategoryByNameUseCase: FindCategoryByNameUseCase,
+    private readonly findCategoryBySlugUseCase: FindCategoryBySlugUseCase,
   ) {}
 
   async execute(
@@ -22,6 +29,20 @@ export class UpdateCategoryUseCase {
     image: Express.Multer.File,
     userId: string,
   ): Promise<void> {
+    await this.findCastegoryByIdUseCase.execute(id);
+
+    const categoryName = await this.findCategoryByNameUseCase
+      .execute(dto.name)
+      .catch(() => null);
+
+    const categorySlug = await this.findCategoryBySlugUseCase
+      .execute(dto.slug)
+      .catch(() => null);
+
+    if (categoryName || categorySlug) {
+      throw new BadRequestException('Esse nome ou slug já está em uso');
+    }
+
     // Upload de imagem antes da transação (operação externa)
     let imageData = {
       categoryImageUrl: dto.categoryImageUrl,

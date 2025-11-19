@@ -1,19 +1,11 @@
-# Use Node.js latest base image
-FROM node:22-alpine as development
+FROM node:lts
 
-# Set working directory
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
-
-RUN npm install
-
-# Copy the rest of the application code
 COPY . .
 
-# Generate Prisma Client code
-RUN npx prisma generate
+RUN find . -type f -name "*.sh" -exec sed -i 's/\r$//' {} +
 
-# Command to run the app
-CMD [  "npm", "run", "dev" ]
+EXPOSE 4000
+
+ENTRYPOINT [ "sh", "./.docker/entrypoint.dev.sh" ]

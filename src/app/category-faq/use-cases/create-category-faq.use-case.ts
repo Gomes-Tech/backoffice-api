@@ -1,6 +1,6 @@
 import { CategoryFAQRepository, CreateCategoryFAQ } from '@domain/category-faq';
 import { Inject, Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
+import { generateId } from '@shared/utils';
 
 @Injectable()
 export class CreateCategoryFAQUseCase {
@@ -10,8 +10,8 @@ export class CreateCategoryFAQUseCase {
   ) {}
 
   async execute(dto: CreateCategoryFAQ): Promise<void> {
-    await this.categoryFAQRepository.create({
-      id: uuidv4(),
+    return await this.categoryFAQRepository.create({
+      id: generateId(),
       ...dto,
     });
   }

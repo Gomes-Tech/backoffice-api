@@ -1,0 +1,96 @@
+version: '3.7'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: backoffice-dev
+    image: backoffice-dev
+    ports:
+      - '4000:4000'
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - 'app-network'
+    environment:
+      - PORT=4000
+      - DATABASE_URL=postgresql://postgres.rkauidnzwwateglzfgnz:5XXTSrRB7H6vkRxn@aws-0-sa-east-1.pooler.supabase.com:5432/postgres
+      - SERVER_AUTH_SECRET=decoreasy-site-ted
+      - NODE_ENV=prod
+      - SUPABASE_URL=https://rkauidnzwwateglzfgnz.supabase.co
+      - SUPABASE_API_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrYXVpZG56d3dhdGVnbHpmZ256Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwNTM5NzIsImV4cCI6MjA2MzYyOTk3Mn0.eTdJJXnx2_8xMuSeVZklTn_XyZLmaOcmMaPXrdY05YU
+      - SUPABASE_PASSWORD=d@#4ybLBRB@7B-5
+      - JWT_SECRET=a898c179b107c58ac27a533eb03441c372776db325d8cc343da93ae2e75e6477fdfadb5d288bc9ec7af5fcafb4ef84715dc5af01384ba892c46e23d97fe95368fee9f5d09815253d1d22ebe1aded722ee7450096f9909cffa770e4d70f3b6334ac4b563c75044ab106d2132a38f521fb43f8f6e20ecb36114e3ed17b675466504f5b45851e1508654fe4b7cd0e6ec251b3a9bcb7bb4345186b08414af73213ed86c84c65008a80010c5ad659915ef8fa62218d020cd035425bfd9ce46974d094ea2e736ac63a02e8165ebbe02f6584a19034f5cb46f45027ab1252e15198f2aba2d779300d4362204b14bdfe23cf9d92815635f517232add52f55df32e374851
+      - JWT_EXPIRES=1d
+      - JWT_REFRESH_EXPIRES=7d
+      - JWT_REFRESH_SECRET=458ced05b5fbf888e7d0c4612b64fdbe719f85eeaba7429e353c675214de068de58e5fec2044716e5387eb4fb931b0d44457c29e66c6d0757543bc9a7f5867cfa65881ffa0fef12b42a56258bfd4eab364c75f37db9d4716e7da38cfe6f7f5f6cde78b0bfe3e3a7ade165ae14c661ce3748b7028590a13e37eb8fec60aa3db80f2e5cf18abd83f714026d57fd89325901f4e533d0d86b62bf3caf6becd2b405644d021477992b13eac0206431b5197793e10d8a82508a358267b056b596462d00872522c51333b4f203f8186f0dec475b035c7d6994962ae05fb67ea87b32d9e1d282a1934d6cb0b13257ad8c3cc8060e0d3eac0a1d169bc
+      - JWT_CUSTOMER_SECRET=0aa3db80f2e5cf18abd83f714026d57fd89325901f4e533d0d86b62bf3caf6becd2b405644d021477992b13eac0206431b5197793e10d8a82508a358267b056b596462d00872522c51333b4f203f8186f0dec475b035c7d6994962ae05fb67ea87b32d9e1d282a1934d6cb0b13257ad8c3cc8060e0d3eac0a1d169bc458ced05b5fbf888e7d0c4612b64fdbe719f85eeaba7429e353c675214de068de58e5fec2044716e5387eb4fb931b0d44457c29e66c6d0757543bc9a7f5867cfa65881ffa0fef12b42a56258bfd4eab364c75f37db9d4716e7da38cfe6f7f5f6cde78b0bfe3e3a7ade165ae14c661ce3748b7028590a13e37eb8fec6
+      - JWT_CUSTOMER_EXPIRES=5m
+      - JWT_CUSTOMER_REFRESH_EXPIRES=7d
+      - JWT_CUSTOMER_REFRESH_SECRET=458ced05b5fbf888e7d0c4612b64fdbe719f85eeaba7429e353c675214de068de58e5fec2044716e5387eb4fb931b0d44457c29e66c6d0757543bc9a7f5867cfa65881ffa0fef12b42a56258bfd4eab364c75f37db9d4716e7da38cfe6f7f5f6cde78b0bfe3e3a7ade165ae14c661ce3748b7028590a13e37eb8fec60aa3db80f2e5cf18abd83f714026d57fd89325901f4e533d0d86b62bf3caf6becd2b405644d021477992b13eac0206431b5197793e10d8a82508a358267b056b596462d00872522c51333b4f203f8186f0dec475b035c7d6994962ae05fb67ea87b32d9e1d282a1934d6cb0b13257ad8c3cc8060e0d3eac0a1d169bc
+      - SMTP_HOST=smtp.mailersend.net
+      - SMTP_PORT=587
+      - SMTP_USER=MS_cEqGkZ@test-r83ql3pnox0gzw1j.mlsender.net
+      - SMTP_PASS=mssp.4dBkrnB.x2p03473x63gzdrn.KPlyWrO
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - USE_REDIS=true
+
+  redis:
+    image: redis:7-alpine
+    container_name: backoffice-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    networks:
+      - 'app-network'
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: backoffice-prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - 'app-network'
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: backoffice-grafana
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    networks:
+      - 'app-network'
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  prometheus-data:
+  grafana-data:
+  redis-data:

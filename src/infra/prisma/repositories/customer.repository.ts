@@ -41,7 +41,13 @@ export class PrismaCustomerRepository extends CustomerRepository {
     });
   }
 
-  async findMe(id: string): Promise<{ name: string }> {
+  async findMe(id: string): Promise<{
+    name: string;
+    email: string;
+    phone: string;
+    taxIdentifier: string;
+    birthDate: string;
+  }> {
     return await this.prismaService.customer.findFirst({
       where: {
         id,
@@ -49,6 +55,10 @@ export class PrismaCustomerRepository extends CustomerRepository {
       },
       select: {
         name: true,
+        taxIdentifier: true,
+        birthDate: true,
+        phone: true,
+        email: true,
       },
     });
   }
@@ -83,8 +93,28 @@ export class PrismaCustomerRepository extends CustomerRepository {
 
   async create(dto: CreateUser): Promise<void> {
     try {
+      const {
+        id,
+        name,
+        lastname,
+        taxIdentifier,
+        email,
+        password,
+        birthDate,
+        phone,
+      } = dto;
+
       await this.prismaService.customer.create({
-        data: { ...dto },
+        data: {
+          id,
+          name,
+          lastname,
+          taxIdentifier,
+          email,
+          password,
+          birthDate,
+          phone,
+        },
       });
     } catch (error) {
       throw new BadRequestException('Erro ao criar usuário');

@@ -9,7 +9,15 @@ export class FindMeUseCase {
     private readonly customerRepository: CustomerRepository,
   ) {}
 
-  async execute(id: string): Promise<{ name: string }> {
+  async execute(
+    id: string,
+  ): Promise<{
+    name: string;
+    email: string;
+    phone: string;
+    taxIdentifier: string;
+    birthDate: string;
+  }> {
     const customer = await this.customerRepository.findMe(id);
 
     if (!customer) {

@@ -208,7 +208,7 @@ export class PrismaCategoryRepository extends CategoryRepository {
 
       // Reconstrói o caminho completo
       const path: { id: string; name: string; slug: string }[] = [];
-      
+
       // Adiciona a categoria inicial
       path.unshift({
         id: initialCategory.id,
@@ -239,6 +239,17 @@ export class PrismaCategoryRepository extends CategoryRepository {
         slug: initialCategory.slug,
       },
     ];
+  }
+
+  async findByName(name: string): Promise<any> {
+    try {
+      return await this.prismaService.category.findUnique({
+        where: { name, isDeleted: false },
+        select: { name: true },
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   async create(category: CreateCategory): Promise<void> {

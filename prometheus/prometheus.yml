@@ -9,18 +9,18 @@ scrape_configs:
     metrics_path: '/api/metrics'
     scrape_interval: 15s
     static_configs:
-      # Para aplicação rodando localmente (fora do Docker)
-      - targets: ['host.docker.internal:3333']
+      # Para aplicação rodando no Docker
+      - targets: ['app:4000']
         labels:
           environment: 'development'
           service: 'backoffice-api'
-      # Para aplicação rodando no Docker (descomente se necessário)
-      # - targets: ['app-dev:3333']
+      # Para aplicação rodando localmente (fora do Docker)
+      # - targets: ['host.docker.internal:4000']
       #   labels:
       #     environment: 'development'
       #     service: 'backoffice-api'
 
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ['prometheus:9090']
 

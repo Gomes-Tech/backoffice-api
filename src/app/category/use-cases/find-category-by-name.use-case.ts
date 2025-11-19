@@ -3,14 +3,14 @@ import { NotFoundException } from '@infra/filters';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
-export class FindCategoryByIdUseCase {
+export class FindCategoryByNameUseCase {
   constructor(
     @Inject('CategoryRepository')
     private readonly categoryRepository: CategoryRepository,
   ) {}
 
-  async execute(id: string): Promise<{ name: string }> {
-    const category = await this.categoryRepository.findByName(id);
+  async execute(name: string): Promise<{ name: string }> {
+    const category = await this.categoryRepository.findByName(name);
 
     if (!category) {
       throw new NotFoundException('Categoria não encontrada');

@@ -1,8 +1,8 @@
-import { Customer, CustomerRepository } from '@domain/customer';
+import { CustomerRepository } from '@domain/customer';
 import { CryptographyService } from '@infra/criptography';
 import { CreateCustomerDTO } from '@interfaces/http';
 import { Inject, Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
+import { generateId } from '@shared/utils';
 
 @Injectable()
 export class CreateCustomerUseCase {
@@ -15,17 +15,15 @@ export class CreateCustomerUseCase {
   async execute(dto: CreateCustomerDTO): Promise<void> {
     const passwordHashed = await this.cryptographyService.hash(dto.password);
 
-    const customer = new Customer(
-      uuidv4(),
-      dto.name,
-      dto.lastname,
-      dto.birthDate,
-      dto.phone,
-      dto.taxIdentifier,
-      dto.email,
-      passwordHashed,
-    );
-
-    await this.customerRepository.create(customer);
+    await this.customerRepository.create({
+      id: generateId(),
+      name: dto.name,
+      lastname: dto.lastname,
+      birthDate: dto.birthDate,
+      phone: dto.phone,
+      taxIdentifier: dto.taxIdentifier,
+      email: dto.email,
+      password: passwordHashed,
+    });
   }
 }
