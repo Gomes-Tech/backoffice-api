@@ -6,16 +6,18 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
-import compression from 'compression';
+import compress from 'compression';
 import cookieParser from 'cookie-parser';
-import * as csurf from 'csurf';
 import { json, RequestHandler } from 'express';
+import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 
 // Função para inicializar a aplicação
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    cors: true
+  });
 
   app.setGlobalPrefix('api');
   app.set('query parser', 'extended');
@@ -51,10 +53,11 @@ async function bootstrap() {
     app.use('/reference', apiReference({ content: document }));
   }
 
-  const PORT = getEnv().api.env
-  if (process.env.NODE_ENV === 'prod') {
-    app.use(csurf({ cookie: true }));
-  }
+  const PORT = getEnv().api.port
+  const baseUrl = `http://localhost:${PORT}`
+  // if (process.env.NODE_ENV === 'prod') {
+  //   app.use(csurf({ cookie: true }));
+  // }
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -73,38 +76,47 @@ async function bootstrap() {
   // Não precisa ser aplicado aqui também, pois já está no AuthDispatchGuard
 
   // Configuração do Helmet com headers de segurança
-  const helmetConfig: Parameters<typeof helmet>[0] = {
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", 'data:', 'https:'],
-        connectSrc: ["'self'"],
-        fontSrc: ["'self'", 'data:'],
-        objectSrc: ["'none'"],
-        mediaSrc: ["'self'"],
-        frameSrc: ["'none'"],
-      },
-    },
-    crossOriginEmbedderPolicy: false, // Se usar recursos externos
-    crossOriginResourcePolicy: { policy: 'cross-origin' },
-    // Headers de segurança adicionais
-    xContentTypeOptions: true, // X-Content-Type-Options: nosniff
-    xFrameOptions: { action: 'deny' }, // X-Frame-Options: DENY
-    xXssProtection: true, // X-XSS-Protection: 1; mode=block
-    referrerPolicy: { policy: 'strict-origin-when-cross-origin' }, // Referrer-Policy
-    // HSTS (HTTP Strict Transport Security) - apenas em produção com HTTPS
-    ...(process.env.NODE_ENV === 'prod' && {
-      strictTransportSecurity: {
-        maxAge: 31536000, // 1 ano
-        includeSubDomains: true,
-        preload: true,
-      },
-    }),
-  };
+  // const helmetConfig: Parameters<typeof helmet>[0] = {
+  //   contentSecurityPolicy: {
+  //     directives: {
+  //       defaultSrc: ["'self'"],
+  //       styleSrc: ["'self'", "'unsafe-inline'"],
+  //       scriptSrc: ["'self'"],
+  //       imgSrc: ["'self'", 'data:', 'https:'],
+  //       connectSrc: ["'self'"],
+  //       fontSrc: ["'self'", 'data:'],
+  //       objectSrc: ["'none'"],
+  //       mediaSrc: ["'self'"],
+  //       frameSrc: ["'none'"],
+  //     },
+  //   },
+  //   crossOriginEmbedderPolicy: false, // Se usar recursos externos
+  //   crossOriginResourcePolicy: { policy: 'cross-origin' },
+  //   // Headers de segurança adicionais
+  //   xContentTypeOptions: true, // X-Content-Type-Options: nosniff
+  //   xFrameOptions: { action: 'deny' }, // X-Frame-Options: DENY
+  //   xXssProtection: true, // X-XSS-Protection: 1; mode=block
+  //   referrerPolicy: { policy: 'strict-origin-when-cross-origin' }, // Referrer-Policy
+  //   // HSTS (HTTP Strict Transport Security) - apenas em produção com HTTPS
+  //   ...(process.env.NODE_ENV === 'prod' && {
+  //     strictTransportSecurity: {
+  //       maxAge: 31536000, // 1 ano
+  //       includeSubDomains: true,
+  //       preload: true,
+  //     },
+  //   }),
+  // };
 
-  app.use(helmet(helmetConfig));
+  app.use(helmet());
+  app.use(
+    compress(),
+  );
+  app.use(
+    rateLimit({
+      windowMs: 60 * 1000,
+      max: 100
+    })
+  )
 
   // Permissions-Policy header (não suportado diretamente pelo Helmet v8)
   app.use((req, res, next) => {
@@ -116,32 +128,7 @@ async function bootstrap() {
   });
 
   // Compressão de respostas HTTP
-  app.use(
-    compression({
-      filter: (req, res) => {
-        // Não comprime se o header 'x-no-compression' estiver presente
-        if (req.headers['x-no-compression']) {
-          return false;
-        }
-        // Comprime apenas respostas textuais e JSON
-        const contentType = res.getHeader('content-type') as string;
-        if (contentType) {
-          return (
-            contentType.includes('text/') ||
-            contentType.includes('application/json') ||
-            contentType.includes('application/javascript') ||
-            contentType.includes('application/xml')
-          );
-        }
-        return true;
-      },
-      // Nível de compressão (0-9, onde 9 é máxima compressão)
-      // 6 é um bom equilíbrio entre compressão e velocidade
-      level: 6,
-      // Threshold mínimo em bytes para comprimir (padrão: 1KB)
-      threshold: 1024,
-    }),
-  );
+  
 
   app.getHttpAdapter().getInstance().disable('x-powered-by');
 
@@ -191,8 +178,8 @@ async function bootstrap() {
   await app.listen(PORT, () => {
     console.log(`Application is running on port ${PORT} 🚀`);
     if (process.env.NODE_ENV !== 'prod') {
-      console.log(`📗 API Docs: http://localhost:${PORT}/docs`);
-      console.log(`📗 API Reference: http://localhost:${PORT}/reference`);
+      console.log(`📗 API Docs: ${baseUrl}/docs`);
+      console.log(`📗 API Reference: ${baseUrl}/reference`);
     }
   });
 
