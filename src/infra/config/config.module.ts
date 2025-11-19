@@ -59,7 +59,7 @@ import * as Joi from 'joi';
         SERVER_AUTH_SECRET: Joi.string().required(),
         REDIS_HOST: Joi.string().default('localhost'),
         REDIS_PORT: Joi.number().default(6379),
-        REDIS_PASSWORD: Joi.string().allow('').optional(),
+        REDIS_PASSWORD: Joi.string().required(),
         REDIS_DB: Joi.number().default(0),
         REDIS_TTL: Joi.number().default(3600),
         USE_REDIS: Joi.string().valid('true', 'false').default('true'),
