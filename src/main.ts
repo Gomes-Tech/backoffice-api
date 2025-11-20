@@ -73,25 +73,7 @@ async function bootstrap() {
     : [];
 
   app.enableCors({
-    origin: (origin, callback) => {
-      // Em desenvolvimento, permitir localhost e origens sem origin (ex: Postman, mobile apps)
-      if (process.env.NODE_ENV !== 'prod') {
-        callback(null, true);
-        return;
-      } else {
-        // Em produção, validar origens permitidas
-        if (!origin) {
-          callback(new Error('Origin é obrigatório em produção'));
-          return;
-        }
-
-        if (allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      }
-    },
+    origin: process.env.NODE_ENV === 'prod' ? allowedOrigins : undefined,
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'OPTIONS', 'DELETE'],
     allowedHeaders: [
       'Content-Type',
