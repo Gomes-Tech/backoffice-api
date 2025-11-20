@@ -59,7 +59,7 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+    const ip = req.ip || req.socket?.remoteAddress || 'unknown';
     const userAgent = req.get('user-agent') || 'unknown';
     const { accessToken, refreshToken } = await this.signInUser.execute(
       dto,
@@ -67,7 +67,7 @@ export class AuthController {
       userAgent,
     );
 
-    res.cookie('accessToken', accessToken, {
+    res.cookie('adminAccessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'prod',
       sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
@@ -75,8 +75,16 @@ export class AuthController {
       maxAge: 15 * 60 * 1000,
     });
 
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie('adminRefreshToken', refreshToken, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+    });
+
+    res.cookie('adminAuthenticated', 'true', {
+      httpOnly: false, // Permite acesso via JavaScript no frontend
       secure: process.env.NODE_ENV === 'prod',
       sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
       path: '/',
@@ -101,7 +109,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     // Pega o refreshToken do cookie HttpOnly
-    const refreshToken = req.cookies?.['refreshToken'];
+    const refreshToken = req.cookies?.['adminRefreshToken'];
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token não encontrado');
     }
@@ -111,7 +119,7 @@ export class AuthController {
       await this.refreshTokenUseCase.execute(refreshToken);
 
     // Atualiza os cookies HttpOnly
-    res.cookie('accessToken', accessToken, {
+    res.cookie('adminAccessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'prod',
       sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
@@ -119,8 +127,16 @@ export class AuthController {
       maxAge: 15 * 60 * 1000, // 15 minutos
     });
 
-    res.cookie('refreshToken', newRefreshToken, {
+    res.cookie('adminRefreshToken', newRefreshToken, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+    });
+
+    res.cookie('adminAuthenticated', 'true', {
+      httpOnly: false, // Permite acesso via JavaScript no frontend
       secure: process.env.NODE_ENV === 'prod',
       sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
       path: '/',
@@ -133,19 +149,16 @@ export class AuthController {
   @Public()
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
-  async logout(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     // Obtém os tokens dos cookies antes de removê-los
-    const accessToken = req.cookies?.['accessToken'];
-    const refreshToken = req.cookies?.['refreshToken'];
+    const accessToken = req.cookies?.['adminAccessToken'];
+    const refreshToken = req.cookies?.['adminRefreshToken'];
 
     // Blacklista os tokens
     await this.logoutUserUseCase.execute(accessToken, refreshToken);
 
     // Remove os cookies
-    res.cookie('accessToken', '', {
+    res.cookie('adminAccessToken', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'prod',
       sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
@@ -153,8 +166,16 @@ export class AuthController {
       maxAge: 0, // expira imediatamente
     });
 
-    res.cookie('refreshToken', '', {
+    res.cookie('adminRefreshToken', '', {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
+      path: '/',
+      maxAge: 0, // expira imediatamente
+    });
+
+    res.cookie('adminAuthenticated', '', {
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'prod',
       sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
       path: '/',
@@ -188,7 +209,7 @@ export class AuthController {
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() dto: ResetPasswordDTO, @Req() req: Request) {
-    const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+    const ip = req.ip || req.socket?.remoteAddress || 'unknown';
     const userAgent = req.get('user-agent') || 'unknown';
     await this.resetPasswordUseCase.execute(
       dto.email,

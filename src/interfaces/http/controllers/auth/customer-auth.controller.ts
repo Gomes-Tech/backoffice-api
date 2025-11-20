@@ -61,7 +61,7 @@ export class CustomerAuthController {
     const { accessToken, refreshToken } =
       await this.signInCustomerUseCase.execute(dto, ip, userAgent);
 
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie('customerRefreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'prod',
       sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
@@ -69,7 +69,7 @@ export class CustomerAuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
     });
 
-    res.cookie('accessToken', accessToken, {
+    res.cookie('customerAccessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'prod',
       sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
@@ -89,7 +89,7 @@ export class CustomerAuthController {
     const { accessToken, refreshToken } =
       await this.signUpCustomerUseCase.execute(dto);
 
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie('customerRefreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'prod',
       sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
@@ -97,7 +97,7 @@ export class CustomerAuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
     });
 
-    res.cookie('accessToken', accessToken, {
+    res.cookie('customerAccessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'prod',
       sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
@@ -114,7 +114,7 @@ export class CustomerAuthController {
     @Req() req: Request,
   ) {
     // Pega o refreshToken do cookie HttpOnly
-    const refreshToken = req.cookies?.['refreshToken'];
+    const refreshToken = req.cookies?.['customerRefreshToken'];
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token não encontrado');
     }
@@ -124,18 +124,18 @@ export class CustomerAuthController {
       await this.refreshTokenCustomerUseCase.execute(refreshToken);
 
     // Atualiza os cookies HttpOnly
-    res.cookie('accessToken', accessToken, {
+    res.cookie('customerAccessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'prod',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
       path: '/',
       maxAge: 15 * 60 * 1000, // 15 minutos
     });
 
-    res.cookie('refreshToken', newRefreshToken, {
+    res.cookie('customerRefreshToken', newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'prod',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
       path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
     });
@@ -146,19 +146,16 @@ export class CustomerAuthController {
   @Public()
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
-  async logout(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     // Obtém os tokens dos cookies antes de removê-los
-    const accessToken = req.cookies?.['accessToken'];
-    const refreshToken = req.cookies?.['refreshToken'];
+    const accessToken = req.cookies?.['customerAccessToken'];
+    const refreshToken = req.cookies?.['customerRefreshToken'];
 
     // Blacklista os tokens
     await this.logoutCustomerUseCase.execute(accessToken, refreshToken);
 
     // Remove os cookies
-    res.cookie('accessToken', '', {
+    res.cookie('customerAccessToken', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'prod',
       sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
@@ -166,7 +163,7 @@ export class CustomerAuthController {
       maxAge: 0, // expira imediatamente
     });
 
-    res.cookie('refreshToken', '', {
+    res.cookie('customerRefreshToken', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'prod',
       sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',

@@ -15,9 +15,7 @@ import { AppModule } from './app.module';
 
 // Função para inicializar a aplicação
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    cors: true
-  });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.setViewEngine('pug');
   app.setBaseViewsDir(join(__dirname, '..', '..', 'templates'));
@@ -50,8 +48,8 @@ async function bootstrap() {
     app.use('/reference', apiReference({ content: document }));
   }
 
-  const PORT = getEnv().api.port
-  const baseUrl = `http://localhost:${PORT}`
+  const PORT = getEnv().api.port;
+  const baseUrl = `http://localhost:${PORT}`;
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -64,19 +62,69 @@ async function bootstrap() {
       validateCustomDecorators: true,
     }),
   );
+
   app.useGlobalFilters(new HttpExceptionFilter());
 
+  // Configuração de CORS
+  const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map((origin) => origin.trim())
+    : [];
 
-  app.use(helmet());
+  app.enableCors({
+    origin: (origin, callback) => {
+      // Em desenvolvimento, permitir localhost e origens sem origin (ex: Postman, mobile apps)
+      if (process.env.NODE_ENV !== 'prod') {
+        if (
+          !origin ||
+          origin.startsWith('http://localhost') ||
+          origin.startsWith('http://127.0.0.1') ||
+          allowedOrigins.includes(origin)
+        ) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      } else {
+        // Em produção, validar origens permitidas
+        if (!origin) {
+          callback(new Error('Origin é obrigatório em produção'));
+          return;
+        }
+
+        if (allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      }
+    },
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'OPTIONS', 'DELETE'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'X-Requested-With',
+      'X-Request-ID',
+      'api_key',
+    ],
+    exposedHeaders: ['Content-Range', 'X-Total-Count'],
+    credentials: true,
+    maxAge: 86400, // 24 horas
+  });
+
   app.use(
-    compress(),
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      crossOriginEmbedderPolicy: false,
+    }),
   );
+  app.use(compress());
   app.use(
     rateLimit({
       windowMs: 60 * 1000,
-      max: 100
-    })
-  )
+      max: 100,
+    }),
+  );
 
   app.getHttpAdapter().getInstance().disable('x-powered-by');
 
@@ -88,7 +136,7 @@ async function bootstrap() {
     }
   });
 
-  app.enableShutdownHooks(Object.values(ShutdownSignal))
+  app.enableShutdownHooks(Object.values(ShutdownSignal));
 }
 
 bootstrap();

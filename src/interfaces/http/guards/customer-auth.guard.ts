@@ -1,8 +1,5 @@
 import { UnauthorizedException } from '@infra/filters';
-import {
-  SecurityLoggerService,
-  TokenBlacklistService,
-} from '@infra/security';
+import { SecurityLoggerService, TokenBlacklistService } from '@infra/security';
 import {
   CanActivate,
   ExecutionContext,
@@ -87,6 +84,6 @@ export class CustomerAuthGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    return request.cookies?.['accessToken']; // nome do cookie que você setou
+    return request.cookies?.['customerAccessToken'];
   }
 }

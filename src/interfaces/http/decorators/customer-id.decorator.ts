@@ -4,7 +4,7 @@ import { authorizationToLoginPayload } from '@shared/utils';
 export const CustomerId = createParamDecorator((_, ctx: ExecutionContext) => {
   const request = ctx.switchToHttp().getRequest();
 
-  const authorization = request.cookies?.['accessToken'];
+  const authorization = request.cookies?.['customerAccessToken'];
 
   const loginPayload = authorizationToLoginPayload(authorization);
 

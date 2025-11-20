@@ -85,6 +85,6 @@ export class AuthGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    return request.cookies?.['accessToken']; // nome do cookie que você setou
+    return request.cookies?.['adminAccessToken'];
   }
 }
