@@ -66,24 +66,18 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   // Configuração de CORS
-  const allowedOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',').map((origin) => origin.trim())
+  const allowedOrigins = getEnv().api.allowedOrigins
+    ? getEnv()
+        .api.allowedOrigins.split(',')
+        .map((origin) => origin.trim())
     : [];
 
   app.enableCors({
     origin: (origin, callback) => {
       // Em desenvolvimento, permitir localhost e origens sem origin (ex: Postman, mobile apps)
       if (process.env.NODE_ENV !== 'prod') {
-        if (
-          !origin ||
-          origin.startsWith('http://localhost') ||
-          origin.startsWith('http://127.0.0.1') ||
-          allowedOrigins.includes(origin)
-        ) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
+        callback(null, true);
+        return;
       } else {
         // Em produção, validar origens permitidas
         if (!origin) {
