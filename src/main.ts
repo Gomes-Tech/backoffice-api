@@ -73,7 +73,23 @@ async function bootstrap() {
     : [];
 
   app.enableCors({
-    origin: process.env.NODE_ENV === 'prod' ? allowedOrigins : undefined,
+    origin: (origin, callback) => {
+      // Em produção, validar origens permitidas
+      if (process.env.NODE_ENV === 'prod') {
+        if (!origin || allowedOrigins.length === 0) {
+          callback(new Error('CORS: Origin não permitida em produção'));
+          return;
+        }
+        if (allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('CORS: Origin não permitida'));
+        }
+      } else {
+        // Em desenvolvimento, permitir todas as origens
+        callback(null, true);
+      }
+    },
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'OPTIONS', 'DELETE'],
     allowedHeaders: [
       'Content-Type',
@@ -88,8 +104,12 @@ async function bootstrap() {
     maxAge: 86400, // 24 horas
   });
 
+  // Configurar Helmet para não interferir com CORS
   app.use(
-    helmet(),
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      crossOriginEmbedderPolicy: false,
+    }),
   );
   app.use(compress());
   app.use(
