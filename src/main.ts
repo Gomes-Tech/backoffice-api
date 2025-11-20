@@ -74,23 +74,23 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin, callback) => {
-      // Em produção, validar origens permitidas
-      if (process.env.NODE_ENV === 'prod') {
-        if (!origin || allowedOrigins.length === 0) {
-          callback(new Error('CORS: Origin não permitida em produção'));
-          return;
-        }
-        if (allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error('CORS: Origin não permitida'));
-        }
-      } else {
-        // Em desenvolvimento, permitir todas as origens
+      const allowedOrigins = [
+        'https://api.cron-job.org/',
+        'https://decoreasy.vercel.app',
+        'https://backoffice-eta-seven.vercel.app',
+      ];
+
+      if (
+        !origin ||
+        origin.startsWith('http://localhost') ||
+        allowedOrigins.includes(origin)
+      ) {
         callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
       }
     },
-    methods: ['GET', 'POST', 'PATCH', 'PUT', 'OPTIONS', 'DELETE'],
+    methods: ['GET', 'POST', 'PATCH', 'OPTIONS', 'DELETE'],
     allowedHeaders: [
       'Content-Type',
       'Authorization',
@@ -99,18 +99,11 @@ async function bootstrap() {
       'X-Request-ID',
       'api_key',
     ],
-    exposedHeaders: ['Content-Range', 'X-Total-Count'],
     credentials: true,
-    maxAge: 86400, // 24 horas
   });
 
   // Configurar Helmet para não interferir com CORS
-  app.use(
-    helmet({
-      crossOriginResourcePolicy: { policy: 'cross-origin' },
-      crossOriginEmbedderPolicy: false,
-    }),
-  );
+  app.use(helmet());
   app.use(compress());
   app.use(
     rateLimit({
