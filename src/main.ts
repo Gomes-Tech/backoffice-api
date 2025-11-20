@@ -89,10 +89,7 @@ async function bootstrap() {
   });
 
   app.use(
-    helmet({
-      crossOriginResourcePolicy: { policy: 'cross-origin' },
-      crossOriginEmbedderPolicy: false,
-    }),
+    helmet(),
   );
   app.use(compress());
   app.use(
