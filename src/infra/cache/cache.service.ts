@@ -55,7 +55,7 @@ export class CacheService {
     }
   }
 
-  async set(key: string, value: unknown, ttlSeconds = 3600): Promise<void> {
+  async set(key: string, value: unknown, ttlSeconds = 30): Promise<void> {
     if (this.circuitBreakerService) {
       return this.circuitBreakerService.execute(
         'cache:set',
