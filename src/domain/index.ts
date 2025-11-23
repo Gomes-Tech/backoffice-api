@@ -1,6 +1,7 @@
 export * from './attribute';
 export * from './attribute-value';
 export * from './banner';
+export * from './cart';
 export * from './category';
 export * from './category-faq';
 export * from './common';

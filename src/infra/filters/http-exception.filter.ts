@@ -11,6 +11,7 @@ import {
   CircuitBreakerOpenException,
   TimeoutError,
 } from '@infra/circuit-breaker';
+import { TokenExpiredException } from './token-expired.exception';
 import { REQUEST_ID_KEY } from '@shared/interceptors';
 
 type ErrorResponse = {
@@ -132,6 +133,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     // Garantir que a mensagem de erro não contenha dados sensíveis
     const sanitizedMessage = this.sanitizeMessage(message);
+
+    // Adiciona header para indicar que o token expirou e o frontend deve fazer refresh
+    if (exception instanceof TokenExpiredException) {
+      response.setHeader('X-Token-Expired', 'true');
+    }
 
     response.status(status).json({
       statusCode: status,

@@ -21,11 +21,53 @@ model Customer {
   updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
   isDeleted     Boolean   @default(false) @map("isDeleted")
   deletedAt     DateTime? @map("deleted_at")
+  cart          Cart[]
 
   @@index([email])
   @@index([taxIdentifier])
   @@index([isDeleted])
   @@map("customers")
+}
+
+model Cart {
+  id              String     @id @default(cuid())
+  customer        Customer   @relation(fields: [customerId], references: [id])
+  customerId      String     @map("customer_id")
+  items           CartItem[]
+  status          CartStatus @default(ACTIVE) @map("status")
+  lastItemAddedAt DateTime?  @map("last_item_added_at")
+  orderId         String?    @unique @map("order_id")
+  convertedAt     DateTime?  @map("converted_at")
+  convertedTotal  Int?       @map("converted_total")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @default(now()) @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([lastItemAddedAt])
+  @@index([convertedAt])
+  @@index([orderId])
+  @@map("carts")
+}
+
+enum CartStatus {
+  ACTIVE // Carrinho ativo (em uso)
+  ABANDONED // Carrinho abandonado
+  CONVERTED // Carrinho convertido em pedido
+}
+
+model CartItem {
+  id               String         @id @default(cuid())
+  cart             Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cartId           String         @map("cart_id")
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  productVariantId String         @map("product_variant_id")
+  quantity         Int
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([cartId, productVariantId])
+  @@index([cartId])
+  @@map("cart_items")
 }
 
 model User {
@@ -348,8 +390,9 @@ model ProductVariant {
   product      Product        @relation(fields: [productId], references: [id])
   productImage ProductImage[]
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at")
+  cartItems CartItem[]
 }
 
 model ProductImage {

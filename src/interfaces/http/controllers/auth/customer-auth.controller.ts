@@ -56,18 +56,10 @@ export class CustomerAuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+    const ip = req.ip || req.socket?.remoteAddress || 'unknown';
     const userAgent = req.get('user-agent') || 'unknown';
     const { accessToken, refreshToken } =
       await this.signInCustomerUseCase.execute(dto, ip, userAgent);
-
-    res.cookie('customerRefreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-    });
 
     res.cookie('customerAccessToken', accessToken, {
       httpOnly: true,
@@ -75,6 +67,14 @@ export class CustomerAuthController {
       sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
       path: '/',
       maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie('customerRefreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
     });
   }
 
@@ -89,20 +89,20 @@ export class CustomerAuthController {
     const { accessToken, refreshToken } =
       await this.signUpCustomerUseCase.execute(dto);
 
-    res.cookie('customerRefreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-    });
-
     res.cookie('customerAccessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'prod',
       sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
       path: '/',
       maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie('customerRefreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
     });
   }
 
@@ -140,7 +140,7 @@ export class CustomerAuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
     });
 
-    return { success: true }; // ou algum status, você não precisa retornar os tokens no JSON
+    return { success: true };
   }
 
   @Public()

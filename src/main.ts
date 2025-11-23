@@ -99,6 +99,7 @@ async function bootstrap() {
       'X-Request-ID',
       'api_key',
     ],
+    exposedHeaders: ['X-Token-Expired'],
     credentials: true,
   });
 

@@ -2,6 +2,7 @@ export * from './attribute-value.module';
 export * from './attribute.module';
 export * from './auth.module';
 export * from './banner.module';
+export * from './cart.module';
 export * from './category-faq.module';
 export * from './category.module';
 export * from './customer.module';

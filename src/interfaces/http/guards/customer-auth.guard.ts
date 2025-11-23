@@ -1,4 +1,4 @@
-import { UnauthorizedException } from '@infra/filters';
+import { TokenExpiredException, UnauthorizedException } from '@infra/filters';
 import { SecurityLoggerService, TokenBlacklistService } from '@infra/security';
 import {
   CanActivate,
@@ -38,6 +38,22 @@ export class CustomerAuthGuard implements CanActivate {
     const endpoint = request.url;
     const method = request.method;
 
+    // Log de debug para entender o problema
+    if (process.env.NODE_ENV === 'dev') {
+      console.log('[CustomerAuthGuard] Endpoint:', endpoint);
+      console.log(
+        '[CustomerAuthGuard] Cookies disponíveis:',
+        Object.keys(request.cookies || {}),
+      );
+      console.log('[CustomerAuthGuard] Token encontrado:', !!token);
+      if (token) {
+        console.log(
+          '[CustomerAuthGuard] Token (primeiros 20 chars):',
+          token.substring(0, 20) + '...',
+        );
+      }
+    }
+
     if (!token) {
       this.securityLogger.logUnauthorizedAccess(
         endpoint,
@@ -50,12 +66,31 @@ export class CustomerAuthGuard implements CanActivate {
     }
 
     try {
+      if (process.env.NODE_ENV === 'dev') {
+        console.log('[CustomerAuthGuard] Verificando token...');
+      }
+
       const payload = await this.jwtService.verifyAsync(token);
+
+      if (process.env.NODE_ENV === 'dev') {
+        console.log('[CustomerAuthGuard] Token verificado com sucesso!');
+        console.log('[CustomerAuthGuard] Payload ID:', payload.id);
+        console.log('[CustomerAuthGuard] Payload JTI:', payload.jti);
+      }
 
       // Verifica se o token está na blacklist
       if (payload.jti) {
+        if (process.env.NODE_ENV === 'dev') {
+          console.log('[CustomerAuthGuard] Verificando blacklist...');
+        }
+
         const isBlacklisted =
           await this.tokenBlacklistService.isTokenBlacklisted(payload.jti);
+
+        if (process.env.NODE_ENV === 'dev') {
+          console.log('[CustomerAuthGuard] Token na blacklist?', isBlacklisted);
+        }
+
         if (isBlacklisted) {
           this.securityLogger.logInvalidToken(
             ip,
@@ -68,11 +103,47 @@ export class CustomerAuthGuard implements CanActivate {
       }
 
       request['customer'] = payload;
+
+      if (process.env.NODE_ENV === 'dev') {
+        console.log(
+          '[CustomerAuthGuard] ✅ Autenticação bem-sucedida! Retornando true',
+        );
+      }
+
       return true;
     } catch (error) {
+      if (process.env.NODE_ENV === 'dev') {
+        console.log('[CustomerAuthGuard] ❌ Erro na verificação do token');
+        console.log(
+          '[CustomerAuthGuard] Tipo do erro:',
+          error?.constructor?.name,
+        );
+        console.log(
+          '[CustomerAuthGuard] Nome do erro:',
+          (error as Error)?.name,
+        );
+        console.log(
+          '[CustomerAuthGuard] Mensagem do erro:',
+          (error as Error)?.message,
+        );
+        console.log('[CustomerAuthGuard] Stack:', (error as Error)?.stack);
+      }
+
       if (error instanceof UnauthorizedException) {
         throw error;
       }
+
+      // Detecta se o token expirou
+      if (error instanceof Error && error.name === 'TokenExpiredError') {
+        this.securityLogger.logInvalidToken(
+          ip,
+          endpoint,
+          userAgent,
+          'Token expirado',
+        );
+        throw new TokenExpiredException('Token expirado');
+      }
+
       this.securityLogger.logInvalidToken(
         ip,
         endpoint,
