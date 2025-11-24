@@ -66,30 +66,21 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   // Configuração de CORS
-  const allowedOrigins = getEnv().api.allowedOrigins
-    ? getEnv()
-        .api.allowedOrigins.split(',')
-        .map((origin) => origin.trim())
-    : [];
+  // const allowedOrigins = getEnv().api.allowedOrigins
+  //   ? getEnv()
+  //       .api.allowedOrigins.split(',')
+  //       .map((origin) => origin.trim())
+  //   : [];
+
+  const allowedOrigins = [
+    'https://decoreasy.vercel.app',
+    'https://backoffice-eta-seven.vercel.app',
+    'https://api.cron-job.org/',
+  ];
 
   app.enableCors({
-    origin: (origin, callback) => {
-      const allowedOrigins = [
-        'https://api.cron-job.org/',
-        'https://decoreasy.vercel.app',
-        'https://backoffice-eta-seven.vercel.app',
-      ];
-
-      if (
-        !origin ||
-        origin.startsWith('http://localhost') ||
-        allowedOrigins.includes(origin)
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    origin: allowedOrigins,
+    credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'OPTIONS', 'DELETE'],
     allowedHeaders: [
       'Content-Type',
@@ -100,7 +91,6 @@ async function bootstrap() {
       'api_key',
     ],
     exposedHeaders: ['X-Token-Expired'],
-    credentials: true,
   });
 
   // Configurar Helmet para não interferir com CORS
