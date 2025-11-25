@@ -72,11 +72,49 @@ async function bootstrap() {
     ? getEnv()
         .api.allowedOrigins.split(',')
         .map((origin) => origin.trim())
+        .filter((origin) => origin.length > 0)
     : [];
 
+  // Configurar Helmet ANTES do CORS para não interferir
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: false,
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
+
   app.enableCors({
-    origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PATCH', 'OPTIONS', 'DELETE'],
+    origin: (origin, callback) => {
+      // Permitir requisições sem origin (ex: mobile apps, Postman)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      // Se não houver origens configuradas, permitir todas (apenas em dev)
+      if (allowedOrigins.length === 0) {
+        if (process.env.NODE_ENV === 'prod') {
+          console.warn(
+            '⚠️  ALLOWED_ORIGINS não configurado em produção! CORS pode falhar.',
+          );
+          return callback(null, false);
+        }
+        return callback(null, true);
+      }
+
+      // Verificar se a origin está na lista permitida
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Log para debug em produção
+      if (process.env.NODE_ENV === 'prod') {
+        console.warn(`🚫 Origin bloqueada: ${origin}`);
+        console.log(`✅ Origens permitidas: ${allowedOrigins.join(', ')}`);
+      }
+
+      return callback(null, false);
+    },
+    methods: ['GET', 'POST', 'PATCH', 'OPTIONS', 'DELETE', 'PUT'],
     allowedHeaders: [
       'Content-Type',
       'Authorization',
@@ -87,10 +125,9 @@ async function bootstrap() {
       'api_key',
     ],
     exposedHeaders: ['X-Token-Expired'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
-
-  // Configurar Helmet para não interferir com CORS
-  app.use(helmet());
   app.use(compress());
   app.use(
     rateLimit({
