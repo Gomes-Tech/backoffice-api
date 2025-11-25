@@ -68,12 +68,36 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   // Configuração de CORS
-  const allowedOrigins = getEnv().api.allowedOrigins
-    ? getEnv()
-        .api.allowedOrigins.split(',')
-        .map((origin) => origin.trim())
+  const normalizeOrigin = (origin: string): string => {
+    // Remover aspas do início e fim
+    let normalized = origin.trim().replace(/^["']+|["']+$/g, '');
+    // Remover trailing slash
+    normalized = normalized.replace(/\/+$/, '');
+    return normalized;
+  };
+
+  // Normalizar o valor completo primeiro (pode ter aspas ao redor de tudo)
+  const rawAllowedOrigins = getEnv().api.allowedOrigins || '';
+  const normalizedRawValue = normalizeOrigin(rawAllowedOrigins);
+
+  const allowedOrigins = normalizedRawValue
+    ? normalizedRawValue
+        .split(',')
+        .map(normalizeOrigin)
         .filter((origin) => origin.length > 0)
     : [];
+
+  // Log das origens normalizadas para debug
+  if (process.env.NODE_ENV === 'prod') {
+    if (allowedOrigins.length > 0) {
+      console.log('🌐 Origens CORS configuradas:', allowedOrigins);
+      console.log('   Valor bruto da env:', rawAllowedOrigins);
+      console.log('   Valor normalizado:', normalizedRawValue);
+    } else {
+      console.warn('⚠️  Nenhuma origem CORS configurada!');
+      console.log('   Valor bruto da env:', rawAllowedOrigins);
+    }
+  }
 
   // Configurar Helmet ANTES do CORS para não interferir
   app.use(
@@ -101,15 +125,27 @@ async function bootstrap() {
         return callback(null, true);
       }
 
-      // Verificar se a origin está na lista permitida
-      if (allowedOrigins.includes(origin)) {
+      // Normalizar a origin recebida (remover trailing slash)
+      const normalizedRequestOrigin = normalizeOrigin(origin);
+
+      // Verificar se a origin está na lista permitida (comparação normalizada)
+      const isAllowed = allowedOrigins.some(
+        (allowedOrigin) =>
+          allowedOrigin === normalizedRequestOrigin || allowedOrigin === origin,
+      );
+
+      if (isAllowed) {
         return callback(null, true);
       }
 
-      // Log para debug em produção
+      // Log detalhado para debug em produção
       if (process.env.NODE_ENV === 'prod') {
         console.warn(`🚫 Origin bloqueada: ${origin}`);
+        console.log(`   Normalizada: ${normalizedRequestOrigin}`);
         console.log(`✅ Origens permitidas: ${allowedOrigins.join(', ')}`);
+        console.log(
+          `   Comparação: ${allowedOrigins.map((o) => `"${o}"`).join(', ')}`,
+        );
       }
 
       return callback(null, false);
