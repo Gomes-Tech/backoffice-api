@@ -1,8 +1,5 @@
 import { UnauthorizedException } from '@infra/filters';
-import {
-  SecurityLoggerService,
-  TokenBlacklistService,
-} from '@infra/security';
+import { SecurityLoggerService, TokenBlacklistService } from '@infra/security';
 import {
   CanActivate,
   ExecutionContext,
@@ -85,6 +82,7 @@ export class AuthGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    return request.cookies?.['adminAccessToken'];
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
   }
 }

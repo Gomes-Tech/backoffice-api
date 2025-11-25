@@ -1,4 +1,8 @@
 import {
+  CircuitBreakerOpenException,
+  TimeoutError,
+} from '@infra/circuit-breaker';
+import {
   ArgumentsHost,
   Catch,
   ExceptionFilter,
@@ -6,13 +10,9 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
-import {
-  CircuitBreakerOpenException,
-  TimeoutError,
-} from '@infra/circuit-breaker';
-import { TokenExpiredException } from './token-expired.exception';
 import { REQUEST_ID_KEY } from '@shared/interceptors';
+import { Request, Response } from 'express';
+import { TokenExpiredException } from './token-expired.exception';
 
 type ErrorResponse = {
   statusCode: number;
@@ -70,7 +70,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
         statusCode: HttpStatus.SERVICE_UNAVAILABLE,
         timestamp: new Date().toISOString(),
         path: request.url,
-        message: 'Serviço temporariamente indisponível. Tente novamente mais tarde.',
+        message:
+          'Serviço temporariamente indisponível. Tente novamente mais tarde.',
         retryAfter,
       });
       const requestId = (request as any)[REQUEST_ID_KEY];
@@ -111,7 +112,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const requestId = (request as any)[REQUEST_ID_KEY];
 
     // Log apenas em desenvolvimento ou com dados sanitizados
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'dev') {
       this.logger.debug('HTTP Exception', {
         requestId,
         statusCode: status,

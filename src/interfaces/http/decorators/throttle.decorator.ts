@@ -1,4 +1,3 @@
-import { SetMetadata } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 
 /**
@@ -24,4 +23,3 @@ export const ThrottleTokenGeneration = () =>
  */
 export const ThrottlePasswordReset = () =>
   Throttle({ default: { limit: 3, ttl: 60 * 60 * 1000 } });
-

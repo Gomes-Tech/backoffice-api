@@ -32,4 +32,8 @@ export class SignUpUseCase {
 type Output = {
   accessToken: string;
   refreshToken: string;
+  user: {
+    id: string;
+    name: string;
+  };
 };

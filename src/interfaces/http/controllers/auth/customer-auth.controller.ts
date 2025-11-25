@@ -28,11 +28,10 @@ import {
   HttpStatus,
   Post,
   Req,
-  Res,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 
 @Controller('customer-auth')
 export class CustomerAuthController {
@@ -51,70 +50,37 @@ export class CustomerAuthController {
   @UsePipes(ValidationPipe)
   @Post('/sign-in')
   @HttpCode(HttpStatus.OK)
-  async signIn(
-    @Body() dto: LoginDTO,
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async signIn(@Body() dto: LoginDTO, @Req() req: Request) {
     const ip = req.ip || req.socket?.remoteAddress || 'unknown';
     const userAgent = req.get('user-agent') || 'unknown';
-    const { accessToken, refreshToken } =
+    const { accessToken, refreshToken, user } =
       await this.signInCustomerUseCase.execute(dto, ip, userAgent);
 
-    res.cookie('customerAccessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 15 * 60 * 1000,
-    });
-
-    res.cookie('customerRefreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-    });
+    return {
+      accessToken,
+      refreshToken,
+      user,
+    };
   }
 
   @Public()
   @Post('/sign-up')
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.CREATED)
-  async signUp(
-    @Body() dto: CreateCustomerDTO,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const { accessToken, refreshToken } =
+  async signUp(@Body() dto: CreateCustomerDTO) {
+    const { accessToken, refreshToken, user } =
       await this.signUpCustomerUseCase.execute(dto);
 
-    res.cookie('customerAccessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 15 * 60 * 1000,
-    });
-
-    res.cookie('customerRefreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-    });
+    return { accessToken, refreshToken, user };
   }
 
   @Public()
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(
-    @Res({ passthrough: true }) res: Response,
-    @Req() req: Request,
-  ) {
+  async refresh(@Req() req: Request) {
     // Pega o refreshToken do cookie HttpOnly
-    const refreshToken = req.cookies?.['customerRefreshToken'];
+    const refreshToken = req.headers.authorization?.split(' ')[1];
+
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token não encontrado');
     }
@@ -123,53 +89,17 @@ export class CustomerAuthController {
     const { accessToken, refreshToken: newRefreshToken } =
       await this.refreshTokenCustomerUseCase.execute(refreshToken);
 
-    // Atualiza os cookies HttpOnly
-    res.cookie('customerAccessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 15 * 60 * 1000, // 15 minutos
-    });
-
-    res.cookie('customerRefreshToken', newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-    });
-
-    return { success: true };
+    return { accessToken, refreshToken: newRefreshToken };
   }
 
   @Public()
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    // Obtém os tokens dos cookies antes de removê-los
-    const accessToken = req.cookies?.['customerAccessToken'];
-    const refreshToken = req.cookies?.['customerRefreshToken'];
+  async logout(@Req() req: Request, @Body() dto: { refreshToken: string }) {
+    const [_, token] = req.headers.authorization?.split(' ') ?? [];
 
     // Blacklista os tokens
-    await this.logoutCustomerUseCase.execute(accessToken, refreshToken);
-
-    // Remove os cookies
-    res.cookie('customerAccessToken', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 0, // expira imediatamente
-    });
-
-    res.cookie('customerRefreshToken', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 0, // expira imediatamente
-    });
+    await this.logoutCustomerUseCase.execute(token, dto.refreshToken);
 
     return { success: true };
   }

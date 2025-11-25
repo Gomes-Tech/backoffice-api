@@ -77,7 +77,7 @@ export class PrismaCustomerRepository extends CustomerRepository {
 
   async findByEmail(
     email: string,
-  ): Promise<{ id: string; email: string; password: string }> {
+  ): Promise<{ id: string; name: string; email: string; password: string }> {
     return await this.prismaService.customer.findFirst({
       where: {
         email,
@@ -85,6 +85,7 @@ export class PrismaCustomerRepository extends CustomerRepository {
       },
       select: {
         id: true,
+        name: true,
         email: true,
         password: true,
       },

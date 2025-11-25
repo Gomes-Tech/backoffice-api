@@ -27,6 +27,8 @@ async function bootstrap() {
 
   app.use(json({ limit: '10mb' }));
 
+  app.set('trust proxy', 1);
+
   const config = new DocumentBuilder()
     .setTitle('Backoffice API')
     .setDescription('The Backoffice API for Decoreasy')
@@ -66,27 +68,21 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   // Configuração de CORS
-  // const allowedOrigins = getEnv().api.allowedOrigins
-  //   ? getEnv()
-  //       .api.allowedOrigins.split(',')
-  //       .map((origin) => origin.trim())
-  //   : [];
-
-  const allowedOrigins = [
-    'https://decoreasy.vercel.app',
-    'https://backoffice-eta-seven.vercel.app',
-    'https://api.cron-job.org/',
-  ];
+  const allowedOrigins = getEnv().api.allowedOrigins
+    ? getEnv()
+        .api.allowedOrigins.split(',')
+        .map((origin) => origin.trim())
+    : [];
 
   app.enableCors({
     origin: allowedOrigins,
-    credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'OPTIONS', 'DELETE'],
     allowedHeaders: [
       'Content-Type',
       'Authorization',
       'Accept',
       'X-Requested-With',
+      'X-Forwarded-For',
       'X-Request-ID',
       'api_key',
     ],

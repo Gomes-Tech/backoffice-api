@@ -31,11 +31,10 @@ import {
   HttpStatus,
   Post,
   Req,
-  Res,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -54,42 +53,16 @@ export class AuthController {
   @UsePipes(ValidationPipe)
   @Post('/sign-in')
   @HttpCode(HttpStatus.OK)
-  async signIn(
-    @Body() dto: LoginDTO,
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async signIn(@Body() dto: LoginDTO, @Req() req: Request) {
     const ip = req.ip || req.socket?.remoteAddress || 'unknown';
     const userAgent = req.get('user-agent') || 'unknown';
-    const { accessToken, refreshToken } = await this.signInUser.execute(
+    const { accessToken, refreshToken, user } = await this.signInUser.execute(
       dto,
       ip,
       userAgent,
     );
 
-    res.cookie('adminAccessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 15 * 60 * 1000,
-    });
-
-    res.cookie('adminRefreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-    });
-
-    res.cookie('adminAuthenticated', 'true', {
-      httpOnly: false, // Permite acesso via JavaScript no frontend
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-    });
+    return { accessToken, refreshToken, user };
   }
 
   @Roles('admin')
@@ -104,83 +77,35 @@ export class AuthController {
   @Public()
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async refresh(@Req() req: Request) {
     // Pega o refreshToken do cookie HttpOnly
-    const refreshToken = req.cookies?.['adminRefreshToken'];
+    const refreshToken = req.headers.authorization?.split(' ')[1];
+
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token não encontrado');
     }
 
     // Chama o use case passando o refreshToken
-    const { accessToken, refreshToken: newRefreshToken } =
-      await this.refreshTokenUseCase.execute(refreshToken);
+    const {
+      accessToken,
+      refreshToken: newRefreshToken,
+      user,
+    } = await this.refreshTokenUseCase.execute(refreshToken);
 
-    // Atualiza os cookies HttpOnly
-    res.cookie('adminAccessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 15 * 60 * 1000, // 15 minutos
-    });
-
-    res.cookie('adminRefreshToken', newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-    });
-
-    res.cookie('adminAuthenticated', 'true', {
-      httpOnly: false, // Permite acesso via JavaScript no frontend
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-    });
-
-    return { success: true };
+    return { accessToken, refreshToken: newRefreshToken, user };
   }
 
   @Public()
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    // Obtém os tokens dos cookies antes de removê-los
-    const accessToken = req.cookies?.['adminAccessToken'];
-    const refreshToken = req.cookies?.['adminRefreshToken'];
+  async logout(@Req() req: Request, @Body() dto: { refreshToken: string }) {
+    const authorization = req.headers.authorization;
+
+    const authorizationSplited = authorization.split('.');
+    const accessToken = authorizationSplited[1];
 
     // Blacklista os tokens
-    await this.logoutUserUseCase.execute(accessToken, refreshToken);
-
-    // Remove os cookies
-    res.cookie('adminAccessToken', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 0, // expira imediatamente
-    });
-
-    res.cookie('adminRefreshToken', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 0, // expira imediatamente
-    });
-
-    res.cookie('adminAuthenticated', '', {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax',
-      path: '/',
-      maxAge: 0, // expira imediatamente
-    });
+    await this.logoutUserUseCase.execute(accessToken, dto.refreshToken);
 
     return { success: true };
   }

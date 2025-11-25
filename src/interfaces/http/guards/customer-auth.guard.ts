@@ -41,10 +41,6 @@ export class CustomerAuthGuard implements CanActivate {
     // Log de debug para entender o problema
     if (process.env.NODE_ENV === 'dev') {
       console.log('[CustomerAuthGuard] Endpoint:', endpoint);
-      console.log(
-        '[CustomerAuthGuard] Cookies disponíveis:',
-        Object.keys(request.cookies || {}),
-      );
       console.log('[CustomerAuthGuard] Token encontrado:', !!token);
       if (token) {
         console.log(
@@ -155,6 +151,7 @@ export class CustomerAuthGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    return request.cookies?.['customerAccessToken'];
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
   }
 }

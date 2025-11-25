@@ -11,7 +11,6 @@ import {
   ThrottleUpload,
   UserId,
 } from '@interfaces/http/decorators';
-import { MaxFileSize } from '@shared/decorators';
 import { UpdateUserDto } from '@interfaces/http/dtos';
 import {
   Body,
@@ -26,6 +25,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { MaxFileSize } from '@shared/decorators';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -46,8 +46,8 @@ export class UserController {
   }
 
   @Get('/me')
-  async getMe(@UserId() userId: string) {
-    return await this.findUserByIdUseCase.execute(userId);
+  async getMe(@Param('id') id: string) {
+    return await this.findUserByIdUseCase.execute(id);
   }
 
   @Get('/:id')

@@ -10,10 +10,8 @@ export abstract class CustomerRepository extends BaseRepository<
 > {
   abstract findByEmail(
     email: string,
-  ): Promise<Pick<Customer, 'id' | 'email' | 'password'>>;
-  abstract findMe(
-    id: string,
-  ): Promise<{
+  ): Promise<Pick<Customer, 'id' | 'name' | 'email' | 'password'>>;
+  abstract findMe(id: string): Promise<{
     name: string;
     email: string;
     phone: string;
