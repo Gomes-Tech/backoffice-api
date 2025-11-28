@@ -37,17 +37,27 @@ export class PrismaProductRepository extends ProductRepository {
       const conditions: any = { isDeleted: false };
 
       if (filters?.name) {
-        conditions.name = {
-          contains: filters.name,
-          mode: 'insensitive',
-        };
+        conditions.OR = [
+          {
+            name: {
+              contains: filters.name,
+              mode: 'insensitive',
+            },
+          },
+          {
+            categories: {
+              some: {
+                name: {
+                  contains: filters.name,
+                  mode: 'insensitive',
+                },
+              },
+            },
+          },
+        ];
       }
 
       if (filters?.categories?.length) {
-        // conditions.categories = {
-        //   some: { id: { in: filters.categories } },
-        // };
-
         conditions.AND = filters.categories.map((categoryId) => ({
           categories: { some: { id: categoryId } },
         }));
@@ -134,6 +144,7 @@ export class PrismaProductRepository extends ProductRepository {
           },
         },
       }),
+
       await this.prismaService.product.count({
         where: whereConditions,
       }),
