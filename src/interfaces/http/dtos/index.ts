@@ -12,3 +12,4 @@ export * from './product';
 export * from './role';
 export * from './social-media';
 export * from './user';
+export * from './wishlist';

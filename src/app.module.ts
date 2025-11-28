@@ -26,6 +26,7 @@ import {
   SocialMediaModule,
   TokenPasswordModule,
   UserModule,
+  WishlistModule,
 } from '@interfaces/http/modules';
 import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
@@ -81,6 +82,7 @@ import {
     RelatedProductModule,
     SimilarProductModule,
     ProductFAQModule,
+    WishlistModule,
   ],
   controllers: [AppController],
   providers: [

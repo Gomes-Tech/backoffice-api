@@ -7,14 +7,7 @@ import {
   UpdateBannerUseCase,
 } from '@app/banner';
 import { BadRequestException } from '@infra/filters';
-import {
-  AuthType,
-  Public,
-  Roles,
-  ThrottleUpload,
-  UserId,
-} from '@interfaces/http/decorators';
-import { MaxFileSize } from '@shared/decorators';
+import { AuthType, Public, Roles, UserId } from '@interfaces/http/decorators';
 import { CreateBannerDTO, UpdateBannerDTO } from '@interfaces/http/dtos';
 import {
   Body,
@@ -32,6 +25,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
+import { MaxFileSize } from '@shared/decorators';
 
 @AuthType(['user'])
 @Controller('banners')
@@ -64,7 +58,6 @@ export class BannerController {
   }
 
   @Roles('admin')
-  @ThrottleUpload()
   @MaxFileSize(undefined, 5) // 5MB por arquivo
   @Post()
   @UsePipes(ValidationPipe)
@@ -88,7 +81,6 @@ export class BannerController {
   }
 
   @Roles('admin')
-  @ThrottleUpload()
   @MaxFileSize(undefined, 5) // 5MB por arquivo
   @Patch('/:id')
   @UsePipes(ValidationPipe)

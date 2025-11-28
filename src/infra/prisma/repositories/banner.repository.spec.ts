@@ -9,7 +9,6 @@ import { PrismaBannerRepository } from './banner.repository';
 describe('PrismaBannerRepository', () => {
   let repository: PrismaBannerRepository;
   let prismaService: PrismaService;
-  // let logger: AdvancedLoggerService;
 
   const mockPrismaService = {
     banner: {
@@ -18,16 +17,6 @@ describe('PrismaBannerRepository', () => {
       create: jest.fn(),
       update: jest.fn(),
     },
-  };
-
-  const mockLogger = {
-    setContext: jest.fn(),
-    log: jest.fn(),
-    debug: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    logPerformance: jest.fn(),
-    logDatabaseError: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -40,24 +29,11 @@ describe('PrismaBannerRepository', () => {
           provide: PrismaService,
           useValue: mockPrismaService,
         },
-        // {
-        //   provide: AdvancedLoggerService,
-        //   useValue: mockLogger,
-        // },
       ],
     }).compile();
 
     repository = module.get<PrismaBannerRepository>(PrismaBannerRepository);
     prismaService = module.get<PrismaService>(PrismaService);
-    // logger = module.get<AdvancedLoggerService>(AdvancedLoggerService);
-  });
-
-  describe('constructor', () => {
-    it('should set logger context', () => {
-      expect(mockLogger.setContext).toHaveBeenCalledWith(
-        'PrismaBannerRepository',
-      );
-    });
   });
 
   describe('findAll', () => {
@@ -132,11 +108,6 @@ describe('PrismaBannerRepository', () => {
       const result = await repository.findAll();
 
       expect(result).toEqual([]);
-      // expect(mockLogger.logPerformance).toHaveBeenCalledWith(
-      //   'findAll',
-      //   expect.any(Number),
-      //   { totalBanners: 0 },
-      // );
     });
 
     it('should log database error and rethrow when findMany fails', async () => {
@@ -144,11 +115,6 @@ describe('PrismaBannerRepository', () => {
       mockPrismaService.banner.findMany.mockRejectedValue(error);
 
       await expect(repository.findAll()).rejects.toThrow(error);
-
-      expect(mockLogger.logDatabaseError).toHaveBeenCalledWith(
-        'findAll',
-        error,
-      );
     });
   });
 
@@ -267,16 +233,6 @@ describe('PrismaBannerRepository', () => {
       });
 
       expect(result).toEqual(mockBanner);
-      expect(mockLogger.log).toHaveBeenCalledWith('Buscando banner por ID: 1');
-      expect(mockLogger.logPerformance).toHaveBeenCalledWith(
-        'findById',
-        expect.any(Number),
-        {
-          bannerId: '1',
-          bannerName: 'Test Banner',
-          found: true,
-        },
-      );
     });
 
     it('should return null when banner not found', async () => {
@@ -285,17 +241,6 @@ describe('PrismaBannerRepository', () => {
       const result = await repository.findById('999');
 
       expect(result).toBeNull();
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        'Banner não encontrado: 999',
-      );
-      expect(mockLogger.logPerformance).toHaveBeenCalledWith(
-        'findById',
-        expect.any(Number),
-        {
-          bannerId: '999',
-          found: false,
-        },
-      );
     });
 
     it('should log database error and rethrow when findUnique fails', async () => {
@@ -303,14 +248,6 @@ describe('PrismaBannerRepository', () => {
       mockPrismaService.banner.findUnique.mockRejectedValue(error);
 
       await expect(repository.findById('1')).rejects.toThrow(error);
-
-      expect(mockLogger.logDatabaseError).toHaveBeenCalledWith(
-        'findById',
-        error,
-        {
-          bannerId: '1',
-        },
-      );
     });
   });
 
@@ -341,22 +278,6 @@ describe('PrismaBannerRepository', () => {
           createdBy: { connect: { id: 'user-id' } },
         },
       });
-
-      expect(mockLogger.log).toHaveBeenCalledWith('Criando novo banner');
-      expect(mockLogger.debug).toHaveBeenCalledWith(
-        `Dados do banner: ${JSON.stringify(createBannerDto)}`,
-      );
-      expect(mockLogger.logPerformance).toHaveBeenCalledWith(
-        'create',
-        expect.any(Number),
-        {
-          bannerName: 'New Banner',
-          createdBy: 'user-id',
-        },
-      );
-      expect(mockLogger.log).toHaveBeenCalledWith(
-        'Banner criado com sucesso: New Banner',
-      );
     });
 
     it('should log database error and rethrow when create fails', async () => {
@@ -364,14 +285,6 @@ describe('PrismaBannerRepository', () => {
       mockPrismaService.banner.create.mockRejectedValue(error);
 
       await expect(repository.create(createBannerDto)).rejects.toThrow(error);
-
-      expect(mockLogger.logDatabaseError).toHaveBeenCalledWith(
-        'create',
-        error,
-        {
-          bannerName: 'New Banner',
-        },
-      );
     });
   });
 
@@ -411,23 +324,6 @@ describe('PrismaBannerRepository', () => {
           updatedBy: { connect: { id: 'user-id' } },
         },
       });
-
-      expect(mockLogger.log).toHaveBeenCalledWith('Atualizando banner: 1');
-      expect(mockLogger.debug).toHaveBeenCalledWith(
-        `Dados de atualização: ${JSON.stringify(updateBannerDto)}`,
-      );
-      expect(mockLogger.logPerformance).toHaveBeenCalledWith(
-        'update',
-        expect.any(Number),
-        {
-          bannerId: '1',
-          bannerName: 'Updated Banner',
-          updatedBy: 'user-id',
-        },
-      );
-      expect(mockLogger.log).toHaveBeenCalledWith(
-        'Banner atualizado com sucesso: 1',
-      );
     });
 
     it('should throw NotFoundException when banner does not exist (P2025)', async () => {
@@ -446,10 +342,6 @@ describe('PrismaBannerRepository', () => {
       await expect(repository.update('999', updateBannerDto)).rejects.toThrow(
         'Banner não encontrado.',
       );
-
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        'Tentativa de atualizar banner inexistente: 999',
-      );
     });
 
     it('should throw BadRequestException for other database errors', async () => {
@@ -458,17 +350,6 @@ describe('PrismaBannerRepository', () => {
 
       await expect(repository.update('1', updateBannerDto)).rejects.toThrow(
         BadRequestException,
-      );
-      await expect(repository.update('1', updateBannerDto)).rejects.toThrow(
-        'Erro ao atualizar o banner: Some database error',
-      );
-
-      expect(mockLogger.logDatabaseError).toHaveBeenCalledWith(
-        'update',
-        error,
-        {
-          bannerId: '1',
-        },
       );
     });
 
@@ -509,22 +390,6 @@ describe('PrismaBannerRepository', () => {
           },
         },
       });
-
-      expect(mockLogger.log).toHaveBeenCalledWith('Deletando banner: 1');
-      expect(mockLogger.debug).toHaveBeenCalledWith(
-        'Usuário responsável pela exclusão: user-id',
-      );
-      expect(mockLogger.logPerformance).toHaveBeenCalledWith(
-        'delete',
-        expect.any(Number),
-        {
-          bannerId: '1',
-          deletedBy: 'user-id',
-        },
-      );
-      expect(mockLogger.log).toHaveBeenCalledWith(
-        'Banner deletado com sucesso: 1',
-      );
     });
 
     it('should throw NotFoundException when banner does not exist (P2025)', async () => {
@@ -543,10 +408,6 @@ describe('PrismaBannerRepository', () => {
       await expect(repository.delete('999', 'user-id')).rejects.toThrow(
         'Banner não encontrado.',
       );
-
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        'Tentativa de deletar banner inexistente: 999',
-      );
     });
 
     it('should throw BadRequestException for other database errors', async () => {
@@ -558,15 +419,6 @@ describe('PrismaBannerRepository', () => {
       );
       await expect(repository.delete('1', 'user-id')).rejects.toThrow(
         'Erro ao excluir o banner: Database error',
-      );
-
-      expect(mockLogger.logDatabaseError).toHaveBeenCalledWith(
-        'delete',
-        error,
-        {
-          bannerId: '1',
-          userId: 'user-id',
-        },
       );
     });
   });

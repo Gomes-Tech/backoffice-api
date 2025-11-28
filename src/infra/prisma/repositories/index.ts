@@ -15,3 +15,4 @@ export * from './similar-product.repository';
 export * from './social-media.repository';
 export * from './token-password.repository';
 export * from './user.repository';
+export * from './wishlist.repository';

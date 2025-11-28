@@ -9,19 +9,20 @@ datasource db {
 }
 
 model Customer {
-  id            String    @id @default(cuid())
+  id            String     @id @default(cuid())
   name          String
   lastname      String
-  taxIdentifier String    @unique @map("tax_identifier")
-  email         String    @unique
-  birthDate     String    @map("birth_date")
+  taxIdentifier String     @unique @map("tax_identifier")
+  email         String     @unique
+  birthDate     String     @map("birth_date")
   phone         String
   password      String
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
-  isDeleted     Boolean   @default(false) @map("isDeleted")
-  deletedAt     DateTime? @map("deleted_at")
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @default(now()) @updatedAt @map("updated_at")
+  isDeleted     Boolean    @default(false) @map("isDeleted")
+  deletedAt     DateTime?  @map("deleted_at")
   cart          Cart[]
+  wishlists     Wishlist[]
 
   @@index([email])
   @@index([taxIdentifier])
@@ -68,6 +69,30 @@ model CartItem {
   @@unique([cartId, productVariantId])
   @@index([cartId])
   @@map("cart_items")
+}
+
+model Wishlist {
+  id         String         @id @default(cuid())
+  customer   Customer       @relation(fields: [customerId], references: [id])
+  customerId String         @unique @map("customer_id")
+  items      WishlistItem[]
+  createdAt  DateTime       @default(now()) @map("created_at")
+  updatedAt  DateTime       @updatedAt @map("updated_at")
+
+  @@index([customerId])
+  @@map("wishlists")
+}
+
+model WishlistItem {
+  id         String   @id @default(cuid())
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id])
+  wishlistId String   @map("wishlist_id")
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  String   @map("product_id")
+
+  @@unique([wishlistId, productId])
+  @@index([wishlistId])
+  @@map("wishlist_items")
 }
 
 model User {
@@ -347,15 +372,16 @@ model Product {
   relatedProducts RelatedProduct[]
   similarProducts SimilarProduct[]
 
-  createdBy   User     @relation("UserCreatedProducts", fields: [createdById], references: [id])
-  createdById String   @map("created_by")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
-  updatedBy   User?    @relation("UserUpdatedProducts", fields: [updatedById], references: [id])
-  updatedById String?  @map("updated_by")
-  isDeleted   Boolean  @default(false) @map("is_deleted")
-  deletedBy   User?    @relation("UserDeletedProducts", fields: [deletedById], references: [id])
-  deletedById String?  @map("deleted_by")
+  createdBy     User           @relation("UserCreatedProducts", fields: [createdById], references: [id])
+  createdById   String         @map("created_by")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @default(now()) @updatedAt @map("updated_at")
+  updatedBy     User?          @relation("UserUpdatedProducts", fields: [updatedById], references: [id])
+  updatedById   String?        @map("updated_by")
+  isDeleted     Boolean        @default(false) @map("is_deleted")
+  deletedBy     User?          @relation("UserDeletedProducts", fields: [deletedById], references: [id])
+  deletedById   String?        @map("deleted_by")
+  wishlistItems WishlistItem[]
 
   @@index([slug])
   @@index([isDeleted])

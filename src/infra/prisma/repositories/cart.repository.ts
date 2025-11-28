@@ -6,6 +6,7 @@ import {
 } from '@domain/cart';
 import { BadRequestException } from '@infra/filters';
 import { Injectable } from '@nestjs/common';
+import { CartStatus } from '@prisma/client';
 import { generateId } from '@shared/utils';
 import { PrismaService } from '../prisma.service';
 
@@ -240,6 +241,18 @@ export class PrismaCartRepository extends CartRepository {
     } catch (error) {
       console.log(error);
       throw new BadRequestException('Erro ao atualizar quantidade do item');
+    }
+  }
+
+  async updateCartStatus(cartId: string, status: CartStatus): Promise<void> {
+    try {
+      await this.prismaService.cart.update({
+        where: { id: cartId },
+        data: { status },
+      });
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('Erro ao atualizar status do carrinho');
     }
   }
 

@@ -87,18 +87,6 @@ async function bootstrap() {
         .filter((origin) => origin.length > 0)
     : [];
 
-  // Log das origens normalizadas para debug
-  if (process.env.NODE_ENV === 'prod') {
-    if (allowedOrigins.length > 0) {
-      console.log('🌐 Origens CORS configuradas:', allowedOrigins);
-      console.log('   Valor bruto da env:', rawAllowedOrigins);
-      console.log('   Valor normalizado:', normalizedRawValue);
-    } else {
-      console.warn('⚠️  Nenhuma origem CORS configurada!');
-      console.log('   Valor bruto da env:', rawAllowedOrigins);
-    }
-  }
-
   // Configurar Helmet ANTES do CORS para não interferir
   app.use(
     helmet({
@@ -141,11 +129,6 @@ async function bootstrap() {
       // Log detalhado para debug em produção
       if (process.env.NODE_ENV === 'prod') {
         console.warn(`🚫 Origin bloqueada: ${origin}`);
-        console.log(`   Normalizada: ${normalizedRequestOrigin}`);
-        console.log(`✅ Origens permitidas: ${allowedOrigins.join(', ')}`);
-        console.log(
-          `   Comparação: ${allowedOrigins.map((o) => `"${o}"`).join(', ')}`,
-        );
       }
 
       return callback(null, false);

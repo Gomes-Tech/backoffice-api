@@ -7,14 +7,7 @@ import {
   FindProductBySlugUseCase,
   UpdateProductUseCase,
 } from '@app/product';
-import {
-  AuthType,
-  Public,
-  Roles,
-  ThrottleUpload,
-  UserId,
-} from '@interfaces/http/decorators';
-import { MaxFileSize } from '@shared/decorators';
+import { AuthType, Public, Roles, UserId } from '@interfaces/http/decorators';
 import { CreateProductDTO, UpdateProductDTO } from '@interfaces/http/dtos';
 import { FindProductsFilterDto } from '@interfaces/http/dtos/product/find-all-query.dto';
 import {
@@ -32,6 +25,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { MaxFileSize } from '@shared/decorators';
 
 export type ProductFile = Express.Multer.File & {
   isFirst?: boolean;
@@ -73,7 +67,6 @@ export class ProductController {
     return this.findProductByIdUseCase.execute(id);
   }
 
-  @ThrottleUpload()
   @MaxFileSize(undefined, 10) // 10MB por arquivo
   @Post()
   @UseInterceptors(
@@ -94,7 +87,6 @@ export class ProductController {
     await this.createProductUseCase.execute(dto, userId, files || {});
   }
 
-  @ThrottleUpload()
   @MaxFileSize(undefined, 10) // 10MB por arquivo
   @Patch('/:id')
   @UseInterceptors(

@@ -15,3 +15,4 @@ export * from './similar-product';
 export * from './social-media';
 export * from './token-password';
 export * from './user';
+export * from './wishlist';

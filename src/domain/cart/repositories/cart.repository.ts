@@ -1,3 +1,4 @@
+import { CartStatus } from '@prisma/client';
 import { CreateCartItem, ReturnCart } from '../entities';
 
 export abstract class CartRepository {
@@ -9,5 +10,6 @@ export abstract class CartRepository {
     quantity: number,
   ): Promise<void>;
   abstract removeItem(cartItemId: string): Promise<void>;
+  abstract updateCartStatus(cartId: string, status: CartStatus): Promise<void>;
   abstract clearCart(cartId: string): Promise<void>;
 }

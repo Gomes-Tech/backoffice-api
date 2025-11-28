@@ -18,3 +18,4 @@ export * from './similar-product.module';
 export * from './social-media.module';
 export * from './token-password.module';
 export * from './user.module';
+export * from './wishlist.module';

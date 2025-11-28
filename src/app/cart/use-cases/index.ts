@@ -5,3 +5,4 @@ export * from './delete-cart.use-case';
 export * from './findCartByCustomerId.use-case';
 export * from './sync-cart.use-case';
 export * from './update-cart-item.use-case';
+export * from './update-cart-status.use-case';
