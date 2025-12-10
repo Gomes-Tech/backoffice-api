@@ -5,6 +5,7 @@ export * from './cart';
 export * from './category';
 export * from './category-faq';
 export * from './common';
+export * from './coupon';
 export * from './footer-menu';
 export * from './header-menu';
 export * from './product';

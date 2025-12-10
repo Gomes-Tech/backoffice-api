@@ -5,6 +5,7 @@ export * from './banner.module';
 export * from './cart.module';
 export * from './category-faq.module';
 export * from './category.module';
+export * from './coupon.module';
 export * from './customer.module';
 export * from './footer-menu.module';
 export * from './header-menu.module';

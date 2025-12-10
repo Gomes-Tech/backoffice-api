@@ -24,6 +24,9 @@ export class ReturnCart {
     public customerId: string,
     public items: ReturnCartItem[],
     public total: number,
+    public discountAmount?: number,
+    public totalWithDiscount?: number,
+    public couponCode?: string,
   ) {}
 }
 

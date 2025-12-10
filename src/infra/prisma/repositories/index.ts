@@ -4,6 +4,7 @@ export * from './banner.repository';
 export * from './cart.repository';
 export * from './category-faq.repository';
 export * from './category.repository';
+export * from './coupon.repository';
 export * from './customer.repository';
 export * from './footer-menu.repository';
 export * from './header-menu.repository';

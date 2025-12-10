@@ -40,6 +40,9 @@ model Cart {
   orderId         String?    @unique @map("order_id")
   convertedAt     DateTime?  @map("converted_at")
   convertedTotal  Int?       @map("converted_total")
+  coupon          Coupon?    @relation(fields: [couponId], references: [id])
+  couponId        String?    @map("coupon_id")
+  discountAmount  Int?       @map("discount_amount")
   createdAt       DateTime   @default(now()) @map("created_at")
   updatedAt       DateTime   @default(now()) @updatedAt @map("updated_at")
 
@@ -47,6 +50,7 @@ model Cart {
   @@index([lastItemAddedAt])
   @@index([convertedAt])
   @@index([orderId])
+  @@index([couponId])
   @@map("carts")
 }
 
@@ -54,6 +58,50 @@ enum CartStatus {
   ACTIVE // Carrinho ativo (em uso)
   ABANDONED // Carrinho abandonado
   CONVERTED // Carrinho convertido em pedido
+}
+
+enum CouponType {
+  PERCENTAGE // Desconto percentual
+  FIXED // Desconto em valor fixo
+}
+
+enum CouponStatus {
+  ACTIVE // Cupom ativo
+  INACTIVE // Cupom inativo
+  EXPIRED // Cupom expirado
+}
+
+model Coupon {
+  id                String       @id @default(cuid())
+  code              String       @unique
+  description       String?
+  type              CouponType
+  value             Int // Valor do desconto (percentual ou fixo em centavos)
+  minPurchaseAmount Int?         @map("min_purchase_amount") // Valor mínimo de compra em centavos
+  maxDiscountAmount Int?         @map("max_discount_amount") // Valor máximo de desconto em centavos (para percentual)
+  usageLimit        Int?         @map("usage_limit") // Limite de uso total
+  usageCount        Int          @default(0) @map("usage_count") // Quantidade de vezes usado
+  usedBy            String[]     @default([]) @map("used_by") // IDs dos clientes que usaram (para uso único por cliente)
+  isSingleUse       Boolean      @default(false) @map("is_single_use") // Se true, cada cliente pode usar apenas uma vez
+  startDate         DateTime     @map("start_date")
+  endDate           DateTime?    @map("end_date")
+  status            CouponStatus @default(ACTIVE)
+  carts             Cart[]
+  createdBy         User         @relation("UserCreatedCoupons", fields: [createdById], references: [id])
+  createdById       String       @map("created_by")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @default(now()) @updatedAt @map("updated_at")
+  updatedBy         User?        @relation("UserUpdatedCoupons", fields: [updatedById], references: [id])
+  updatedById       String?      @map("updated_by")
+  isDeleted         Boolean      @default(false) @map("is_deleted")
+  deletedBy         User?        @relation("UserDeletedCoupons", fields: [deletedById], references: [id])
+  deletedById       String?      @map("deleted_by")
+
+  @@index([code])
+  @@index([status])
+  @@index([startDate, endDate])
+  @@index([isDeleted])
+  @@map("coupons")
 }
 
 model CartItem {
@@ -143,6 +191,9 @@ model User {
   createBlogs           Blog[]
   updateBlogs           Blog[]           @relation("UserUpdatedBlog")
   DelteBlogs            Blog[]           @relation("UserDeletedBlog")
+  createdCoupons        Coupon[]         @relation("UserCreatedCoupons")
+  updatedCoupons        Coupon[]         @relation("UserUpdatedCoupons")
+  deletedCoupons        Coupon[]         @relation("UserDeletedCoupons")
 
   @@index([email])
   @@index([isDeleted, isActive])

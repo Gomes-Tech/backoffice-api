@@ -25,6 +25,13 @@ export class PrismaCartRepository extends CartRepository {
       select: {
         id: true,
         customerId: true,
+        couponId: true,
+        discountAmount: true,
+        coupon: {
+          select: {
+            code: true,
+          },
+        },
         items: {
           select: {
             id: true,
@@ -185,9 +192,21 @@ export class PrismaCartRepository extends CartRepository {
     );
 
     // Soma total dos itens
-    const total = items.reduce((sum: number, i: any) => sum + i.subtotal, 0);
+    const subtotal = items.reduce((sum: number, i: any) => sum + i.subtotal, 0);
 
-    return new ReturnCart(data.id, data.customerId, items, total);
+    // Aplica desconto do cupom se existir
+    const discountAmount = data.discountAmount ?? 0;
+    const totalWithDiscount = Math.max(0, subtotal - discountAmount);
+
+    return new ReturnCart(
+      data.id,
+      data.customerId,
+      items,
+      subtotal,
+      discountAmount > 0 ? discountAmount : undefined,
+      discountAmount > 0 ? totalWithDiscount : undefined,
+      data.coupon?.code,
+    );
   }
 
   async createCart(customerId: string): Promise<{ id: string }> {

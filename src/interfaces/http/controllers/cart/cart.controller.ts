@@ -1,14 +1,17 @@
 import {
+  ApplyCouponUseCase,
   CreateCartItemUseCase,
   CreateCartUseCase,
   DeleteCartItemUseCase,
   DeleteCartUseCase,
   FindCartByCustomerIdUseCase,
+  RemoveCouponUseCase,
   SyncCartUseCase,
   UpdateCartItemUseCase,
 } from '@app/cart';
 import { AuthType, CustomerId } from '@interfaces/http/decorators';
 import {
+  ApplyCouponDTO,
   CreateCartItemDTO,
   SyncCartDTO,
   UpdateCartItemDTO,
@@ -34,6 +37,8 @@ export class CartController {
     private readonly updateCartItemUseCase: UpdateCartItemUseCase,
     private readonly deleteCartItemUseCase: DeleteCartItemUseCase,
     private readonly deleteCartUseCase: DeleteCartUseCase,
+    private readonly applyCouponUseCase: ApplyCouponUseCase,
+    private readonly removeCouponUseCase: RemoveCouponUseCase,
   ) {}
 
   @Get()
@@ -60,6 +65,14 @@ export class CartController {
     );
   }
 
+  @Post('/coupon')
+  async applyCoupon(
+    @CustomerId() customerId: string,
+    @Body() dto: ApplyCouponDTO,
+  ) {
+    return await this.applyCouponUseCase.execute(customerId, dto.code);
+  }
+
   @Patch('/items/:id')
   async updateCartItem(
     @Param('id') cartItemId: string,
@@ -76,5 +89,10 @@ export class CartController {
   @Delete()
   async deleteCart(@CustomerId() customerId: string) {
     return await this.deleteCartUseCase.execute(customerId);
+  }
+
+  @Delete('/coupon')
+  async removeCoupon(@CustomerId() customerId: string) {
+    return await this.removeCouponUseCase.execute(customerId);
   }
 }

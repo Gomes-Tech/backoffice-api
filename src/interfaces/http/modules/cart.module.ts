@@ -1,14 +1,16 @@
 import {
+  ApplyCouponUseCase,
   CreateCartItemUseCase,
   CreateCartUseCase,
   DeleteCartItemUseCase,
   DeleteCartUseCase,
   FindCartByCustomerIdUseCase,
+  RemoveCouponUseCase,
   SyncCartUseCase,
   UpdateCartItemUseCase,
   UpdateCartStatusUseCase,
 } from '@app/cart';
-import { PrismaCartRepository } from '@infra/prisma';
+import { PrismaCartRepository, PrismaCouponRepository } from '@infra/prisma';
 import { Module } from '@nestjs/common';
 import { CartController } from '../controllers';
 
@@ -24,10 +26,17 @@ import { CartController } from '../controllers';
     UpdateCartStatusUseCase,
     DeleteCartItemUseCase,
     DeleteCartUseCase,
+    ApplyCouponUseCase,
+    RemoveCouponUseCase,
     PrismaCartRepository,
+    PrismaCouponRepository,
     {
       provide: 'CartRepository',
       useExisting: PrismaCartRepository,
+    },
+    {
+      provide: 'CouponRepository',
+      useExisting: PrismaCouponRepository,
     },
   ],
   exports: [

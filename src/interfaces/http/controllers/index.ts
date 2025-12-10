@@ -4,6 +4,7 @@ export * from './auth';
 export * from './banner';
 export * from './cart';
 export * from './category';
+export * from './coupon';
 export * from './customer';
 export * from './footer-menu';
 export * from './header-menu';
