@@ -77,20 +77,16 @@ export class AuthController {
   @Public()
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(@Req() req: Request) {
-    // Pega o refreshToken do cookie HttpOnly
-    const refreshToken = req.headers.authorization?.split(' ')[1];
-
-    if (!refreshToken) {
+  async refresh(@Body() dto: { refreshToken: string }) {
+    if (!dto.refreshToken) {
       throw new UnauthorizedException('Refresh token não encontrado');
     }
 
-    // Chama o use case passando o refreshToken
     const {
       accessToken,
       refreshToken: newRefreshToken,
       user,
-    } = await this.refreshTokenUseCase.execute(refreshToken);
+    } = await this.refreshTokenUseCase.execute(dto.refreshToken);
 
     return { accessToken, refreshToken: newRefreshToken, user };
   }
@@ -99,13 +95,10 @@ export class AuthController {
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
   async logout(@Req() req: Request, @Body() dto: { refreshToken: string }) {
-    const authorization = req.headers.authorization;
-
-    const authorizationSplited = authorization.split('.');
-    const accessToken = authorizationSplited[1];
+    const [_, token] = req.headers.authorization?.split(' ') ?? [];
 
     // Blacklista os tokens
-    await this.logoutUserUseCase.execute(accessToken, dto.refreshToken);
+    await this.logoutUserUseCase.execute(token, dto.refreshToken);
 
     return { success: true };
   }

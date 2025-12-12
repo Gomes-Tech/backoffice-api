@@ -4,6 +4,7 @@ import {
   ReturnCart,
   ReturnCartItem,
 } from '@domain/cart';
+import { CouponType } from '@domain/coupon';
 import { BadRequestException } from '@infra/filters';
 import { Injectable } from '@nestjs/common';
 import { CartStatus } from '@prisma/client';
@@ -30,6 +31,8 @@ export class PrismaCartRepository extends CartRepository {
         coupon: {
           select: {
             code: true,
+            type: true,
+            value: true,
           },
         },
         items: {
@@ -194,8 +197,16 @@ export class PrismaCartRepository extends CartRepository {
     // Soma total dos itens
     const subtotal = items.reduce((sum: number, i: any) => sum + i.subtotal, 0);
 
+    let discountAmount = 0;
+
+    if (data.coupon) {
+      discountAmount =
+        data.coupon.type === CouponType.PERCENTAGE
+          ? (subtotal * data.coupon.value) / 100
+          : data.coupon.value;
+    }
+
     // Aplica desconto do cupom se existir
-    const discountAmount = data.discountAmount ?? 0;
     const totalWithDiscount = Math.max(0, subtotal - discountAmount);
 
     return new ReturnCart(
@@ -203,8 +214,8 @@ export class PrismaCartRepository extends CartRepository {
       data.customerId,
       items,
       subtotal,
-      discountAmount > 0 ? discountAmount : undefined,
-      discountAmount > 0 ? totalWithDiscount : undefined,
+      discountAmount,
+      totalWithDiscount,
       data.coupon?.code,
     );
   }

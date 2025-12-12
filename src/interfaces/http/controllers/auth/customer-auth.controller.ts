@@ -77,17 +77,13 @@ export class CustomerAuthController {
   @Public()
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(@Req() req: Request) {
-    // Pega o refreshToken do cookie HttpOnly
-    const refreshToken = req.headers.authorization?.split(' ')[1];
-
-    if (!refreshToken) {
+  async refresh(@Body() dto: { refreshToken: string }) {
+    if (!dto.refreshToken) {
       throw new UnauthorizedException('Refresh token não encontrado');
     }
 
-    // Chama o use case passando o refreshToken
     const { accessToken, refreshToken: newRefreshToken } =
-      await this.refreshTokenCustomerUseCase.execute(refreshToken);
+      await this.refreshTokenCustomerUseCase.execute(dto.refreshToken);
 
     return { accessToken, refreshToken: newRefreshToken };
   }

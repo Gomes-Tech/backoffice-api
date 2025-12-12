@@ -3,7 +3,6 @@ import {
   CouponRepository,
   CouponStatus,
   CouponType,
-  CouponValidationResult,
   CreateCoupon,
   UpdateCoupon,
 } from '@domain/coupon';
@@ -147,56 +146,42 @@ export class PrismaCouponRepository extends CouponRepository {
     code: string,
     customerId: string,
     cartTotal: number,
-  ): Promise<CouponValidationResult> {
+  ): Promise<Coupon & { discountAmount: number }> {
     const coupon = await this.findByCode(code);
 
     if (!coupon) {
-      return new CouponValidationResult(
-        false,
-        undefined,
-        'Cupom não encontrado',
-      );
+      throw new BadRequestException('Cupom não encontrado');
     }
 
     // Verifica se está ativo
     if (coupon.status !== CouponStatus.ACTIVE) {
-      return new CouponValidationResult(false, coupon, 'Cupom não está ativo');
+      throw new BadRequestException('Cupom não está ativo');
     }
 
     // Verifica data de validade
     const now = new Date();
     if (now < coupon.startDate) {
-      return new CouponValidationResult(
-        false,
-        coupon,
-        'Cupom ainda não está válido',
-      );
+      throw new BadRequestException('Cupom ainda não está válido');
     }
 
     // Se tiver data de término, verifica se não expirou
     if (coupon.endDate && now > coupon.endDate) {
-      return new CouponValidationResult(false, coupon, 'Cupom expirado');
+      throw new BadRequestException('Cupom expirado');
     }
 
     // Verifica limite de uso
     if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
-      return new CouponValidationResult(false, coupon, 'Cupom esgotado');
+      throw new BadRequestException('Cupom esgotado');
     }
 
     // Verifica uso único por cliente
     if (coupon.isSingleUse && coupon.usedBy.includes(customerId)) {
-      return new CouponValidationResult(
-        false,
-        coupon,
-        'Você já utilizou este cupom',
-      );
+      throw new BadRequestException('Você já utilizou este cupom');
     }
 
     // Verifica valor mínimo de compra
     if (coupon.minPurchaseAmount && cartTotal < coupon.minPurchaseAmount) {
-      return new CouponValidationResult(
-        false,
-        coupon,
+      throw new BadRequestException(
         `Valor mínimo de compra: R$ ${(coupon.minPurchaseAmount / 100).toFixed(2)}`,
       );
     }
@@ -221,7 +206,7 @@ export class PrismaCouponRepository extends CouponRepository {
       }
     }
 
-    return new CouponValidationResult(true, coupon, undefined, discountAmount);
+    return { ...coupon, discountAmount };
   }
 
   async incrementUsage(id: string, customerId: string): Promise<void> {

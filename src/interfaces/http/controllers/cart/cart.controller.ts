@@ -65,7 +65,7 @@ export class CartController {
     );
   }
 
-  @Post('/coupon')
+  @Post('/apply-coupon')
   async applyCoupon(
     @CustomerId() customerId: string,
     @Body() dto: ApplyCouponDTO,
@@ -91,7 +91,7 @@ export class CartController {
     return await this.deleteCartUseCase.execute(customerId);
   }
 
-  @Delete('/coupon')
+  @Delete('/remove-coupon')
   async removeCoupon(@CustomerId() customerId: string) {
     return await this.removeCouponUseCase.execute(customerId);
   }

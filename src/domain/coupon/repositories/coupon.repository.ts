@@ -1,9 +1,4 @@
-import {
-  Coupon,
-  CouponValidationResult,
-  CreateCoupon,
-  UpdateCoupon,
-} from '../entities';
+import { Coupon, CreateCoupon, UpdateCoupon } from '../entities';
 
 export abstract class CouponRepository {
   abstract findByCode(code: string): Promise<Coupon | null>;
@@ -16,7 +11,7 @@ export abstract class CouponRepository {
     code: string,
     customerId: string,
     cartTotal: number,
-  ): Promise<CouponValidationResult>;
+  ): Promise<Coupon & { discountAmount: number }>;
   abstract incrementUsage(id: string, customerId: string): Promise<void>;
   abstract removeFromCart(cartId: string): Promise<void>;
   abstract applyToCart(

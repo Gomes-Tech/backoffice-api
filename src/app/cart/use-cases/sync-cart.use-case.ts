@@ -38,7 +38,7 @@ export class SyncCartUseCase {
 
     for (const item of items) {
       const existingItem = existingCart.items.find(
-        (i) => i.productVariantId === item.productVariantId,
+        (i) => i.variantId === item.productVariantId,
       );
 
       if (!existingItem) {

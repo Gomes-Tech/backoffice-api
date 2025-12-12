@@ -38,8 +38,8 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async findById(id: string): Promise<User> {
-    const user = await this.prismaService.user.findUnique({
-      where: { id },
+    const user = await this.prismaService.user.findFirst({
+      where: { id, isActive: true },
       select: {
         id: true,
         name: true,
@@ -70,7 +70,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async findByEmail(email: string): Promise<User> {
-    const user = await this.prismaService.user.findUnique({
+    const user = await this.prismaService.user.findFirst({
       where: { email, isActive: true },
       select: {
         id: true,
