@@ -42,6 +42,10 @@ export class AuthDispatchGuard {
       return true;
     }
 
+    if (request.method === 'OPTIONS') {
+      return true;
+    }
+
     // Verifica API key (pode lançar exceção se não tiver)
     try {
       this.apiKeyAuth.canActivate(context);

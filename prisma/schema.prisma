@@ -83,6 +83,7 @@ model Coupon {
   usageCount        Int          @default(0) @map("usage_count") // Quantidade de vezes usado
   usedBy            String[]     @default([]) @map("used_by") // IDs dos clientes que usaram (para uso único por cliente)
   isSingleUse       Boolean      @default(false) @map("is_single_use") // Se true, cada cliente pode usar apenas uma vez
+  isActive          Boolean      @default(true) @map("is_active") // Se true, o cupom está ativo
   startDate         DateTime     @map("start_date")
   endDate           DateTime?    @map("end_date")
   status            CouponStatus @default(ACTIVE)

@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsDateString,
   IsEnum,
   IsInt,
@@ -25,6 +26,10 @@ export class CreateCouponDTO {
   @IsNotEmpty()
   @IsEnum(CouponTypeDTO)
   type: CouponTypeDTO;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  isActive: boolean;
 
   @IsNotEmpty()
   @IsInt()
@@ -57,4 +62,3 @@ export class CreateCouponDTO {
   @IsDateString()
   endDate?: string;
 }
-

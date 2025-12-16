@@ -16,6 +16,10 @@ export class Coupon {
     public type: CouponType,
     public value: number, // Valor do desconto (percentual ou fixo em centavos)
     public startDate: Date,
+    public isActive: boolean = true,
+    public usageCount: number = 0, // Quantidade de vezes usado
+    public isSingleUse: boolean = false, // Se true, cada cliente pode usar apenas uma vez
+    public status: CouponStatus = CouponStatus.ACTIVE,
     public endDate: Date | null,
     public createdAt: Date,
     public createdBy: string,
@@ -23,14 +27,6 @@ export class Coupon {
     public minPurchaseAmount?: number, // Valor mínimo de compra em centavos
     public maxDiscountAmount?: number, // Valor máximo de desconto em centavos (para percentual)
     public usageLimit?: number, // Limite de uso total
-    public usageCount: number = 0, // Quantidade de vezes usado
-    public usedBy: string[] = [], // IDs dos clientes que usaram
-    public isSingleUse: boolean = false, // Se true, cada cliente pode usar apenas uma vez
-    public status: CouponStatus = CouponStatus.ACTIVE,
-    public updatedAt?: Date,
-    public updatedBy?: string,
-    public isDeleted: boolean = false,
-    public deletedBy?: string,
   ) {}
 }
 
@@ -65,6 +61,7 @@ export class UpdateCoupon {
     public startDate?: Date,
     public endDate?: Date | null,
     public status?: CouponStatus,
+    public isActive?: boolean,
   ) {}
 }
 

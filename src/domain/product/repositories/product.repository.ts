@@ -5,6 +5,7 @@ import {
   CreateProductVariant,
   FindAllProductFilters,
   ListProduct,
+  ListProductAdmin,
   ListProductsToView,
   Product,
   ProductAdmin,
@@ -80,4 +81,5 @@ export abstract class ProductRepository extends BaseRepository<
     variantId: string,
     attributeValueIds: string[],
   ): Promise<void>;
+  abstract findAllAdmin(): Promise<ListProductAdmin[]>;
 }

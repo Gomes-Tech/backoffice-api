@@ -7,7 +7,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
 import compress from 'compression';
 import cookieParser from 'cookie-parser';
-import { json, RequestHandler } from 'express';
+import { RequestHandler, json } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { join } from 'path';
@@ -20,15 +20,89 @@ async function bootstrap() {
   app.setViewEngine('pug');
   app.setBaseViewsDir(join(__dirname, '..', '..', 'templates'));
 
-  app.setGlobalPrefix('api');
+  app.use((cookieParser as unknown as () => RequestHandler)());
+  app.use(json({ limit: '10mb' }));
+  app.set('trust proxy', 1);
   app.set('query parser', 'extended');
 
-  app.use((cookieParser as unknown as () => RequestHandler)());
+  // ============================================
+  // CRÍTICO: CORS ANTES DE TUDO
+  // ============================================
+  const normalizeOrigin = (origin: string): string => {
+    let normalized = origin.trim().replace(/^["']+|["']+$/g, '');
+    normalized = normalized.replace(/\/+$/, '');
+    return normalized;
+  };
 
-  app.use(json({ limit: '10mb' }));
+  const rawAllowedOrigins = getEnv().api.allowedOrigins || '';
+  const normalizedRawValue = normalizeOrigin(rawAllowedOrigins);
 
-  app.set('trust proxy', 1);
+  const allowedOrigins = normalizedRawValue
+    ? normalizedRawValue
+        .split(',')
+        .map(normalizeOrigin)
+        .filter((origin) => origin.length > 0)
+    : [];
 
+  console.log('🔐 CORS Configuration:', {
+    allowedOrigins:
+      allowedOrigins.length > 0 ? allowedOrigins : 'ALL (development mode)',
+    mode: process.env.NODE_ENV,
+  });
+
+  // CORS configurado ANTES de tudo
+  app.enableCors({
+    origin: (origin, callback) => {
+      // Permitir requisições sem origin (Postman, mobile apps)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      // Desenvolvimento: permitir tudo se não houver origins configuradas
+      if (allowedOrigins.length === 0) {
+        if (process.env.NODE_ENV === 'prod') {
+          console.warn('⚠️  ALLOWED_ORIGINS não configurado em produção!');
+          return callback(null, false);
+        }
+        console.log('✅ CORS: Allowing all origins (dev mode)');
+        return callback(null, true);
+      }
+
+      // Verificar origin
+      const normalizedRequestOrigin = normalizeOrigin(origin);
+      const isAllowed = allowedOrigins.some(
+        (allowedOrigin) =>
+          allowedOrigin === normalizedRequestOrigin || allowedOrigin === origin,
+      );
+
+      if (isAllowed) {
+        console.log(`✅ CORS: Allowed origin: ${origin}`);
+        return callback(null, true);
+      }
+
+      console.warn(`🚫 CORS: Blocked origin: ${origin}`);
+      return callback(new Error('Not allowed by CORS'), false);
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'X-Requested-With',
+      'X-Forwarded-For',
+      'X-Request-ID',
+      'api_key',
+    ],
+    exposedHeaders: ['X-Token-Expired'],
+    credentials: false,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  });
+
+  // Global prefix DEPOIS do CORS
+  app.setGlobalPrefix('api');
+
+  // Swagger
   const config = new DocumentBuilder()
     .setTitle('Backoffice API')
     .setDescription('The Backoffice API for Decoreasy')
@@ -37,7 +111,6 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {
-    // Isso faz o Swagger usar /api como prefixo nas rotas
     operationIdFactory: (_controllerKey: string, methodKey: string) =>
       methodKey,
     ignoreGlobalPrefix: false,
@@ -45,7 +118,7 @@ async function bootstrap() {
 
   if (process.env.NODE_ENV !== 'prod') {
     SwaggerModule.setup('docs', app, document, {
-      useGlobalPrefix: false, // Mostra rotas completas com /api no Swagger
+      useGlobalPrefix: false,
     });
     app.use('/reference', apiReference({ content: document }));
   }
@@ -67,102 +140,43 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  // Configuração de CORS
-  const normalizeOrigin = (origin: string): string => {
-    // Remover aspas do início e fim
-    let normalized = origin.trim().replace(/^["']+|["']+$/g, '');
-    // Remover trailing slash
-    normalized = normalized.replace(/\/+$/, '');
-    return normalized;
-  };
-
-  // Normalizar o valor completo primeiro (pode ter aspas ao redor de tudo)
-  const rawAllowedOrigins = getEnv().api.allowedOrigins || '';
-  const normalizedRawValue = normalizeOrigin(rawAllowedOrigins);
-
-  const allowedOrigins = normalizedRawValue
-    ? normalizedRawValue
-        .split(',')
-        .map(normalizeOrigin)
-        .filter((origin) => origin.length > 0)
-    : [];
-
-  // Configurar Helmet ANTES do CORS para não interferir
+  // Helmet DEPOIS do CORS e global prefix
   app.use(
     helmet({
       crossOriginResourcePolicy: false,
       crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: false,
     }),
   );
 
-  app.enableCors({
-    origin: (origin, callback) => {
-      // Permitir requisições sem origin (ex: mobile apps, Postman)
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      // Se não houver origens configuradas, permitir todas (apenas em dev)
-      if (allowedOrigins.length === 0) {
-        if (process.env.NODE_ENV === 'prod') {
-          console.warn(
-            '⚠️  ALLOWED_ORIGINS não configurado em produção! CORS pode falhar.',
-          );
-          return callback(null, false);
-        }
-        return callback(null, true);
-      }
-
-      // Normalizar a origin recebida (remover trailing slash)
-      const normalizedRequestOrigin = normalizeOrigin(origin);
-
-      // Verificar se a origin está na lista permitida (comparação normalizada)
-      const isAllowed = allowedOrigins.some(
-        (allowedOrigin) =>
-          allowedOrigin === normalizedRequestOrigin || allowedOrigin === origin,
-      );
-
-      if (isAllowed) {
-        return callback(null, true);
-      }
-
-      // Log detalhado para debug em produção
-      if (process.env.NODE_ENV === 'prod') {
-        console.warn(`🚫 Origin bloqueada: ${origin}`);
-      }
-
-      return callback(null, false);
-    },
-    methods: ['GET', 'POST', 'PATCH', 'OPTIONS', 'DELETE', 'PUT'],
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'Accept',
-      'X-Requested-With',
-      'X-Forwarded-For',
-      'X-Request-ID',
-      'api_key',
-    ],
-    exposedHeaders: ['X-Token-Expired'],
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-  });
   app.use(compress());
+
+  // Rate limiter não bloqueia OPTIONS
   app.use(
     rateLimit({
       windowMs: 60 * 1000,
       max: 100,
+      skip: (req) => req.method === 'OPTIONS',
     }),
   );
 
   app.getHttpAdapter().getInstance().disable('x-powered-by');
 
   await app.listen(PORT, () => {
-    console.log(`Application is running on port ${PORT} 🚀`);
+    console.log(`
+╔════════════════════════════════════════╗
+║  🚀 Application is running on port ${PORT}  ║
+╚════════════════════════════════════════╝
+    `);
+    console.log(`🌐 API URL: ${baseUrl}/api`);
+    console.log(
+      `🔐 Allowed Origins: ${allowedOrigins.join(', ') || 'ALL (dev mode)'}`,
+    );
     if (process.env.NODE_ENV !== 'prod') {
       console.log(`📗 API Docs: ${baseUrl}/docs`);
       console.log(`📗 API Reference: ${baseUrl}/reference`);
     }
+    console.log('');
   });
 
   app.enableShutdownHooks(Object.values(ShutdownSignal));

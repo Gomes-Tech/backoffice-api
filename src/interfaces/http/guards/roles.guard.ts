@@ -33,6 +33,7 @@ export class RolesGuard implements CanActivate {
     if (!requiredRoles || requiredRoles.length === 0) return true;
 
     const request = context.switchToHttp().getRequest();
+
     const { user } = request;
     const ip = request.ip || request.connection?.remoteAddress || 'unknown';
     const userAgent = request.get('user-agent') || 'unknown';

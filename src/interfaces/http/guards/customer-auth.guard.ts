@@ -32,6 +32,11 @@ export class CustomerAuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
+
+    if (request.method === 'OPTIONS') {
+      return true;
+    }
+
     const token = this.extractTokenFromHeader(request);
     const ip = request.ip || request.connection?.remoteAddress || 'unknown';
     const userAgent = request.get('user-agent') || 'unknown';

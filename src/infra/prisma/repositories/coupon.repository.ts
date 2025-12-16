@@ -16,32 +16,6 @@ export class PrismaCouponRepository extends CouponRepository {
     super();
   }
 
-  async findByCode(code: string): Promise<Coupon | null> {
-    const coupon = await this.prismaService.coupon.findFirst({
-      where: {
-        code: code.toUpperCase(),
-        isDeleted: false,
-      },
-    });
-
-    if (!coupon) return null;
-
-    return this.mapToEntity(coupon);
-  }
-
-  async findById(id: string): Promise<Coupon | null> {
-    const coupon = await this.prismaService.coupon.findFirst({
-      where: {
-        id,
-        isDeleted: false,
-      },
-    });
-
-    if (!coupon) return null;
-
-    return this.mapToEntity(coupon);
-  }
-
   async findAll(): Promise<Coupon[]> {
     const coupons = await this.prismaService.coupon.findMany({
       where: {
@@ -50,9 +24,113 @@ export class PrismaCouponRepository extends CouponRepository {
       orderBy: {
         createdAt: 'desc',
       },
+      select: {
+        id: true,
+        code: true,
+        description: true,
+        type: true,
+        value: true,
+        isActive: true,
+        startDate: true,
+        endDate: true,
+        createdAt: true,
+        createdBy: {
+          select: {
+            name: true,
+          },
+        },
+        minPurchaseAmount: true,
+        maxDiscountAmount: true,
+        usageLimit: true,
+        usageCount: true,
+        isSingleUse: true,
+        status: true,
+      },
     });
 
-    return coupons.map((coupon) => this.mapToEntity(coupon));
+    const data = coupons.map((coupon) => ({
+      ...coupon,
+      createdBy: coupon.createdBy?.name,
+      type: coupon.type as CouponType,
+      status: coupon.status as CouponStatus,
+    }));
+
+    return data;
+  }
+
+  async findByCode(code: string) {
+    const coupon = await this.prismaService.coupon.findFirst({
+      where: {
+        code: code.toUpperCase(),
+        isDeleted: false,
+      },
+      select: {
+        id: true,
+        code: true,
+        description: true,
+        type: true,
+        value: true,
+        isActive: true,
+        startDate: true,
+        endDate: true,
+        createdAt: true,
+        createdBy: {
+          select: {
+            name: true,
+          },
+        },
+        minPurchaseAmount: true,
+        maxDiscountAmount: true,
+        usageLimit: true,
+        usageCount: true,
+        isSingleUse: true,
+        status: true,
+        usedBy: true,
+      },
+    });
+
+    if (!coupon) return null;
+
+    return coupon;
+  }
+
+  async findById(id: string) {
+    try {
+      const coupon = await this.prismaService.coupon.findFirst({
+        where: {
+          id,
+          isDeleted: false,
+        },
+        select: {
+          id: true,
+          code: true,
+          description: true,
+          type: true,
+          value: true,
+          isActive: true,
+          isSingleUse: true,
+          usageLimit: true,
+          startDate: true,
+          endDate: true,
+          createdAt: true,
+          createdBy: {
+            select: {
+              name: true,
+            },
+          },
+          minPurchaseAmount: true,
+          maxDiscountAmount: true,
+        },
+      });
+
+      if (!coupon) {
+        throw new NotFoundException('Cupom não encontrado');
+      }
+
+      return coupon;
+    } catch (error) {
+      throw new BadRequestException('Erro ao buscar cupom');
+    }
   }
 
   async create(coupon: CreateCoupon): Promise<Coupon> {
@@ -99,6 +177,7 @@ export class PrismaCouponRepository extends CouponRepository {
           description: coupon.description,
           type: coupon.type,
           value: coupon.value,
+          isActive: coupon.isActive,
           minPurchaseAmount: coupon.minPurchaseAmount,
           maxDiscountAmount: coupon.maxDiscountAmount,
           usageLimit: coupon.usageLimit,
@@ -131,6 +210,8 @@ export class PrismaCouponRepository extends CouponRepository {
       await this.prismaService.coupon.update({
         where: { id },
         data: {
+          isActive: false,
+          status: CouponStatus.INACTIVE,
           isDeleted: true,
           deletedById: deletedBy,
         },
@@ -206,7 +287,13 @@ export class PrismaCouponRepository extends CouponRepository {
       }
     }
 
-    return { ...coupon, discountAmount };
+    return {
+      ...coupon,
+      discountAmount,
+      type: coupon.type as CouponType,
+      status: coupon.status as CouponStatus,
+      createdBy: coupon.createdBy?.name,
+    };
   }
 
   async incrementUsage(id: string, customerId: string): Promise<void> {
@@ -279,21 +366,17 @@ export class PrismaCouponRepository extends CouponRepository {
       coupon.type as CouponType,
       coupon.value,
       coupon.startDate,
+      coupon.isActive,
+      coupon.usageCount,
+      coupon.isSingleUse,
+      coupon.status as CouponStatus,
       coupon.endDate,
       coupon.createdAt,
-      coupon.createdById,
+      coupon.createdBy,
       coupon.description,
       coupon.minPurchaseAmount,
       coupon.maxDiscountAmount,
       coupon.usageLimit,
-      coupon.usageCount,
-      coupon.usedBy || [],
-      coupon.isSingleUse,
-      coupon.status as CouponStatus,
-      coupon.updatedAt,
-      coupon.updatedById,
-      coupon.isDeleted,
-      coupon.deletedById,
     );
   }
 }

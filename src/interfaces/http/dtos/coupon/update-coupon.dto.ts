@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsDateString,
   IsEnum,
   IsInt,
@@ -26,6 +27,10 @@ export class UpdateCouponDTO {
   @IsOptional()
   @IsEnum(CouponTypeDTO)
   type?: CouponTypeDTO;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
 
   @IsOptional()
   @IsInt()

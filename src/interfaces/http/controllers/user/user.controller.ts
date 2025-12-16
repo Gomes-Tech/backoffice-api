@@ -46,8 +46,8 @@ export class UserController {
   }
 
   @Get('/me')
-  async getMe(@Param('id') id: string) {
-    return await this.findUserByIdUseCase.execute(id);
+  async getMe(@UserId() userId: string) {
+    return await this.findUserByIdUseCase.execute(userId);
   }
 
   @Get('/:id')

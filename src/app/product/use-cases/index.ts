@@ -6,6 +6,7 @@ export * from './delete-product-image.use-case';
 export * from './delete-product-variant.use-case';
 export * from './delete-product.use-case';
 export * from './find-all-product-view.use-case';
+export * from './find-all-product.use-case';
 export * from './find-product-attributes.use-case';
 export * from './find-product-by-id.use-case';
 export * from './find-product-by-name.use-case';

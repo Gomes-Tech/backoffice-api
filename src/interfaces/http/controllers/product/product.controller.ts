@@ -1,6 +1,7 @@
 import {
   CreateProductUseCase,
   DeleteProductUseCase,
+  FindAllProductUseCase,
   FindAllProductViewUseCase,
   FindProductAttributesUseCase,
   FindProductByIdUseCase,
@@ -40,6 +41,7 @@ export class ProductController {
     private readonly updateProductUseCase: UpdateProductUseCase,
     private readonly deleteProductUseCase: DeleteProductUseCase,
     private readonly findAllProductViewUseCase: FindAllProductViewUseCase,
+    private readonly findAllProductUseCase: FindAllProductUseCase,
     private readonly findProductAttributesUseCase: FindProductAttributesUseCase,
   ) {}
 
@@ -53,6 +55,12 @@ export class ProductController {
   @Get('/attributes')
   async getProductAttributes(@Query('productIds') productIds: string[]) {
     return await this.findProductAttributesUseCase.execute(productIds);
+  }
+
+  @Roles('admin')
+  @Get('/admin')
+  async getAllProductsAdmin() {
+    return await this.findAllProductUseCase.execute();
   }
 
   @Public()

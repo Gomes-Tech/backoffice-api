@@ -18,6 +18,12 @@ export class AuthServerGuard implements CanActivate {
       return true;
     }
 
+    const request = context.switchToHttp().getRequest();
+
+    if (request.method === 'OPTIONS') {
+      return true;
+    }
+
     const { headers } = context.switchToHttp().getRequest();
     const { api_key: apiKey } = headers;
 

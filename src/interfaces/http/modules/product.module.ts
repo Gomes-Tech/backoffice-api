@@ -5,6 +5,7 @@ import {
   CreateProductVariantUseCase,
   DeleteProductUseCase,
   DeleteProductVariantUseCase,
+  FindAllProductUseCase,
   FindAllProductViewUseCase,
   FindProductAttributesUseCase,
   FindProductByIdUseCase,
@@ -31,6 +32,7 @@ import { SimilarProductModule } from './similar-product.module';
   controllers: [ProductController],
   providers: [
     FindAllProductViewUseCase,
+    FindAllProductUseCase,
     FindProductAttributesUseCase,
     FindProductByIdUseCase,
     FindProductByNameUseCase,

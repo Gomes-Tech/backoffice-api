@@ -5,6 +5,8 @@ import {
   CreateProductVariant,
   FindAllProductFilters,
   ListProduct,
+  ListProductAdmin,
+  ListProductAdminVariant,
   ListProductsToView,
   Product,
   ProductAdmin,
@@ -173,6 +175,233 @@ export class PrismaProductRepository extends ProductRepository {
 
   async findAll(): Promise<ListProduct[]> {
     return [];
+  }
+
+  async findAllAdmin(): Promise<ListProductAdmin[]> {
+    const products = await this.prismaService.product.findMany({
+      where: {
+        isDeleted: false,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        isExclusive: true,
+        isPersonalized: true,
+        freeShipping: true,
+        immediateShipping: true,
+        isGreenSeal: true,
+        inCutout: true,
+        salesCount: true,
+        createdAt: true,
+        updatedAt: true,
+        createdBy: {
+          select: {
+            name: true,
+          },
+        },
+        categories: {
+          select: {
+            name: true,
+          },
+        },
+        productVariants: {
+          where: {
+            isDeleted: false,
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+          select: {
+            id: true,
+            price: true,
+            discountPrice: true,
+            discountPix: true,
+            stock: true,
+            productImage: {
+              where: {
+                desktopImageFirst: true,
+              },
+              take: 1,
+              select: {
+                desktopImageUrl: true,
+              },
+            },
+            productVariantAttributes: {
+              where: {
+                isDeleted: false,
+              },
+              select: {
+                attributeValue: {
+                  select: {
+                    name: true,
+                    value: true,
+                    attribute: {
+                      select: {
+                        name: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return products.map((product) => {
+      const variants = product.productVariants;
+
+      // Buscar primeira imagem do produto (da primeira variante)
+      const mainImage = variants.find((v) => v.productImage.length > 0)
+        ?.productImage[0];
+
+      // Primeiro, determinar qual tipo de atributo deve ser usado para TODAS as variantes
+      // Verificar se ALGUMA variante tem tamanho
+      const hasTamanho = variants.some((variant) =>
+        variant.productVariantAttributes.some(
+          (attr) =>
+            attr.attributeValue.attribute.name.toLowerCase() === 'tamanho' &&
+            attr.attributeValue.name,
+        ),
+      );
+
+      // Se não tem tamanho, verificar se ALGUMA variante tem cor
+      const hasCor =
+        !hasTamanho &&
+        variants.some((variant) =>
+          variant.productVariantAttributes.some(
+            (attr) =>
+              attr.attributeValue.attribute.name.toLowerCase() === 'cor' &&
+              attr.attributeValue.name,
+          ),
+        );
+
+      // Se não tem tamanho nem cor, verificar se ALGUMA variante tem material
+      const hasMaterial =
+        !hasTamanho &&
+        !hasCor &&
+        variants.some((variant) =>
+          variant.productVariantAttributes.some(
+            (attr) =>
+              attr.attributeValue.attribute.name.toLowerCase() === 'material' &&
+              attr.attributeValue.name,
+          ),
+        );
+
+      // Determinar qual tipo de atributo usar para todas as variantes
+      const attributeTypeToUse = hasTamanho
+        ? 'tamanho'
+        : hasCor
+          ? 'cor'
+          : hasMaterial
+            ? 'material'
+            : null;
+
+      // Set para rastrear atributos já usados
+      const usedAttributes = new Set<string>();
+
+      // Mapear variações com todos os detalhes e filtrar apenas as que têm atributos disponíveis
+      const mappedVariants: ListProductAdminVariant[] = variants
+        .map((variant) => {
+          // Para cada variante, pegar apenas um atributo do tipo determinado
+          const variantAttributes: string[] = [];
+
+          if (attributeTypeToUse) {
+            // Buscar atributo do tipo determinado que ainda não foi usado
+            const attributeOfType = variant.productVariantAttributes.find(
+              (attr) => {
+                const attributeType =
+                  attr.attributeValue.attribute.name.toLowerCase();
+                const attributeValueName = attr.attributeValue.name;
+                return (
+                  attributeType === attributeTypeToUse &&
+                  attributeValueName &&
+                  !usedAttributes.has(attributeValueName)
+                );
+              },
+            );
+
+            // Só adiciona se encontrou um atributo que ainda não foi usado
+            if (attributeOfType) {
+              variantAttributes.push(attributeOfType.attributeValue.name);
+              usedAttributes.add(attributeOfType.attributeValue.name);
+            }
+          } else {
+            // Se não tem nenhum dos 3 tipos prioritários, buscar qualquer outro tipo
+            const otherAttribute = variant.productVariantAttributes.find(
+              (attr) => {
+                const attributeValueName = attr.attributeValue.name;
+                const attributeType =
+                  attr.attributeValue.attribute.name.toLowerCase();
+
+                return (
+                  attributeValueName &&
+                  attributeType !== 'tamanho' &&
+                  attributeType !== 'cor' &&
+                  attributeType !== 'material' &&
+                  !usedAttributes.has(attributeValueName)
+                );
+              },
+            );
+
+            // Só adiciona se encontrou um atributo que ainda não foi usado
+            if (otherAttribute) {
+              variantAttributes.push(otherAttribute.attributeValue.name);
+              usedAttributes.add(otherAttribute.attributeValue.name);
+            }
+          }
+
+          // Retornar null se não encontrou atributo disponível (para filtrar depois)
+          if (variantAttributes.length === 0) {
+            return null;
+          }
+
+          return new ListProductAdminVariant(
+            variant.id,
+            variant.price,
+            variant.discountPrice,
+            variant.discountPix,
+            variant.stock,
+            variantAttributes, // Apenas um atributo por variante, sem repetição
+            variant.productImage[0]?.desktopImageUrl || null,
+          );
+        })
+        .filter(
+          (variant): variant is ListProductAdminVariant => variant !== null,
+        );
+
+      // Criar tags baseadas nas flags e categorias
+      const tags: string[] = [];
+      if (product.freeShipping) tags.push('free');
+      if (product.isGreenSeal) tags.push('greenseal');
+      tags.push(...product.categories.map((cat) => cat.name.toLowerCase()));
+
+      return new ListProductAdmin(
+        product.id,
+        product.name,
+        product.slug,
+        tags,
+        mappedVariants,
+        {
+          isExclusive: product.isExclusive,
+          isPersonalized: product.isPersonalized,
+          freeShipping: product.freeShipping,
+          immediateShipping: product.immediateShipping,
+          isGreenSeal: product.isGreenSeal,
+          inCutout: product.inCutout,
+        },
+        product.salesCount,
+        product.createdAt,
+        product.updatedAt,
+        product.createdBy?.name || '',
+        mainImage?.desktopImageUrl || null,
+      );
+    });
   }
 
   async findVariants(productId: string) {

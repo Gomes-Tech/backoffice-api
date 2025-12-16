@@ -1,8 +1,8 @@
 import { Coupon, CreateCoupon, UpdateCoupon } from '../entities';
 
 export abstract class CouponRepository {
-  abstract findByCode(code: string): Promise<Coupon | null>;
-  abstract findById(id: string): Promise<Coupon | null>;
+  abstract findByCode(code: string);
+  abstract findById(id: string);
   abstract findAll(): Promise<Coupon[]>;
   abstract create(coupon: CreateCoupon): Promise<Coupon>;
   abstract update(id: string, coupon: UpdateCoupon): Promise<Coupon>;
