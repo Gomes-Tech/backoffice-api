@@ -18,3 +18,4 @@ export * from './token-password.repository';
 export * from './user.repository';
 export * from './wishlist.repository';
 export * from './store-benefit.repository';
+export * from './blog.repository';

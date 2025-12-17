@@ -8,6 +8,7 @@ export * from './common';
 export * from './coupon';
 export * from './footer-menu';
 export * from './header-menu';
+export * from './blog';
 export * from './product';
 export * from './product-faq';
 export * from './related-product';

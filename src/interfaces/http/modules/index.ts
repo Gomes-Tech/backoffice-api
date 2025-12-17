@@ -18,6 +18,7 @@ export * from './role.module';
 export * from './similar-product.module';
 export * from './social-media.module';
 export * from './store-benefit.module';
+export * from './blog.module';
 export * from './token-password.module';
 export * from './user.module';
 export * from './wishlist.module';
