@@ -12,5 +12,6 @@ export * from './paginated-response.dto';
 export * from './product';
 export * from './role';
 export * from './social-media';
+export * from './store-benefit';
 export * from './user';
 export * from './wishlist';

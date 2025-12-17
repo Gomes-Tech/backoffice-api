@@ -12,4 +12,5 @@ export * from './health';
 export * from './product';
 export * from './role';
 export * from './social-media';
+export * from './store-benefit';
 export * from './user';

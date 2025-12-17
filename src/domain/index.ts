@@ -17,3 +17,4 @@ export * from './social-media';
 export * from './token-password';
 export * from './user';
 export * from './wishlist';
+export * from './store-benefit';

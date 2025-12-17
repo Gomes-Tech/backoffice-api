@@ -195,6 +195,9 @@ model User {
   createdCoupons        Coupon[]         @relation("UserCreatedCoupons")
   updatedCoupons        Coupon[]         @relation("UserUpdatedCoupons")
   deletedCoupons        Coupon[]         @relation("UserDeletedCoupons")
+  createdStoreBenefits  StoreBenefit[]   @relation("UserCreatedStoreBenefits")
+  updatedStoreBenefits  StoreBenefit[]   @relation("UserUpdatedStoreBenefits")
+  deletedStoreBenefits  StoreBenefit[]   @relation("UserDeletedStoreBenefits")
 
   @@index([email])
   @@index([isDeleted, isActive])
@@ -609,6 +612,35 @@ model FooterMenuItem {
 
   @@index([footerMenuId])
   @@map("footer_menu_item")
+}
+
+enum StoreBenefitType {
+  LINK
+  MODAL
+}
+
+model StoreBenefit {
+  id           String            @id @default(cuid())
+  title        String
+  subtitle     String?
+  type         StoreBenefitType?
+  imageUrl     String?           @map("image_url")
+  imageKey     String?           @map("image_key")
+  modalContent String?           @map("modal_content")
+  link         String?
+  linkText     String?           @map("link_text")
+  order        Int
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+  createdBy    User              @relation("UserCreatedStoreBenefits", fields: [createdById], references: [id])
+  createdById  String            @map("created_by")
+  updatedBy    User?             @relation("UserUpdatedStoreBenefits", fields: [updatedById], references: [id])
+  updatedById  String?           @map("updated_by")
+  isDeleted    Boolean           @default(false) @map("is_deleted")
+  deletedBy    User?             @relation("UserDeletedStoreBenefits", fields: [deletedById], references: [id])
+  deletedById  String?           @map("deleted_by")
+
+  @@map("store_benefits")
 }
 
 model seedStatus {
