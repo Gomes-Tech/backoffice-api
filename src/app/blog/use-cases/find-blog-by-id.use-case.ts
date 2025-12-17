@@ -1,9 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
 import { Blog, BlogRepository } from '@domain/blog';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class FindBlogByIdUseCase {
-  constructor(private readonly blogRepository: BlogRepository) {}
+  constructor(
+    @Inject('BlogRepository')
+    private readonly blogRepository: BlogRepository,
+  ) {}
 
   async execute(id: string): Promise<Blog> {
     const blog = await this.blogRepository.findById(id);
@@ -15,5 +18,3 @@ export class FindBlogByIdUseCase {
     return blog;
   }
 }
-
-

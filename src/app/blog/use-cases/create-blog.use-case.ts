@@ -1,10 +1,13 @@
 import { BlogRepository, CreateBlog } from '@domain/blog';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class CreateBlogUseCase {
-  constructor(private readonly blogRepository: BlogRepository) {}
+  constructor(
+    @Inject('BlogRepository')
+    private readonly blogRepository: BlogRepository,
+  ) {}
 
   async execute(
     title: string,

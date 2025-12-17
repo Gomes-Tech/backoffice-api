@@ -1,9 +1,12 @@
 import { BlogRepository, UpdateBlog } from '@domain/blog';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class UpdateBlogUseCase {
-  constructor(private readonly blogRepository: BlogRepository) {}
+  constructor(
+    @Inject('BlogRepository')
+    private readonly blogRepository: BlogRepository,
+  ) {}
 
   async execute(
     id: string,

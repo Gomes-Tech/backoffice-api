@@ -1,9 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
 import { BlogRepository } from '@domain/blog';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class DeleteBlogUseCase {
-  constructor(private readonly blogRepository: BlogRepository) {}
+  constructor(
+    @Inject('BlogRepository')
+    private readonly blogRepository: BlogRepository,
+  ) {}
 
   async execute(id: string, userId: string): Promise<void> {
     const existing = await this.blogRepository.findById(id);
@@ -15,5 +18,3 @@ export class DeleteBlogUseCase {
     await this.blogRepository.delete(id, userId);
   }
 }
-
-
