@@ -1,19 +1,19 @@
-import { BlogRepository, CreateBlog } from '@domain/blog';
+import { PostRepository, CreatePost } from '@domain/post';
 import { StorageService } from '@infra/providers';
-import { CreateBlogDTO } from '@interfaces/http';
+import { CreatePostDTO } from '@interfaces/http';
 import { Inject, Injectable } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 
 @Injectable()
-export class CreateBlogUseCase {
+export class CreatePostUseCase {
   constructor(
-    @Inject('BlogRepository')
-    private readonly blogRepository: BlogRepository,
+    @Inject('PostRepository')
+    private readonly postRepository: PostRepository,
     private readonly storageService: StorageService,
   ) {}
 
   async execute(
-    dto: CreateBlogDTO,
+    dto: CreatePostDTO,
     createdBy: string,
     image?: Express.Multer.File,
   ): Promise<void> {
@@ -22,7 +22,7 @@ export class CreateBlogUseCase {
 
     if (image) {
       const uploaded = await this.storageService.uploadFile(
-        'blogs',
+        'posts',
         image.originalname,
         image.buffer,
       );
@@ -30,7 +30,7 @@ export class CreateBlogUseCase {
       imageUrl = uploaded.publicUrl;
       imageKey = uploaded.path;
     }
-    const blog = new CreateBlog(
+    const post = new CreatePost(
       uuid(),
       dto.title,
       imageUrl,
@@ -40,6 +40,7 @@ export class CreateBlogUseCase {
       createdBy,
     );
 
-    await this.blogRepository.create(blog);
+    await this.postRepository.create(post);
   }
 }
+

@@ -1,6 +1,6 @@
 import { IsBoolean, IsOptional, IsString, IsUrl } from 'class-validator';
 
-export class UpdateBlogDTO {
+export class UpdatePostDTO {
   @IsOptional()
   @IsString()
   title?: string;
@@ -13,3 +13,4 @@ export class UpdateBlogDTO {
   @IsBoolean()
   isActive?: boolean;
 }
+

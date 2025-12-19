@@ -6,7 +6,7 @@ import {
   UpdateBlogUseCase,
 } from '@app/blog';
 import { Blog } from '@domain/blog';
-import { AuthType, Roles, UserId } from '@interfaces/http/decorators';
+import { AuthType, Public, Roles, UserId } from '@interfaces/http/decorators';
 import { CreateBlogDTO, UpdateBlogDTO } from '@interfaces/http/dtos';
 import {
   Body,
@@ -50,6 +50,14 @@ export class BlogController {
     return await this.findAllBlogUseCase.execute();
   }
 
+  @Public()
+  @Get('/list')
+  @ApiOperation({ summary: 'Listar blogs ativos' })
+  @ApiResponse({ status: 200, type: [Blog] })
+  async findAllActive(): Promise<Blog[]> {
+    return await this.findAllBlogUseCase.execute();
+  }
+
   @Get('/:id')
   @ApiOperation({ summary: 'Buscar blog por ID' })
   @ApiParam({ name: 'id', type: String })
@@ -69,13 +77,7 @@ export class BlogController {
     @UserId() userId: string,
     @UploadedFile() image?: Express.Multer.File,
   ): Promise<void> {
-    await this.createBlogUseCase.execute(
-      dto.title,
-      dto.link,
-      userId,
-      image?.path ?? '',
-      image?.filename ?? '',
-    );
+    await this.createBlogUseCase.execute(dto, userId, image);
   }
 
   @Roles('admin')
@@ -91,16 +93,7 @@ export class BlogController {
     @UserId() userId: string,
     @UploadedFile() image?: Express.Multer.File,
   ): Promise<void> {
-    await this.updateBlogUseCase.execute(
-      id,
-      {
-        title: dto.title,
-        link: dto.link,
-        blogImageUrl: image?.path,
-        blogImageKey: image?.filename,
-      },
-      userId,
-    );
+    await this.updateBlogUseCase.execute(id, dto, userId, image);
   }
 
   @Roles('admin')

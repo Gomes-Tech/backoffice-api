@@ -14,4 +14,5 @@ export * from './role';
 export * from './social-media';
 export * from './store-benefit';
 export * from './blog';
+export * from './post';
 export * from './user';

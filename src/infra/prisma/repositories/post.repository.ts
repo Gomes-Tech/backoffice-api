@@ -1,17 +1,17 @@
-import { Blog, BlogRepository, CreateBlog, UpdateBlog } from '@domain/blog';
+import { Post, PostRepository, CreatePost, UpdatePost } from '@domain/post';
 import { BadRequestException, NotFoundException } from '@infra/filters';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 
 @Injectable()
-export class PrismaBlogRepository extends BlogRepository {
+export class PrismaPostRepository extends PostRepository {
   constructor(private readonly prismaService: PrismaService) {
     super();
   }
 
-  async findAll(): Promise<Blog[]> {
-    const data = await this.prismaService.blog.findMany({
+  async findAll(): Promise<Post[]> {
+    const data = await this.prismaService.post.findMany({
       where: { isDeleted: false },
       orderBy: { createdAt: 'desc' },
       select: {
@@ -32,7 +32,7 @@ export class PrismaBlogRepository extends BlogRepository {
 
     return data.map(
       (item) =>
-        new Blog(
+        new Post(
           item.id,
           item.title,
           item.imageUrl,
@@ -45,8 +45,8 @@ export class PrismaBlogRepository extends BlogRepository {
     );
   }
 
-  async findById(id: string): Promise<Blog | null> {
-    const item = await this.prismaService.blog.findFirst({
+  async findById(id: string): Promise<Post | null> {
+    const item = await this.prismaService.post.findFirst({
       where: { id, isDeleted: false },
       select: {
         id: true,
@@ -66,7 +66,7 @@ export class PrismaBlogRepository extends BlogRepository {
 
     if (!item) return null;
 
-    return new Blog(
+    return new Post(
       item.id,
       item.title,
       item.imageUrl,
@@ -78,9 +78,9 @@ export class PrismaBlogRepository extends BlogRepository {
     );
   }
 
-  async create(dto: CreateBlog): Promise<void> {
+  async create(dto: CreatePost): Promise<void> {
     try {
-      await this.prismaService.blog.create({
+      await this.prismaService.post.create({
         data: {
           id: dto.id,
           title: dto.title,
@@ -103,23 +103,23 @@ export class PrismaBlogRepository extends BlogRepository {
         throw new NotFoundException(dto.createdBy + ' não encontrado.');
       }
 
-      throw new BadRequestException('Erro ao criar blog: ' + error.message);
+      throw new BadRequestException('Erro ao criar post: ' + error.message);
     }
   }
 
-  async update(id: string, dto: UpdateBlog, userId: string): Promise<void> {
+  async update(id: string, dto: UpdatePost, userId: string): Promise<void> {
     try {
-      const existing = await this.prismaService.blog.findFirst({
+      const existing = await this.prismaService.post.findFirst({
         where: { id, isDeleted: false },
       });
 
       if (!existing) {
-        throw new NotFoundException('Blog não encontrado');
+        throw new NotFoundException('Post não encontrado');
       }
 
       const { title, imageUrl, imageKey, link, isActive, updatedBy } = dto;
 
-      const data: Prisma.BlogUpdateInput = {
+      const data: Prisma.PostUpdateInput = {
         ...(title !== undefined && { title }),
         ...(imageUrl !== undefined && { imageUrl }),
         ...(imageKey !== undefined && { imageKey }),
@@ -132,7 +132,7 @@ export class PrismaBlogRepository extends BlogRepository {
         }),
       };
 
-      await this.prismaService.blog.update({
+      await this.prismaService.post.update({
         where: { id },
         data,
       });
@@ -142,24 +142,24 @@ export class PrismaBlogRepository extends BlogRepository {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2025'
       ) {
-        throw new NotFoundException('Blog não encontrado.');
+        throw new NotFoundException('Post não encontrado.');
       }
 
-      throw new BadRequestException('Erro ao atualizar blog: ' + error.message);
+      throw new BadRequestException('Erro ao atualizar post: ' + error.message);
     }
   }
 
   async delete(id: string, userId: string): Promise<void> {
     try {
-      const existing = await this.prismaService.blog.findFirst({
+      const existing = await this.prismaService.post.findFirst({
         where: { id, isDeleted: false },
       });
 
       if (!existing) {
-        throw new NotFoundException('Blog não encontrado');
+        throw new NotFoundException('Post não encontrado');
       }
 
-      await this.prismaService.blog.update({
+      await this.prismaService.post.update({
         where: { id },
         data: {
           isDeleted: true,
@@ -174,10 +174,11 @@ export class PrismaBlogRepository extends BlogRepository {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2025'
       ) {
-        throw new NotFoundException('Blog não encontrado.');
+        throw new NotFoundException('Post não encontrado.');
       }
 
-      throw new BadRequestException('Erro ao excluir blog: ' + error.message);
+      throw new BadRequestException('Erro ao excluir post: ' + error.message);
     }
   }
 }
+

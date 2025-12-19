@@ -19,3 +19,4 @@ export * from './user.repository';
 export * from './wishlist.repository';
 export * from './store-benefit.repository';
 export * from './blog.repository';
+export * from './post.repository';

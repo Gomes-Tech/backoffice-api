@@ -1,4 +1,4 @@
-export class Blog {
+export class Post {
   constructor(
     public readonly id: string,
     public title: string,
@@ -11,7 +11,7 @@ export class Blog {
   ) {}
 }
 
-export class CreateBlog {
+export class CreatePost {
   constructor(
     public readonly id: string,
     public title: string,
@@ -23,7 +23,7 @@ export class CreateBlog {
   ) {}
 }
 
-export class UpdateBlog {
+export class UpdatePost {
   constructor(
     public title?: string,
     public imageUrl?: string,
@@ -33,3 +33,4 @@ export class UpdateBlog {
     public updatedBy?: string,
   ) {}
 }
+

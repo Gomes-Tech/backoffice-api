@@ -1,26 +1,26 @@
-import { BlogRepository, UpdateBlog } from '@domain/blog';
+import { PostRepository, UpdatePost } from '@domain/post';
 import { StorageService } from '@infra/providers';
-import { UpdateBlogDTO } from '@interfaces/http';
+import { UpdatePostDTO } from '@interfaces/http';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 @Injectable()
-export class UpdateBlogUseCase {
+export class UpdatePostUseCase {
   constructor(
-    @Inject('BlogRepository')
-    private readonly blogRepository: BlogRepository,
+    @Inject('PostRepository')
+    private readonly postRepository: PostRepository,
     private readonly storageService: StorageService,
   ) {}
 
   async execute(
     id: string,
-    data: UpdateBlogDTO,
+    data: UpdatePostDTO,
     userId: string,
     image?: Express.Multer.File,
   ): Promise<void> {
-    const existing = await this.blogRepository.findById(id);
+    const existing = await this.postRepository.findById(id);
 
     if (!existing) {
-      throw new NotFoundException('Blog não encontrado');
+      throw new NotFoundException('Post não encontrado');
     }
 
     let imageUrl: string | null = null;
@@ -28,7 +28,7 @@ export class UpdateBlogUseCase {
 
     if (image) {
       const uploaded = await this.storageService.uploadFile(
-        'blogs',
+        'posts',
         image.originalname,
         image.buffer,
       );
@@ -39,7 +39,7 @@ export class UpdateBlogUseCase {
       imageKey = existing.imageKey;
     }
 
-    const dto = new UpdateBlog(
+    const dto = new UpdatePost(
       data.title,
       imageUrl,
       imageKey,
@@ -48,6 +48,6 @@ export class UpdateBlogUseCase {
       userId,
     );
 
-    await this.blogRepository.update(id, dto, userId);
+    await this.postRepository.update(id, dto, userId);
   }
 }

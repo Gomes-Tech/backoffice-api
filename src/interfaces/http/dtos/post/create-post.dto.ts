@@ -6,7 +6,7 @@ import {
   IsUrl,
 } from 'class-validator';
 
-export class CreateBlogDTO {
+export class CreatePostDTO {
   @IsNotEmpty()
   @IsString()
   title: string;
@@ -19,3 +19,4 @@ export class CreateBlogDTO {
   @IsBoolean()
   isActive?: boolean;
 }
+
